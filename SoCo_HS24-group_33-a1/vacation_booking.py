@@ -24,8 +24,8 @@ def describe_package_BeachResort(thing) ->str:
 BeachResort = {
     "_classname": "BeachResort",
     "_parent": VacationPackage,
-    "cost": calculate_cost,
-    "package": describe_package
+    "cost": calculate_cost_BeachResort,
+    "package": describe_package_BeachResort
 }
 
 def beach_resort_new(destination, cost_per_day, duration, surfing) -> dict:
