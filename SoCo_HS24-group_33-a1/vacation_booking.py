@@ -1,4 +1,27 @@
+def calculate_cost_adventure(object: dict):
+    days = object["duration_in_days"]
+    cost = object["cost_per_day"]
+    difficulty = object["difficulty_level"]
+    
+    if difficulty == "easy":
+        return days * cost
+    
+    elif difficulty == "hard":
+        return days * cost * 2
+    
+    else:
+        return Exception("Undefined difficulty level")
+
+def describe_package_adventure(object: dict):
+    destination = object["destination"]
+    days = object["duration_in_days"]
+    difficulty = object["difficulty_level"]
+
+    return f"The {days} day long Adventure trip in {destination} is considered {difficulty}."
+
 AdventureTrip = {
+    "calculate_cost": calculate_cost_adventure,
+    "describe_package": describe_package_adventure,
     "_classname": "AdventureTrip",
     "_parent": VacationPackage 
 }
