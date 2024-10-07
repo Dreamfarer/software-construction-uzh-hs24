@@ -1,4 +1,14 @@
+# Abstract Method
+def calculate_cost():
+    raise NotImplementedError("This method must be implemented in subclass")
+
+# Abstract Method
+def describe_package():
+    raise NotImplementedError("This method must be implemented in subclass")
+
 VacationPackage = {
+    "calculate_cost": calculate_cost,
+    "describe_package": describe_package,
     "_classname": "VacationPackage",
     "_parent": None
 }
