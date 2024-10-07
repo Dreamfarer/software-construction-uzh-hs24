@@ -1,22 +1,22 @@
 
-def calculate_cost_BeachResort(thing) -> int:
-    cost = thing["cost_per_day"]
-    duration = thing["duration"]
-    service = thing["surfing"]
+def calculate_cost_BeachResort(object: dict) -> int:
+    cost = object["cost_per_day"]
+    duration = object["duration"]
+    include_surfing = object["surfing"]
 
-    if service:
+    if include_surfing:
         return cost * duration + 100
-    elif not service:
+    elif not include_surfing:
         return cost * duration
     else:
-        return Exception("Service is not available")
+        return Exception("Surfing is not available")
 
-def describe_package_BeachResort(thing) ->str:
-    destination = thing["destination"]
-    duration = thing["duration"]
-    service = thing["surfing"]
+def describe_package_BeachResort(object: dict) -> str:
+    destination = object["destination"]
+    duration = object["duration"]
+    include_surfing = object["surfing"]
 
-    if service:
+    if include_surfing:
         return f"The {duration} long Beach Resort vacation in {destination} includes surfing."
     else:
         return f"The {duration} long Beach Resort vacation in {destination} does not include surfing."
@@ -28,12 +28,12 @@ BeachResort = {
     "package": describe_package_BeachResort
 }
 
-def beach_resort_new(destination, cost_per_day, duration, surfing) -> dict:
+def beach_resort_new(destination: str, cost_per_day: int, duration: int, surfing: bool) -> dict:
     new_vacation = {
         "destination": destination,
         "cost_per_day": cost_per_day,
         "duration": duration,
-        "surfing": surfing,
+        "include_surfing": surfing,
         "_class": BeachResort
     }
     return new_vacation
