@@ -33,9 +33,10 @@ def calculate_cost_BeachResort(object: dict) -> int:
 
 def calculate_cost_luxury_cruise(object: dict) -> int:
     cost = object["cost_per_day"]
+    duration = object["duration"]
     if object["has_private_suite"]:
-        return cost * 1.5
-    return cost
+        return cost * duration * 1.5
+    return cost * duration
 
 
 # Abstract Method
