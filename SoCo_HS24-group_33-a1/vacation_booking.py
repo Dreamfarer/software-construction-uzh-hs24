@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 # Abstract Method
 def calculate_cost():
     raise NotImplementedError("This method must be implemented in subclass")
@@ -33,7 +35,7 @@ def calculate_cost_BeachResort(object: dict) -> int:
 
 def calculate_cost_luxury_cruise(object: dict) -> int:
     cost = object["cost_per_day"]
-    duration = object["duration"]
+    duration = object["duration_in_days"]
     if object["has_private_suite"]:
         return cost * duration * 1.5
     return cost * duration
@@ -87,15 +89,15 @@ AdventureTrip = {
 BeachResort = {
     "_classname": "BeachResort",
     "_parent": VacationPackage,
-    "cost": calculate_cost_BeachResort,
-    "package": describe_package_BeachResort,
+    "calculate_cost": calculate_cost_BeachResort,
+    "describe_package": describe_package_BeachResort,
 }
 
 LuxuryCruise = {
     "_classname": "LuxuryCruise",
     "_parent": VacationPackage,
-    "cost": calculate_cost_luxury_cruise,
-    "package": describe_package_luxury_cruise,
+    "calculate_cost": calculate_cost_luxury_cruise,
+    "describe_package": describe_package_luxury_cruise,
 }
 
 
@@ -146,3 +148,14 @@ def luxury_cruise_new(
         "_class": LuxuryCruise,
     }
     return new_object
+
+def find(cls: dict, method_name: str) -> Callable:
+    if cls is None:
+        raise NotImplementedError(f"Method '{method_name}' not found")
+    if method_name in cls:
+        return cls[method_name]
+    return find(cls["_parent"], method_name)
+
+def call(object: dict, method_name: str, *args):
+    method = find(object["_class"], method_name)
+    return method(object, *args)
