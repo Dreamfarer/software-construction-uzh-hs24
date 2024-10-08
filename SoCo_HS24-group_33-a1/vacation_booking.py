@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 # Abstract Method
 def calculate_cost():
@@ -151,7 +151,7 @@ def luxury_cruise_new(
 
 def find(cls: dict, method_name: str) -> Callable:
     if cls is None:
-        raise NotImplementedError("method_name")
+        raise NotImplementedError(f"Method '{method_name}' not found")
     if method_name in cls:
         return cls[method_name]
     return find(cls["_parent"], method_name)
