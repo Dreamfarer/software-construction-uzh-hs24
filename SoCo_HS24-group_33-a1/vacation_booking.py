@@ -1,14 +1,10 @@
 from collections.abc import Callable
 
-# Abstract Method
-def calculate_cost():
-    raise NotImplementedError("This method must be implemented in subclass")
 
-
-def calculate_cost_adventure(object: dict):
-    days = object["duration_in_days"]
-    cost = object["cost_per_day"]
-    difficulty = object["difficulty_level"]
+def calculate_cost_adventure(cls: dict):
+    days = cls["duration_in_days"]
+    cost = cls["cost_per_day"]
+    difficulty = cls["difficulty_level"]
 
     if difficulty == "easy":
         return days * cost
@@ -20,10 +16,10 @@ def calculate_cost_adventure(object: dict):
         return Exception("Undefined difficulty level")
 
 
-def calculate_cost_BeachResort(object: dict) -> int:
-    cost = object["cost_per_day"]
-    duration = object["duration"]
-    include_surfing = object["include_surfing"]
+def calculate_cost_beach_resort(cls: dict) -> int:
+    cost = cls["cost_per_day"]
+    duration = cls["duration"]
+    include_surfing = cls["include_surfing"]
 
     if include_surfing:
         return cost * duration + 100
@@ -33,129 +29,97 @@ def calculate_cost_BeachResort(object: dict) -> int:
         return Exception("Include_surfing is not available")
 
 
-def calculate_cost_luxury_cruise(object: dict) -> int:
-    cost = object["cost_per_day"]
-    duration = object["duration_in_days"]
-    if object["has_private_suite"]:
+def calculate_cost_luxury_cruise(cls: dict) -> int:
+    cost = cls["cost_per_day"]
+    duration = cls["duration_in_days"]
+    if cls["has_private_suite"]:
         return cost * duration * 1.5
     return cost * duration
 
 
-# Abstract Method
-def describe_package():
-    raise NotImplementedError("This method must be implemented in subclass")
-
-
-def describe_package_adventure(object: dict):
-    destination = object["destination"]
-    days = object["duration_in_days"]
-    difficulty = object["difficulty_level"]
-
+def describe_package_adventure(cls: dict):
+    destination = cls["destination"]
+    days = cls["duration_in_days"]
+    difficulty = cls["difficulty_level"]
     return f"The {days} day long Adventure trip in {destination} is considered {difficulty}."
 
 
-def describe_package_BeachResort(object: dict) -> str:
-    destination = object["destination"]
-    duration = object["duration"]
-    include_surfing = object["include_surfing"]
-
+def describe_package_beach_resort(cls: dict) -> str:
+    destination = cls["destination"]
+    duration = cls["duration"]
+    include_surfing = cls["include_surfing"]
     if include_surfing:
         return f"The {duration} long Beach Resort vacation in {destination} includes include_surfing."
-    else:
-        return f"The {duration} long Beach Resort vacation in {destination} does not include include_surfing."
+    return f"The {duration} long Beach Resort vacation in {destination} does not include include_surfing."
 
 
-def describe_package_luxury_cruise(object: dict) -> str:
-    duration = object["duration_in_days"]
-    destination = object["destination"]
-    not_str = "" if object["has_private_suite"] else "not "
-    return f"The {duration} day long Luxury Cruise in {destination} does {not_str}have a private suite."
+def describe_package_luxury_cruise(cls: dict) -> str:
+    duration = cls["duration_in_days"]
+    destination = cls["destination"]
+    not_str = "" if cls["has_private_suite"] else "not "
+    return f"The {duration} day long Luxury Cruise in {destination} does {not_str}include a private suite."
 
+
+Class = {"_parent": None}
 
 VacationPackage = {
-    "calculate_cost": calculate_cost,
-    "describe_package": describe_package,
-    "_classname": "VacationPackage",
-    "_parent": None,
+    "_parent": Class,
+    "calculate_cost": None,
+    "describe_package": None,
+    "destination": None,
+    "cost_per_day": None,
+    "duration_in_days": None,
 }
 
 AdventureTrip = {
+    "_parent": VacationPackage,
     "calculate_cost": calculate_cost_adventure,
     "describe_package": describe_package_adventure,
-    "_classname": "AdventureTrip",
-    "_parent": VacationPackage,
+    "difficulty_level": None,
 }
 
 BeachResort = {
-    "_classname": "BeachResort",
     "_parent": VacationPackage,
-    "calculate_cost": calculate_cost_BeachResort,
-    "describe_package": describe_package_BeachResort,
+    "calculate_cost": calculate_cost_beach_resort,
+    "describe_package": describe_package_beach_resort,
+    "include_surfing": None,
 }
 
 LuxuryCruise = {
-    "_classname": "LuxuryCruise",
     "_parent": VacationPackage,
     "calculate_cost": calculate_cost_luxury_cruise,
     "describe_package": describe_package_luxury_cruise,
+    "has_private_suite": None,
 }
 
 
-def vacation_package_new(destination: str, cost_per_day: int, duration_in_days: int):
-    new_object = {
-        "destination": destination,
-        "cost_per_day": cost_per_day,
-        "duration_in_days": duration_in_days,
-        "_class": VacationPackage,
-    }
-    return new_object
+def merge_rec(cls: dict) -> dict:
+    result = {}
+    if "_parent" in cls and cls["_parent"] is not None:
+        result.update(merge_rec(cls["_parent"]))
+    result.update(cls)
+    del result["_parent"]
+    return result
 
 
-def adventure_trip_new(
-    destination: str, cost_per_day: int, duration_in_days: int, difficulty_level: str
-):
-    new_object = {
-        "destination": destination,
-        "cost_per_day": cost_per_day,
-        "duration_in_days": duration_in_days,
-        "difficulty_level": difficulty_level,
-        "_class": AdventureTrip,
-    }
-    return new_object
+def new(cls: dict, **kwargs) -> dict:
+    merged_cls = merge_rec(cls)
+    for key, value in merged_cls.items():
+        if value is None:
+            try:
+                merged_cls[key] = kwargs[key]
+            except:
+                raise KeyError(f"{key} must be provided")
+    return merged_cls
 
-
-def beach_resort_new(
-    destination: str, cost_per_day: int, duration: int, include_surfing: bool
-) -> dict:
-    new_vacation = {
-        "destination": destination,
-        "cost_per_day": cost_per_day,
-        "duration": duration,
-        "include_surfing": include_surfing,
-        "_class": BeachResort,
-    }
-    return new_vacation
-
-
-def luxury_cruise_new(
-    destination: str, cost_per_day: int, duration_in_days: int, has_private_suite: bool
-):
-    new_object = {
-        "destination": destination,
-        "cost_per_day": cost_per_day,
-        "duration_in_days": duration_in_days,
-        "has_private_suite": has_private_suite,
-        "_class": LuxuryCruise,
-    }
-    return new_object
 
 def find(cls: dict, method_name: str) -> Callable:
-    if cls is None:
-        raise NotImplementedError(f"Method '{method_name}' not found")
-    if method_name in cls:
+    try:
         return cls[method_name]
-    return find(cls["_parent"], method_name)
+    except:
+        raise NotImplementedError(f"Method '{method_name}' not found")
 
-def call(object: dict, method_name: str, *args):
-    method = find(object["_class"], method_name)
-    return method(object, *args)
+
+def call(cls: dict, method_name: str, *args):
+    method = find(cls, method_name)
+    return method(cls, *args)
