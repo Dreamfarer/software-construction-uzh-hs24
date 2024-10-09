@@ -60,7 +60,6 @@ def describe_package_luxury_cruise(cls: dict) -> str:
     return f"The {duration} day long Luxury Cruise in {destination} does {not_str}include a private suite."
 
 
-################# NEW FROM HERE #################
 Class = {"_parent": None}
 
 VacationPackage = {
@@ -110,7 +109,7 @@ def new(cls: dict, **kwargs) -> dict:
             try:
                 merged_cls[key] = kwargs[key]
             except:
-                raise ValueError(f"{key} must be provided")
+                raise KeyError(f"{key} must be provided")
     return merged_cls
 
 
@@ -124,25 +123,3 @@ def find(cls: dict, method_name: str) -> Callable:
 def call(cls: dict, method_name: str, *args):
     method = find(cls, method_name)
     return method(cls, *args)
-
-
-################# EXAMPLES #################
-adventure_trip = new(
-    AdventureTrip,
-    destination="Berlin",
-    cost_per_day=10,
-    duration_in_days=5,
-    difficulty_level="hard",
-)
-print(call(adventure_trip, "calculate_cost"))
-print(call(adventure_trip, "describe_package"))
-
-luxury_cruise = new(
-    LuxuryCruise,
-    destination="Zurich",
-    cost_per_day=10,
-    duration_in_days=5,
-    has_private_suite=True,
-)
-print(call(luxury_cruise, "calculate_cost"))
-print(call(luxury_cruise, "describe_package"))
