@@ -18,7 +18,7 @@ def calculate_cost_adventure(cls: dict):
 
 def calculate_cost_beach_resort(cls: dict) -> int:
     cost = cls["cost_per_day"]
-    duration = cls["duration"]
+    duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
 
     if include_surfing:
