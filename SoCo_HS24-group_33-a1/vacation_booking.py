@@ -105,7 +105,7 @@ Type_VacationPackage = {
 }
 
 Type_AdventureTrip = {
-    "difficulty_level": int,
+    "difficulty_level": str,
 }
 
 Type_BeachResort = {
