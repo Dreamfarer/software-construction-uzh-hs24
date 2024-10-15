@@ -5,13 +5,11 @@ def calculate_cost_adventure(cls: dict):
     days = cls["duration_in_days"]
     cost = cls["cost_per_day"]
     difficulty = cls["difficulty_level"]
-
     if difficulty == "easy":
         return days * cost
 
     elif difficulty == "hard":
         return days * cost * 2
-
     else:
         return Exception("Undefined difficulty level")
 
@@ -20,7 +18,6 @@ def calculate_cost_beach_resort(cls: dict) -> int:
     cost = cls["cost_per_day"]
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
-
     if include_surfing:
         return cost * duration + 100
     elif not include_surfing:
@@ -60,10 +57,11 @@ def describe_package_luxury_cruise(cls: dict) -> str:
     return f"The {duration} day long Luxury Cruise in {destination} does {not_str}include a private suite."
 
 
-Class = {"_parent": None}
+Class = {"_parent": None, "_name": "Class", "_types": {}}
 
 VacationPackage = {
     "_parent": Class,
+    "_name": "VacationPackage",
     "calculate_cost": None,
     "describe_package": None,
     "destination": None,
@@ -73,6 +71,7 @@ VacationPackage = {
 
 AdventureTrip = {
     "_parent": VacationPackage,
+    "_name": "AdventureTrip",
     "calculate_cost": calculate_cost_adventure,
     "describe_package": describe_package_adventure,
     "difficulty_level": None,
@@ -80,6 +79,7 @@ AdventureTrip = {
 
 BeachResort = {
     "_parent": VacationPackage,
+    "_name": "BeachResort",
     "calculate_cost": calculate_cost_beach_resort,
     "describe_package": describe_package_beach_resort,
     "include_surfing": None,
@@ -87,39 +87,88 @@ BeachResort = {
 
 LuxuryCruise = {
     "_parent": VacationPackage,
+    "_name": "LuxuryCruise",
     "calculate_cost": calculate_cost_luxury_cruise,
     "describe_package": describe_package_luxury_cruise,
     "has_private_suite": None,
 }
 
+Type_Class = {"_parent": str, "_name": "str", "_types": dict}
 
-def merge_rec(cls: dict) -> dict:
+Type_VacationPackage = {
+    "_parent": dict,
+    "_name": str,
+    "calculate_cost": Callable,
+    "describe_package": Callable,
+    "destination": str,
+    "cost_per_day": int,
+    "duration_in_days": int,
+}
+
+Type_AdventureTrip = {
+    "difficulty_level": int,
+}
+
+Type_BeachResort = {
+    "include_surfing": bool,
+}
+
+Type_LuxuryCruise = {
+    "has_private_suite": bool,
+}
+
+
+def find_tests(symbol_table: Callable) -> list[Callable]:
+    tests = []
+    for key in symbol_table().items:
+        if key.startswith("Test_"):
+            tests.append(symbol_table()[key])
+    return tests
+
+
+def find_symtable(symbol_table: Callable, cls_name: str) -> dict:
+    type_name = "Type_" + cls_name
+    try:
+        return symbol_table()[type_name]  # E.g. globals()["Type_LuxuryCruise"]
+    except:
+        raise KeyError(f"Method '{type_name}' was not found")
+
+
+def find_cls(cls: dict, method_name: str) -> Callable:
+    try:
+        return cls[method_name]
+    except:
+        raise KeyError(f"Method '{method_name}' was not found")
+
+
+def call(cls: dict, method_name: str, *args) -> any:
+    method = find_cls(cls, method_name)
+    return method(cls, *args)
+
+
+def merge_rec(cls: dict, symbol_table: Callable) -> dict:
     result = {}
     if "_parent" in cls and cls["_parent"] is not None:
-        result.update(merge_rec(cls["_parent"]))
+        result.update(merge_rec(cls["_parent"], symbol_table))
     result.update(cls)
+    _type = find_symtable(symbol_table, result["_name"])
+    result["_types"].update(_type)
     del result["_parent"]
     return result
 
 
 def new(cls: dict, **kwargs) -> dict:
-    merged_cls = merge_rec(cls)
+    if not "symbol_table" in kwargs:
+        kwargs["symbol_table"] = globals
+    merged_cls = merge_rec(cls, kwargs["symbol_table"])
     for key, value in merged_cls.items():
         if value is None:
-            try:
-                merged_cls[key] = kwargs[key]
-            except:
+            if not key in kwargs:
                 raise KeyError(f"{key} must be provided")
+            if not key in merged_cls:
+                raise KeyError(f"{key} does not exist on {merged_cls['_name']}")
+            merged_cls[key] = kwargs[key]
+            _type = merged_cls["_types"][key]
+            if not isinstance(kwargs[key], _type):
+                raise TypeError(f"{key} must be a {_type}")
     return merged_cls
-
-
-def find(cls: dict, method_name: str) -> Callable:
-    try:
-        return cls[method_name]
-    except:
-        raise NotImplementedError(f"Method '{method_name}' not found")
-
-
-def call(cls: dict, method_name: str, *args):
-    method = find(cls, method_name)
-    return method(cls, *args)
