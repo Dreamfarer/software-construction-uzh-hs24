@@ -5,13 +5,10 @@ def calculate_cost_adventure(cls: dict):
     days = cls["duration_in_days"]
     cost = cls["cost_per_day"]
     difficulty = cls["difficulty_level"]
-
     if difficulty == "easy":
         return days * cost
-
     elif difficulty == "hard":
         return days * cost * 2
-
     else:
         return Exception("Undefined difficulty level")
 
@@ -20,7 +17,6 @@ def calculate_cost_beach_resort(cls: dict) -> int:
     cost = cls["cost_per_day"]
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
-
     if include_surfing:
         return cost * duration + 100
     elif not include_surfing:
