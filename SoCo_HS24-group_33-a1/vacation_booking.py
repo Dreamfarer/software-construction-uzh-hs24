@@ -245,18 +245,6 @@ def new(cls: dict, **kwargs) -> dict:
     return merged_cls
 
 
-def find(cls: dict, method_name: str) -> Callable:
-    try:
-        return cls[method_name]
-    except:
-        raise NotImplementedError(f"Method '{method_name}' not found")
-
-
-def call(cls: dict, method_name: str, *args):
-    method = find(cls, method_name)
-    return method(cls, *args)
-
-
 if __name__ == "__main__":
     beach_resort = new(
         BeachResort,
