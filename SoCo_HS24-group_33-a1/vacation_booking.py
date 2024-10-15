@@ -119,6 +119,15 @@ Type_LuxuryCruise = {
 
 
 def find_tests(symbol_table: Callable) -> list[Callable]:
+    """
+    Find all callables starting with "Test_" in the provided symbol table.
+
+    Args:
+        symbol_table (Callable): A function that returns a symbol table dictionary ('globals', 'locals').
+
+    Returns:
+        list[Callable]: A list containing all the found callables.
+    """
     tests = []
     for key in symbol_table().items:
         if key.startswith("Test_"):
@@ -127,6 +136,19 @@ def find_tests(symbol_table: Callable) -> list[Callable]:
 
 
 def find_symtable(symbol_table: Callable, cls_name: str) -> dict:
+    """
+    Retrieve a dictionary (object) starting with "Type_" from the symbol table.
+
+    Args:
+        symbol_table (Callable): A function that returns a symbol table dictionary ('globals', 'locals').
+        cls_name (str): The name of the class whose associated types to find.
+
+    Returns:
+        dict: The found dictionary (object).
+
+    Raises:
+        KeyError: If the class whose associated types to find is not found in the symbol table.
+    """
     type_name = "Type_" + cls_name
     try:
         return symbol_table()[type_name]  # E.g. globals()["Type_LuxuryCruise"]
@@ -135,6 +157,19 @@ def find_symtable(symbol_table: Callable, cls_name: str) -> dict:
 
 
 def find_cls(cls: dict, method_name: str) -> Callable:
+    """
+    Find a method inside the dictionary (object) and return it.
+
+    Args:
+        cls (dict): The dictionary (object) in which to find the method.
+        method_name (str): The name of the method to be found.
+
+    Returns:
+        Callable: The found method.
+
+    Raises:
+        KeyError: If the method is not found in the dictionary.
+    """
     try:
         return cls[method_name]
     except:
@@ -142,11 +177,33 @@ def find_cls(cls: dict, method_name: str) -> Callable:
 
 
 def call(cls: dict, method_name: str, *args) -> any:
+    """
+    Execute the specified method on the given dictionary (object) and return its result.
+
+    Args:
+        cls (dict): The dictionary (object) on which to call the method.
+        method_name (str): The name of the method to be called.
+        *args: Additional arguments to pass to the method.
+
+    Returns:
+        Any: The return value of the executed method.
+    """
     method = find_cls(cls, method_name)
     return method(cls, *args)
 
 
 def merge_rec(cls: dict, symbol_table: Callable) -> dict:
+    """
+    Recursively merge the methods and attributes of a dictionary (class) with those of its parent.
+    Additionally, update the '_types' key with type information from the symbol table based on the class name.
+
+    Args:
+        cls (dict): The dictionary (class) to be instantiated.
+        symbol_table (Callable): A function that returns a symbol table dictionary ('globals', 'locals').
+
+    Returns:
+        dict: The newly instantiated dictionary (object) with merged attributes, methods and type information.
+    """
     result = {}
     if "_parent" in cls and cls["_parent"] is not None:
         result.update(merge_rec(cls["_parent"], symbol_table))
@@ -158,6 +215,21 @@ def merge_rec(cls: dict, symbol_table: Callable) -> dict:
 
 
 def new(cls: dict, **kwargs) -> dict:
+    """
+    Instantiates a new dictionary containing all methods and attributes of the provided dictionary (class) and all its parents. Fills its attributes with the values provided via '**kwargs'.
+
+    Args:
+        cls (dict): The dictionary (class) to be instantiated.
+        symbol_table (Callable, optional): The symbol table dictionary to reference ('globals', 'locals').
+        **kwargs: Attributes to set on the new instance. If 'symbol_table' is not provided, it defaults to 'globals'.
+
+    Returns:
+        dict: The newly instantiated dictionary filled with the provided attributes.
+
+    Raises:
+        KeyError: If a required attribute is not provided in '**kwargs'.
+        TypeError: If an attribute does not match the expected type.
+    """
     if not "symbol_table" in kwargs:
         kwargs["symbol_table"] = globals
     merged_cls = merge_rec(cls, kwargs["symbol_table"])
