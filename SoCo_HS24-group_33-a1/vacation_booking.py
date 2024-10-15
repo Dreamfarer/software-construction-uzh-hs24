@@ -5,13 +5,10 @@ def calculate_cost_adventure(cls: dict):
     days = cls["duration_in_days"]
     cost = cls["cost_per_day"]
     difficulty = cls["difficulty_level"]
-
     if difficulty == "easy":
         return days * cost
-
     elif difficulty == "hard":
         return days * cost * 2
-
     else:
         return Exception("Undefined difficulty level")
 
@@ -20,7 +17,6 @@ def calculate_cost_beach_resort(cls: dict) -> int:
     cost = cls["cost_per_day"]
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
-
     if include_surfing:
         return cost * duration + 100
     elif not include_surfing:
@@ -49,8 +45,8 @@ def describe_package_beach_resort(cls: dict) -> str:
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
     if include_surfing:
-        return f"The {duration} long Beach Resort vacation in {destination} includes include_surfing."
-    return f"The {duration} long Beach Resort vacation in {destination} does not include include_surfing."
+        return f"The {duration} long Beach Resort vacation in {destination} includes surfing."
+    return f"The {duration} long Beach Resort vacation in {destination} does not include surfing."
 
 
 def describe_package_luxury_cruise(cls: dict) -> str:
@@ -123,3 +119,33 @@ def find(cls: dict, method_name: str) -> Callable:
 def call(cls: dict, method_name: str, *args):
     method = find(cls, method_name)
     return method(cls, *args)
+
+
+if __name__ == "__main__":
+    beach_resort = new(
+        BeachResort,
+        destination="Maldives",
+        cost_per_day=100,
+        duration_in_days=7,
+        include_surfing=True,
+    )
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="easy",
+    )
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination="Mediterranean",
+        cost_per_day=100,
+        duration_in_days=14,
+        has_private_suite=False,
+    )
+    print(call(beach_resort, "calculate_cost"))
+    print(call(adventure_trip, "calculate_cost"))
+    print(call(luxury_cruise, "calculate_cost"))
+    print(call(beach_resort, "describe_package"))
+    print(call(adventure_trip, "describe_package"))
+    print(call(luxury_cruise, "describe_package"))
