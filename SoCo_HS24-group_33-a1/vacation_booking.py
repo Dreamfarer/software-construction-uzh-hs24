@@ -1,7 +1,9 @@
 from collections.abc import Callable
 
+booked_vacations = []  # Keep track of all instanciated vacations
 
-def calculate_cost_adventure(cls: dict):
+
+def calculate_cost_adventure(cls: dict) -> int:
     days = cls["duration_in_days"]
     cost = cls["cost_per_day"]
     difficulty = cls["difficulty_level"]
@@ -33,7 +35,7 @@ def calculate_cost_luxury_cruise(cls: dict) -> int:
     return cost * duration
 
 
-def describe_package_adventure(cls: dict):
+def describe_package_adventure(cls: dict) -> str:
     destination = cls["destination"]
     days = cls["duration_in_days"]
     difficulty = cls["difficulty_level"]
@@ -54,6 +56,22 @@ def describe_package_luxury_cruise(cls: dict) -> str:
     destination = cls["destination"]
     not_str = "" if cls["has_private_suite"] else "not "
     return f"The {duration} day long Luxury Cruise in {destination} does {not_str}include a private suite."
+
+
+def calculate_total_cost(cls: dict) -> int:
+    total_cost = 0
+    for vacation in booked_vacations:
+        if cls["search_term"].lower() in vacation["_name"].lower():
+            total_cost += call(vacation, "calculate_cost")
+    return total_cost
+
+
+def extract_total_vacation_summary(cls: dict) -> str:
+    vacation_summary = ""
+    for vacation in booked_vacations:
+        if cls["search_term"].lower() in vacation["_name"].lower():
+            vacation_summary += call(vacation, "describe_package") + "\n"
+    return vacation_summary[:-1]
 
 
 Class = {"_parent": None, "_name": "Class", "_types": {}}
@@ -92,7 +110,16 @@ LuxuryCruise = {
     "has_private_suite": None,
 }
 
-Type_Class = {"_parent": str, "_name": "str", "_types": dict}
+VacationBookingSummary = {
+    "_parent": Class,
+    "_name": "VacationBookingSummary",
+    "calculate_cost": calculate_total_cost,
+    "describe_package": extract_total_vacation_summary,
+    "search_term": None,
+}
+
+
+Type_Class = {"_parent": str, "_name": str, "_types": dict}
 
 Type_VacationPackage = {
     "_parent": dict,
@@ -114,6 +141,13 @@ Type_BeachResort = {
 
 Type_LuxuryCruise = {
     "has_private_suite": bool,
+}
+
+Type_VacationBookingSummary = {
+    "_name": str,
+    "calculate_cost": Callable,
+    "describe_package": Callable,
+    "search_term": str,
 }
 
 
@@ -235,6 +269,8 @@ def new(cls: dict, **kwargs) -> dict:
             _type = merged_cls["_types"][key]
             if not isinstance(kwargs[key], _type):
                 raise TypeError(f"{key} must be a {_type}")
+    if not merged_cls["_name"] == "VacationBookingSummary":
+        booked_vacations.append(merged_cls)
     return merged_cls
 
 
@@ -260,6 +296,7 @@ if __name__ == "__main__":
         duration_in_days=14,
         has_private_suite=False,
     )
+
     print(call(beach_resort, "calculate_cost"))
     print(call(adventure_trip, "calculate_cost"))
     print(call(luxury_cruise, "calculate_cost"))
