@@ -21,3 +21,13 @@ def find_tests(prefix: str = "test_") -> list:
         if name.startswith(prefix):
            tests.append(func)
     return tests
+
+def prevent_append(func: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        original = globals()["booked_vacations"].copy()
+        globals()['booked_vacations'].clear()
+        try:
+            func(*args, **kwargs)
+        finally:
+            globals()["booked_vacations"].extend(original)
+    return wrapper
