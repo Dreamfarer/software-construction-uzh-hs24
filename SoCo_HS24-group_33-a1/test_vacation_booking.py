@@ -73,6 +73,8 @@ def prevent_append(func: Callable) -> Callable:
             func(*args, **kwargs)
         finally:
             globals()["booked_vacations"].extend(original)
+        
+    wrapper.__name__ = func.__name__
     return wrapper
 
 def create_sample_vacations() -> list:
