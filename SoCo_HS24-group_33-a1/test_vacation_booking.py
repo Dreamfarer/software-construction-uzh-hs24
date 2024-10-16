@@ -31,3 +31,27 @@ def prevent_append(func: Callable) -> Callable:
         finally:
             globals()["booked_vacations"].extend(original)
     return wrapper
+
+def create_sample_vacations() -> list:
+    beach_resort = new(
+        BeachResort,
+        destination="Maldives",
+        cost_per_day=100,
+        duration_in_days=7,
+        include_surfing=True,
+    )
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="easy",
+    )
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination="Mediterranean",
+        cost_per_day=100,
+        duration_in_days=14,
+        has_private_suite=False,
+    )
+    return [beach_resort, adventure_trip, luxury_cruise]
