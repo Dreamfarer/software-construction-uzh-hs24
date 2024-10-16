@@ -303,3 +303,15 @@ if __name__ == "__main__":
     print(call(beach_resort, "describe_package"))
     print(call(adventure_trip, "describe_package"))
     print(call(luxury_cruise, "describe_package"))
+
+    vacation_booking_summary = new(VacationBookingSummary, search_term="Cruise")
+    print(call(vacation_booking_summary, "calculate_cost"))
+    print(call(vacation_booking_summary, "describe_package"))
+
+    vacation_booking_summary = new(VacationBookingSummary, search_term="Beach")
+    print(call(vacation_booking_summary, "calculate_cost"))
+    print(call(vacation_booking_summary, "describe_package"))
+
+    vacation_booking_summary = new(VacationBookingSummary, search_term="Adv")
+    print(call(vacation_booking_summary, "calculate_cost"))
+    print(call(vacation_booking_summary, "describe_package"))
