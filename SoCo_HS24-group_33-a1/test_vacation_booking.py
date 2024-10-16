@@ -1,8 +1,10 @@
 from vacation_booking import * 
+import time 
 
 def run_tests(all_tests: list) -> None:
     """
-    Runs each test in the list all_tests.
+    Runs each test in the list all_tests, measures the time taken for each tests, and prints
+    the results (pass, fail or error) along with the time taken.
 
     Args:
         all_tests (list): The list with the test functions.
@@ -11,18 +13,31 @@ def run_tests(all_tests: list) -> None:
         None: it only prints the results of the tests.
     """
     results = {"pass": 0, "fail": 0, "error": 0}
+
     for test in all_tests:
+        start_time = time.time()
+        total_time = 0
         try:
             test()
+            elapsed_time = time.time() - start_time
             results["pass"] += 1
+            print(f"{test.__name__}: pass {elapsed_time:.3f} seconds")
         except AssertionError:
+            elapsed_time = time.time() - start_time
             results["fail"] += 1
+            print(f"{test.__name__}: fail {elapsed_time:.3f} seconds")
         except Exception as e:
-            print(e)
+            elapsed_time = time.time() - start_time
             results["error"] += 1
-    print(f"pass {results['pass']}")
-    print(f"fail {results['fail']}")
-    print(f"error {results['error']}")
+            print(f"{test.__name__}: error {e} {elapsed_time:.3f} seconds")
+        finally:
+            total_time += elapsed_time
+    
+    print("------------------------------------------------\n"
+          f"Ran {len(all_tests)} tests in {total_time:.3f}s\n"
+          f"pass {results['pass']}\n"
+          f"fail {results['fail']}\n"
+          f"error {results['error']}")
 
 def find_tests(prefix: str = "test_") -> list:
     """
