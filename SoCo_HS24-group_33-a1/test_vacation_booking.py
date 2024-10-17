@@ -196,6 +196,16 @@ def test_describe_package_luxury_cruise():
     assert actual == expected
 
 
+def test_vacationbookingsummary_describe_package():
+    """
+    Tests the describe_package method for VacationBookingSummary without passing "search_term".
+    """
+    create_sample_vacations()
+    vacation_booking_summary = new(VacationBookingSummary)
+    actual = call(vacation_booking_summary,"describe_package")
+    expected = "The 7 day long Beach Resort vacation in Maldives includes surfing.\nThe 4 day long Adventure trip in Macchu Picchu is considered easy.\nThe 14 day long Luxury Cruise in Mediterranean does not include a private suite."
+    assert actual == expected
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
