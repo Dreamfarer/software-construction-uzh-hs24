@@ -164,6 +164,23 @@ def test_describe_package_beach_resort():
     expected = "The 6 day long Beach Resort vacation in Cuba includes surfing."
     assert actual == expected
 
+
+def test_describe_package_adventure():
+    """
+    Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination = "Namibia",
+        cost_per_day = 200,
+        duration_in_days = 12,
+        difficulty_level = "hard"
+    )
+    actual = call(adventure_trip, "describe_package")
+    expected = "The 12 day long Adventure trip in Namibia is considered hard."
+    assert actual == expected
+
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
