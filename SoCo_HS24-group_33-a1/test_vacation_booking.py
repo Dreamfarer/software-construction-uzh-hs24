@@ -145,7 +145,6 @@ def test_vacationbookingsummary_calculatecost():
     create_sample_vacations()
     vacation_booking_summary = new(VacationBookingSummary)
     actual = call(vacation_booking_summary, "calculate_cost")
-    print(actual)
     expected = (7 * 100 + 100) + (150 * 4) + (100 * 14)
     assert actual == expected
 
