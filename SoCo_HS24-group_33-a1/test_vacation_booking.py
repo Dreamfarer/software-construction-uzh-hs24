@@ -149,6 +149,21 @@ def test_vacationbookingsummary_calculatecost():
     assert actual == expected
 
 
+def test_describe_package_beach_resort():
+    """
+    Tests the describe_package method for a BeachResort instance with surfing included.
+    """
+    beach_resort = new(
+        BeachResort,
+        destination = "Cuba",
+        cost_per_day = 50,
+        duration_in_days = 6,
+        include_surfing = True
+        )
+    actual = call(beach_resort, "describe_package")
+    expected = "The 6 day long Beach Resort vacation in Cuba includes surfing."
+    assert actual == expected
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
