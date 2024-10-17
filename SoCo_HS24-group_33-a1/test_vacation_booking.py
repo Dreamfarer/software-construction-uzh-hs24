@@ -180,6 +180,21 @@ def test_describe_package_adventure():
     expected = "The 12 day long Adventure trip in Namibia is considered hard."
     assert actual == expected
 
+def test_describe_package_luxury_cruise():
+    """
+    Tests the desribe_package method for a luxuryCurise instance with a private suite.
+    """
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination = "Japan",
+        cost_per_day = 67,
+        duration_in_days = 8,
+        has_private_suite = True
+    )
+    actual = call(luxury_cruise, "describe_package")
+    expected = "The 8 day long Luxury Cruise in Japan does include a private suite."
+    assert actual == expected
+
 
 if __name__ == "__main__":
     tests = find_tests()
