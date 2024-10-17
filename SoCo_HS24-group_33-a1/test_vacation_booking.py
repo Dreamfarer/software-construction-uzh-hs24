@@ -90,7 +90,7 @@ def create_sample_vacations() -> None:
     )
 
 
-def test_beachresort_calculatecost():
+def test_beach_resort_calculatecost():
     """
     Tests the calculate_cost method for a BeachResort instance with surfing included.
     """
@@ -106,7 +106,7 @@ def test_beachresort_calculatecost():
     assert actual == expected
 
 
-def test_adventuretrip_calculatecost():
+def test_adventure_trip_calculatecost():
     """
     Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
     """
