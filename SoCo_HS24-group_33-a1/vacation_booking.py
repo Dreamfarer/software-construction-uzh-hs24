@@ -259,6 +259,11 @@ def new(cls: dict, **kwargs) -> dict:
         TypeError: If an attribute does not match the expected type.
     """
     merged_cls = merge_rec(cls)
+    
+    if merged_cls["_name"] == "VacationBookingSummary":
+        if not "search_term" in kwargs:
+            merged_cls["search_term"] = ""
+
     for key, value in merged_cls.items():
         if value is None:
             if not key in kwargs:
@@ -313,5 +318,9 @@ if __name__ == "__main__":
     print(call(vacation_booking_summary, "describe_package"))
 
     vacation_booking_summary = new(VacationBookingSummary, search_term="Adv")
+    print(call(vacation_booking_summary, "calculate_cost"))
+    print(call(vacation_booking_summary, "describe_package"))
+
+    vacation_booking_summary = new(VacationBookingSummary)
     print(call(vacation_booking_summary, "calculate_cost"))
     print(call(vacation_booking_summary, "describe_package"))
