@@ -343,6 +343,21 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
         pass
 
 
+def test_beach_resort_call_invalid_method_name():
+    beach_resort = new(
+        BeachResort,
+        destination = "Australia",
+        cost_per_day = 65,
+        duration_in_days = 6,
+        include_surfing = True
+    )
+    try:
+        call(beach_resort, "description")
+        assert False, "KeyError not raised for invalid method call"
+    except KeyError:
+        pass
+
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
