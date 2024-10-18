@@ -207,6 +207,17 @@ def test_vacationbookingsummary_describe_package():
     assert actual == expected
 
 
+def test_vacationbookingsummary_describe_package_search_term():
+    """
+    Tests the desribe_package method for VacationBookingSummary with a search term Cruise.
+    """
+    create_sample_vacations()
+    vacation_booking_summary = new(VacationBookingSummary, search_term = "Cruise")
+    actual = call(vacation_booking_summary, "describe_package")
+    expected = "The 14 day long Luxury Cruise in Mediterranean does not include a private suite."
+    assert actual == expected
+
+
 def test_instantiation_missing_key():
     """
     Tests the new method for a vacation instance that misses a key. 
