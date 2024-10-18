@@ -296,6 +296,25 @@ def test_adventure_calculate_cost_negative_int():
     except TypeError:
         pass
 
+
+def test_adventure_trip_invalid_difficulty_level():
+    """
+    Tests the instantiation of a AdventureTrip instance with an invalid difficulty level.
+    """
+    try:
+        adventure_trip = new(
+            AdventureTrip,
+            destination = "Nigeria",
+            cost_per_day = 300,
+            duration_in_days = 4,
+            difficulty_level = "medium",
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
+
+
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
