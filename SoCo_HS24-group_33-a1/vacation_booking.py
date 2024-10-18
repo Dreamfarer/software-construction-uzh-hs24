@@ -9,10 +9,7 @@ def calculate_cost_adventure(cls: dict) -> int:
     difficulty = cls["difficulty_level"]
     if difficulty == "easy":
         return days * cost
-    elif difficulty == "hard":
-        return days * cost * 2
-    else:
-        return Exception("Undefined difficulty level")
+    return days * cost * 2
 
 
 def calculate_cost_beach_resort(cls: dict) -> int:
@@ -21,10 +18,7 @@ def calculate_cost_beach_resort(cls: dict) -> int:
     include_surfing = cls["include_surfing"]
     if include_surfing:
         return cost * duration + 100
-    elif not include_surfing:
-        return cost * duration
-    else:
-        return Exception("Include_surfing is not available")
+    return cost * duration
 
 
 def calculate_cost_luxury_cruise(cls: dict) -> int:
@@ -132,7 +126,7 @@ Type_VacationPackage = {
 }
 
 Type_AdventureTrip = {
-    "difficulty_level": str,
+    "difficulty_level": ["easy", "hard"],
 }
 
 Type_BeachResort = {
@@ -259,7 +253,6 @@ def new(cls: dict, **kwargs) -> dict:
         TypeError: If an attribute does not match the expected type.
     """
     merged_cls = merge_rec(cls)
-    
     if merged_cls["_name"] == "VacationBookingSummary":
         if not "search_term" in kwargs:
             merged_cls["search_term"] = ""
@@ -272,7 +265,10 @@ def new(cls: dict, **kwargs) -> dict:
                 raise KeyError(f"{key} does not exist on {merged_cls['_name']}")
             merged_cls[key] = kwargs[key]
             _type = merged_cls["_types"][key]
-            if not isinstance(kwargs[key], _type):
+            if isinstance(_type, list):
+                if not kwargs[key] in _type:
+                    raise TypeError(f"{key} must be of {_type}")
+            elif not isinstance(kwargs[key], _type):
                 raise TypeError(f"{key} must be a {_type}")
     if not merged_cls["_name"] == "VacationBookingSummary":
         booked_vacations.append(merged_cls)
