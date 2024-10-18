@@ -206,6 +206,52 @@ def test_vacationbookingsummary_describe_package():
     expected = "The 7 day long Beach Resort vacation in Maldives includes surfing.\nThe 4 day long Adventure trip in Macchu Picchu is considered easy.\nThe 14 day long Luxury Cruise in Mediterranean does not include a private suite."
     assert actual == expected
 
+
+def test_instantiation_missing_key():
+    """
+    Tests the new method for a vacation instance that misses a key. 
+    """
+    try:
+        beach_resort = new(
+        BeachResort,
+        destination = "Italy",
+        duration_in_days = 5,
+        include_surfing = True
+        )
+        assert False, "KeyError not raised"
+    except KeyError:
+        pass
+
+def test_beach_resort_calculatecost_float():
+    """
+    Tests the calculate_cost method for a BeachResort instance with a float number.
+    """
+    try:
+        beach_resort = new(
+            BeachResort,
+            destination = "Bahamas",
+            cost_per_day = 280.5,
+            duration_in_days = 14,
+            include_surfing = True
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
+
+
+def test_adventure_calculate_cost_negative_int():
+    try:
+        adventure_trip = new(
+            AdventureTrip,
+            destination = "Switzerland",
+            cost_per_day = -66,
+            duration_in_days = 12,
+            difficulty_level = "easy",
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
+
 if __name__ == "__main__":
     tests = find_tests()
     run_tests(tests)
