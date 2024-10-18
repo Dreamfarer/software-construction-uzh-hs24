@@ -106,6 +106,23 @@ def test_beach_resort_calculatecost():
     assert actual == expected
 
 
+def test_beach_resort_calculatecost_zero_days():
+    """
+    Tests the calculate_cost method for a beach resort instance with zero days
+    and surfing excluded.
+    """
+    beach_resort = new(
+        BeachResort,
+        destination = "Bali",
+        cost_per_day = 188,
+        duration_in_days = 0,
+        include_surfing = False,
+    )
+    actual = call(beach_resort,"calculate_cost")
+    expected = 0
+    assert actual == expected
+
+
 def test_adventure_trip_calculatecost():
     """
     Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
@@ -135,6 +152,22 @@ def test_luxury_cruise_calculatecost():
     )
     actual = call(luxury_cruise, "calculate_cost")
     expected = 100 * 14
+    assert actual == expected
+
+
+def test_luxury_cruise_calculatecost_zero_cost_per_day():
+    """
+    Tests the calculate_cost method for a LuxuryCruise instance with zero cost_per_day.
+    """
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination = "Hawaii",
+        cost_per_day = 0,
+        duration_in_days = 5,
+        has_private_suite = False,
+    )
+    actual = call(luxury_cruise, "calculate_cost")
+    expected = 0
     assert actual == expected
 
 
