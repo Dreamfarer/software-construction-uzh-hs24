@@ -296,6 +296,9 @@ def test_beach_resort_calculatecost_float():
 
 
 def test_adventure_calculate_cost_negative_int():
+    """
+    Tests the calculatecost method for an adventure instancce with negative cost per day.
+    """
     try:
         adventure_trip = new(
             AdventureTrip,
@@ -344,6 +347,9 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
 
 
 def test_beach_resort_call_invalid_method_name():
+    """
+    Tests the find_cls method for a BeachResort instance with an invalid method_name.
+    """
     beach_resort = new(
         BeachResort,
         destination = "Australia",
