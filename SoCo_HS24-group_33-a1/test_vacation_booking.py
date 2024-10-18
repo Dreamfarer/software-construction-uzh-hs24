@@ -314,6 +314,22 @@ def test_adventure_trip_invalid_difficulty_level():
         pass
 
 
+def test_luxury_cruise_calculatecost_invalid_suite_type():
+    """
+    Tests the instantiation of a LuxuryCruise instance with an invalid suite type.
+    """
+    try:
+        luxury_cruise = new(
+            LuxuryCruise,
+            destination = "Bora Bora",
+            cost_per_day = 144,
+            duration_in_days = 6,
+            has_private_suite = "no",
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
+
 
 if __name__ == "__main__":
     tests = find_tests()
