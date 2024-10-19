@@ -258,23 +258,21 @@ def new(cls: dict, **kwargs) -> dict:
     if merged_cls["_name"] == "VacationBookingSummary":
         if not "search_term" in kwargs:
             merged_cls["search_term"] = ""
-
     for key, value in merged_cls.items():
         if value is None:
             if not key in kwargs:
                 raise KeyError(f"{key} must be provided")
-            if not key in merged_cls:
-                raise KeyError(f"{key} does not exist on {merged_cls['_name']}")
             merged_cls[key] = kwargs[key]
             _type = merged_cls["_types"][key]
-            if callable(_type):
-                if not _type(kwargs[key]):
-                    raise TypeError(f"{key} must be of {_type}")
+            if isinstance(_type, type):
+                if not isinstance(kwargs[key], _type):
+                    raise TypeError(f"{key} must be of type {_type.__name__}")
             elif isinstance(_type, list):
-                if not kwargs[key] in _type:
-                    raise TypeError(f"{key} must be of {_type}")
-            elif not isinstance(kwargs[key], _type):
-                raise TypeError(f"{key} must be a {_type}")
+                if kwargs[key] not in _type:
+                    raise TypeError(f"{key} must be one of {_type}")
+            elif callable(_type):
+                if not _type(kwargs[key]):
+                    raise TypeError(f"{key} did not pass validation")
     if not merged_cls["_name"] == "VacationBookingSummary":
         booked_vacations.append(merged_cls)
     return merged_cls
