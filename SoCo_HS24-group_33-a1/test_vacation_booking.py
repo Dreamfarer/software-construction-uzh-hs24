@@ -221,23 +221,7 @@ def test_vacationbookingsummary_calculatecost():
     assert actual == expected
 
     
-def test_describe_package_beach_resort():
-    """
-    Tests the describe_package method for a BeachResort instance with surfing included.
-    """
-    beach_resort = new(
-        BeachResort,
-        destination = "Cuba",
-        cost_per_day = 50,
-        duration_in_days = 6,
-        include_surfing = True
-        )
-    actual = call(beach_resort, "describe_package")
-    expected = "The 6 day long Beach Resort vacation in Cuba includes surfing."
-    assert actual == expected
-
-
-def test_describe_package_adventure():
+def test_adventure_trip_describe_package():
     """
     Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
     """
@@ -252,7 +236,22 @@ def test_describe_package_adventure():
     expected = "The 12 day long Adventure trip in Namibia is considered hard."
     assert actual == expected
 
-def test_describe_package_luxury_cruise():
+def test_beach_resort_describe_package():
+    """
+    Tests the describe_package method for a BeachResort instance with surfing included.
+    """
+    beach_resort = new(
+        BeachResort,
+        destination = "Cuba",
+        cost_per_day = 50,
+        duration_in_days = 6,
+        include_surfing = True
+        )
+    actual = call(beach_resort, "describe_package")
+    expected = "The 6 day long Beach Resort vacation in Cuba includes surfing."
+    assert actual == expected
+
+def test_luxury_cruise_describe_package():
     """
     Tests the desribe_package method for a luxuryCurise instance with a private suite.
     """
@@ -267,7 +266,6 @@ def test_describe_package_luxury_cruise():
     expected = "The 8 day long Luxury Cruise in Japan does include a private suite."
     assert actual == expected
 
-
 def test_vacationbookingsummary_describe_package():
     """
     Tests the describe_package method for VacationBookingSummary without passing "search_term".
@@ -278,7 +276,6 @@ def test_vacationbookingsummary_describe_package():
     expected = "The 7 day long Beach Resort vacation in Maldives includes surfing.\nThe 4 day long Adventure trip in Macchu Picchu is considered easy.\nThe 14 day long Luxury Cruise in Mediterranean does not include a private suite."
     assert actual == expected
 
-
 def test_vacationbookingsummary_describe_package_search_term():
     """
     Tests the desribe_package method for VacationBookingSummary with a search term Cruise.
@@ -287,6 +284,16 @@ def test_vacationbookingsummary_describe_package_search_term():
     vacation_booking_summary = new(VacationBookingSummary, search_term = "Cruise")
     actual = call(vacation_booking_summary, "describe_package")
     expected = "The 14 day long Luxury Cruise in Mediterranean does not include a private suite."
+    assert actual == expected
+
+def test_vacationbookingsummary_describe_package_no_matching_search_term():
+    """
+    Tests the instantiation of VacationBookingSummary with a search_term not matching any vacation.
+    """
+    create_sample_vacations()
+    vacation_booking_summary = new(VacationBookingSummary, search_term = "non_existing_vacation")
+    actual = call(vacation_booking_summary, "describe_package")
+    expected = ""
     assert actual == expected
 
 
