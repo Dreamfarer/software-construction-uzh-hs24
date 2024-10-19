@@ -123,7 +123,7 @@ Type_VacationPackage = {
     "calculate_cost": Callable,
     "describe_package": Callable,
     "destination": str,
-    "cost_per_day": int,
+    "cost_per_day": lambda x: isinstance(x, int) and x >= 0,
     "duration_in_days": int,
 }
 
@@ -267,7 +267,10 @@ def new(cls: dict, **kwargs) -> dict:
                 raise KeyError(f"{key} does not exist on {merged_cls['_name']}")
             merged_cls[key] = kwargs[key]
             _type = merged_cls["_types"][key]
-            if isinstance(_type, list):
+            if callable(_type):
+                if not _type(kwargs[key]):
+                    raise TypeError(f"{key} must be of {_type}")
+            elif isinstance(_type, list):
                 if not kwargs[key] in _type:
                     raise TypeError(f"{key} must be of {_type}")
             elif not isinstance(kwargs[key], _type):
