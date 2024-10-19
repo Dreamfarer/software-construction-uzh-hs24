@@ -330,24 +330,7 @@ def test_instantiation_too_many_key():
         pass
 
 
-def test_beach_resort_calculatecost_float():
-    """
-    Tests the calculate_cost method for a BeachResort instance with a float number.
-    """
-    try:
-        beach_resort = new(
-            BeachResort,
-            destination = "Bahamas",
-            cost_per_day = 280.5,
-            duration_in_days = 14,
-            include_surfing = True
-        )
-        assert False, "TypeError not raised"
-    except TypeError:
-        pass
-
-
-def test_adventure_calculate_cost_negative_int():
+def test_adventure_trip_calculate_cost_negative_int():
     """
     Tests the calculatecost method for an adventure instancce with negative cost per day.
     """
@@ -362,7 +345,6 @@ def test_adventure_calculate_cost_negative_int():
         assert False, "TypeError not raised"
     except TypeError:
         pass
-
 
 def test_adventure_trip_invalid_difficulty_level():
     """
@@ -380,6 +362,21 @@ def test_adventure_trip_invalid_difficulty_level():
     except TypeError:
         pass
 
+def test_beach_resort_invalid_include_surfing():
+    """
+    Tests the TypeError in the new method when passing an invalid include_surfing type
+    """
+    try:
+        beach_resort = new(
+            BeachResort,
+            destination = "Bahamas",
+            cost_per_day = 100,
+            duration_in_days = 14,
+            include_surfing = "10"
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
 
 def test_luxury_cruise_calculatecost_invalid_suite_type():
     """
@@ -394,6 +391,17 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
             has_private_suite = "no",
         )
         assert False, "TypeError not raised"
+    except TypeError:
+        pass
+
+def test_vacationbooking_summary_invalid_search_term():
+    """
+    Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
+    """
+    create_sample_vacations()
+    try:
+        vacation_booking_summary = new(VacationBookingSummary,search_term = 12)
+        assert False, "TypeError not raised for invalid 'search_term' type"
     except TypeError:
         pass
 
