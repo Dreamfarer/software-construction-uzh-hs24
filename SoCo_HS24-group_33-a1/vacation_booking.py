@@ -111,7 +111,7 @@ VacationBookingSummary = {
     "_name": "VacationBookingSummary",
     "calculate_cost": calculate_total_cost,
     "describe_package": extract_total_vacation_summary,
-    "search_term": None,
+    "search_term": "",
 }
 
 
@@ -239,13 +239,50 @@ def merge_rec(cls: dict) -> dict:
     return result
 
 
+def is_valid_kwarg(cls: dict, kwargs: dict, key: str) -> bool:
+    """
+    Checks whether the given key in the provided keyword arguments 'kwargs' is valid based on the rules defined in the '_types' dictionary of the provided dictionary (class) 'cls'.
+
+    Args:
+        cls (dict): The before instantiated dictionary (class) 'cls'.
+        kwargs (dict): A dictionary containing keyword arguments to validate.
+        key (str): A single key from the before instantiated dictionary (class) 'cls'.
+
+    Returns:
+        bool: Returns 'True' if the provided keyword argument passes all validation checks. Returns 'False' if the key is already set in 'cls' and no keyword argument in 'kwargs' is provided to modify it.
+
+    Raises:
+        KeyError: If the key is required (set to 'None' in 'cls') but is not found in 'kwargs'.
+        KeyError: If the key in 'kwargs' is not a valid key in the 'cls' dictionary.
+        TypeError: If the value of the key in 'kwargs' is not of the expected type as specified by 'cls['_types'][key]'.
+        TypeError: If a custom validation function in 'cls['_types'][key]' fails.
+    """
+    if not cls[key] is None and not key in kwargs:
+        return False
+    if cls[key] is None and not key in kwargs:
+        raise KeyError(f"{key} must be provided")
+    if not all(key in cls for key in kwargs):
+        raise KeyError(f"{key} is not valid on {cls['_name']}")
+    _type = cls["_types"][key]
+    if isinstance(_type, type):
+        if not isinstance(kwargs[key], _type):
+            raise TypeError(f"{key} must be of type {_type.__name__}")
+    elif isinstance(_type, list):
+        if kwargs[key] not in _type:
+            raise TypeError(f"{key} must be one of {_type}")
+    elif callable(_type):
+        if not _type(kwargs[key]):
+            raise TypeError(f"{key} did not pass validation")
+    return True
+
+
 def new(cls: dict, **kwargs) -> dict:
     """
     Instantiates a new dictionary containing all methods and attributes of the provided dictionary (class) and all its parents. Fills its attributes with the values provided via '**kwargs'.
 
     Args:
         cls (dict): The dictionary (class) to be instantiated.
-        **kwargs: Attributes to set on the new instance. If 'symbol_table' is not provided, it defaults to 'globals'.
+        **kwargs: Attributes to set on the new instance.
 
     Returns:
         dict: The newly instantiated dictionary filled with the provided attributes.
@@ -255,24 +292,9 @@ def new(cls: dict, **kwargs) -> dict:
         TypeError: If an attribute does not match the expected type.
     """
     merged_cls = merge_rec(cls)
-    if merged_cls["_name"] == "VacationBookingSummary":
-        if not "search_term" in kwargs:
-            merged_cls["search_term"] = ""
-    for key, value in merged_cls.items():
-        if value is None:
-            if not key in kwargs:
-                raise KeyError(f"{key} must be provided")
+    for key in merged_cls.keys():
+        if is_valid_kwarg(merged_cls, kwargs, key):
             merged_cls[key] = kwargs[key]
-            _type = merged_cls["_types"][key]
-            if isinstance(_type, type):
-                if not isinstance(kwargs[key], _type):
-                    raise TypeError(f"{key} must be of type {_type.__name__}")
-            elif isinstance(_type, list):
-                if kwargs[key] not in _type:
-                    raise TypeError(f"{key} must be one of {_type}")
-            elif callable(_type):
-                if not _type(kwargs[key]):
-                    raise TypeError(f"{key} did not pass validation")
     if not merged_cls["_name"] == "VacationBookingSummary":
         booked_vacations.append(merged_cls)
     return merged_cls
