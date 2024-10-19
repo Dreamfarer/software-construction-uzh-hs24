@@ -93,6 +93,7 @@ def create_sample_vacations() -> None:
 def test_beach_resort_calculatecost():
     """
     Tests the calculate_cost method for a BeachResort instance with surfing included.
+    This test was chosen to ensure that the calculate_cost_beach_resort method is working properly.
     """
     beach_resort = new(
         BeachResort,
@@ -109,14 +110,16 @@ def test_beach_resort_calculatecost():
 def test_beach_resort_calculatecost_zero_days():
     """
     Tests the calculate_cost method for a beach resort instance with zero days
-    and surfing excluded.
+    and surfing included.
+    This test was chosen to ensure that the edge case for a zero days duration of a BeachResort instance
+    returns a total cost of zero and not 100.
     """
     beach_resort = new(
         BeachResort,
         destination = "Bali",
         cost_per_day = 188,
         duration_in_days = 0,
-        include_surfing = False,
+        include_surfing = True,
     )
     actual = call(beach_resort,"calculate_cost")
     expected = 0
@@ -126,6 +129,7 @@ def test_beach_resort_calculatecost_zero_days():
 def test_adventure_trip_calculatecost():
     """
     Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
+    This test was chosen to ensure that the calculate_cost_adventure method is working properly.
     """
     adventure_trip = new(
         AdventureTrip,
@@ -142,6 +146,7 @@ def test_adventure_trip_calculatecost():
 def test_luxury_cruise_calculatecost():
     """
     Tests the calculate_cost method for a LuxuryCruise instance without a private suite.
+    This test was chosen to ensure that the calculate_cost_luxury_cruise method is working properly.
     """
     luxury_cruise = new(
         LuxuryCruise,
@@ -158,6 +163,8 @@ def test_luxury_cruise_calculatecost():
 def test_luxury_cruise_calculatecost_zero_cost_per_day():
     """
     Tests the calculate_cost method for a LuxuryCruise instance with zero cost_per_day.
+    This test was chosen to ensure that the total cost of a Vacation instance is zero if the cost_per_day
+    attribute is 0.
     """
     luxury_cruise = new(
         LuxuryCruise,
@@ -174,6 +181,7 @@ def test_luxury_cruise_calculatecost_zero_cost_per_day():
 def test_vacationbookingsummary_calculatecost():
     """
     Tests the calculate_cost method for VacationBookingSummary without passing "search_term".
+    This test was chosen to ensure that the total sum of all vacations instantiated are summed up correctly.
     """
     create_sample_vacations()
     vacation_booking_summary = new(VacationBookingSummary)
@@ -185,6 +193,7 @@ def test_vacationbookingsummary_calculatecost():
 def test_describe_package_beach_resort():
     """
     Tests the describe_package method for a BeachResort instance with surfing included.
+    This test was chosen to ensure that the describe_package_beach_resort method is working properly.
     """
     beach_resort = new(
         BeachResort,
@@ -201,6 +210,7 @@ def test_describe_package_beach_resort():
 def test_describe_package_adventure():
     """
     Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
+    This test was chosen to ensure that the describe_package_adventure method is working properly.
     """
     adventure_trip = new(
         AdventureTrip,
@@ -216,6 +226,7 @@ def test_describe_package_adventure():
 def test_describe_package_luxury_cruise():
     """
     Tests the desribe_package method for a luxuryCurise instance with a private suite.
+    This test was chosen to ensure that the describe_package_luxury_cruise method is working properly.
     """
     luxury_cruise = new(
         LuxuryCruise,
@@ -232,6 +243,8 @@ def test_describe_package_luxury_cruise():
 def test_vacationbookingsummary_describe_package():
     """
     Tests the describe_package method for VacationBookingSummary without passing "search_term".
+    This test was chosen that the extract_total_vacation_summary method is working properly without
+    passing a search_term.
     """
     create_sample_vacations()
     vacation_booking_summary = new(VacationBookingSummary)
@@ -243,6 +256,8 @@ def test_vacationbookingsummary_describe_package():
 def test_vacationbookingsummary_describe_package_search_term():
     """
     Tests the desribe_package method for VacationBookingSummary with a search term Cruise.
+    This test was chosen that the extract_total_vacation_summary method is working properly with
+    passing a search_term.
     """
     create_sample_vacations()
     vacation_booking_summary = new(VacationBookingSummary, search_term = "Cruise")
@@ -254,6 +269,8 @@ def test_vacationbookingsummary_describe_package_search_term():
 def test_vacationbooking_summary_invalid_search_term():
     """
     Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
+    This test was chosen that the extract_total_vacation_summary method is working properly with
+    passing an invalid search_term. It tests the instantiation in the new function.
     """
     create_sample_vacations()
     try:
@@ -265,7 +282,7 @@ def test_vacationbooking_summary_invalid_search_term():
 
 def test_instantiation_missing_key():
     """
-    Tests the new method for a vacation instance that misses a key. 
+    Tests the new method for a vacation instance that misses a key.
     """
     try:
         beach_resort = new(
@@ -281,6 +298,7 @@ def test_instantiation_missing_key():
 def test_beach_resort_calculatecost_float():
     """
     Tests the calculate_cost method for a BeachResort instance with a float number.
+    This test was chosen to test the type checking systems behaviour for passing an invalid type (float).
     """
     try:
         beach_resort = new(
@@ -297,7 +315,9 @@ def test_beach_resort_calculatecost_float():
 
 def test_adventure_calculate_cost_negative_int():
     """
-    Tests the calculatecost method for an adventure instancce with negative cost per day.
+    Tests the calculatecost method for an adventure instance with negative cost per day.
+    This test was chosen to test the type checking systems behaviour for passing an invalid type (negative int)
+    as well as the instantiation in the new function.
     """
     try:
         adventure_trip = new(
@@ -315,6 +335,8 @@ def test_adventure_calculate_cost_negative_int():
 def test_adventure_trip_invalid_difficulty_level():
     """
     Tests the instantiation of a AdventureTrip instance with an invalid difficulty level.
+    This test was chosen to test the type checking systems behaviour for passing an invalid difficulty_level
+    as well as the instantiation in the new function.
     """
     try:
         adventure_trip = new(
@@ -332,6 +354,8 @@ def test_adventure_trip_invalid_difficulty_level():
 def test_luxury_cruise_calculatecost_invalid_suite_type():
     """
     Tests the instantiation of a LuxuryCruise instance with an invalid suite type.
+    This test was chosen to test the type checking systems behaviour for passing an invalid type(str)
+    as well as the instantiation in the new function.
     """
     try:
         luxury_cruise = new(
