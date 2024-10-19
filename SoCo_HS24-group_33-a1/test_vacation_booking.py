@@ -529,16 +529,16 @@ def test_call_too_many_arguments():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = "Run Tests for VacationBooking")
+    parser = argparse.ArgumentParser(description="Run Tests for VacationBooking")
     parser.add_argument(
+        "-s",
         "--select",
-        type = str,
-        default = None,
-        help = "Only run tests with a specific pattern"
+        default=None,
+        help="only run tests with a specific pattern",
     )
     args = parser.parse_args()
-    tests = find_tests(pattern = args.select)
+    tests = find_tests(pattern=args.select)
     if not tests:
-        print(f"No tests found matching the given pattern {args.select}")
+        print(f"No tests found matching the given pattern '{args.select}'!")
         exit(1)
     run_tests(tests)
