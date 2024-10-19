@@ -41,8 +41,8 @@ def describe_package_beach_resort(cls: dict) -> str:
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
     if include_surfing:
-        return f"The {duration} long Beach Resort vacation in {destination} includes surfing."
-    return f"The {duration} long Beach Resort vacation in {destination} does not include surfing."
+        return f"The {duration} day long Beach Resort vacation in {destination} includes surfing."
+    return f"The {duration} day long Beach Resort vacation in {destination} does not include surfing."
 
 
 def describe_package_luxury_cruise(cls: dict) -> str:
