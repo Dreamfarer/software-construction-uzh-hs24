@@ -14,7 +14,6 @@ def run_tests(all_tests: list[Callable]) -> None:
         None: it only prints the results of the tests.
     """
     results = {"pass": 0, "fail": 0, "error": 0}
-
     for test in all_tests:
         global booked_vacations
         booked_vacations.clear()
@@ -89,8 +88,37 @@ def create_sample_vacations() -> None:
         has_private_suite=False,
     )
 
+def test_adventure_trip_calculatecost_easy():
+    """
+    Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="easy",
+    )
+    actual = call(adventure_trip, "calculate_cost")
+    expected = 150 * 4
+    assert actual == expected
 
-def test_beach_resort_calculatecost():
+def test_adventure_trip_calculatecost_hard():
+    """
+    Tests the calculate_cost method for a AdventureTrip instance with a hard difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="hard",
+    )
+    actual = call(adventure_trip, "calculate_cost")
+    expected = 150 * 4 * 2
+    assert actual == expected
+
+def test_beach_resort_calculatecost_with_surfing():
     """
     Tests the calculate_cost method for a BeachResort instance with surfing included.
     This test was chosen to ensure that the calculate_cost_beach_resort method is working properly.
@@ -106,6 +134,20 @@ def test_beach_resort_calculatecost():
     expected = 7 * 100 + 100
     assert actual == expected
 
+def test_beach_resort_calculatecost_without_surfing():
+    """
+    Tests the calculate_cost method for a BeachResort instance without surfing included.
+    """
+    beach_resort = new(
+        BeachResort,
+        destination="Maldives",
+        cost_per_day=100,
+        duration_in_days=7,
+        include_surfing=False,
+    )
+    actual = call(beach_resort, "calculate_cost")
+    expected = 7 * 100
+    assert actual == expected
 
 def test_beach_resort_calculatecost_zero_days():
     """
@@ -125,25 +167,22 @@ def test_beach_resort_calculatecost_zero_days():
     expected = 0
     assert actual == expected
 
-
-def test_adventure_trip_calculatecost():
+def test_luxury_cruise_calculatecost_with_suite():
     """
-    Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
-    This test was chosen to ensure that the calculate_cost_adventure method is working properly.
+    Tests the calculate_cost method for a LuxuryCruise instance with a private suite.
     """
-    adventure_trip = new(
-        AdventureTrip,
-        destination="Macchu Picchu",
-        cost_per_day=150,
-        duration_in_days=4,
-        difficulty_level="easy",
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination="Mediterranean",
+        cost_per_day=100,
+        duration_in_days=14,
+        has_private_suite=True,
     )
-    actual = call(adventure_trip, "calculate_cost")
-    expected = 150 * 4
+    actual = call(luxury_cruise, "calculate_cost")
+    expected = 100 * 14 * 1.5
     assert actual == expected
 
-
-def test_luxury_cruise_calculatecost():
+def test_luxury_cruise_calculatecost_without_suite():
     """
     Tests the calculate_cost method for a LuxuryCruise instance without a private suite.
     This test was chosen to ensure that the calculate_cost_luxury_cruise method is working properly.
@@ -158,7 +197,6 @@ def test_luxury_cruise_calculatecost():
     actual = call(luxury_cruise, "calculate_cost")
     expected = 100 * 14
     assert actual == expected
-
 
 def test_luxury_cruise_calculatecost_zero_cost_per_day():
     """
@@ -177,7 +215,6 @@ def test_luxury_cruise_calculatecost_zero_cost_per_day():
     expected = 0
     assert actual == expected
 
-
 def test_vacationbookingsummary_calculatecost():
     """
     Tests the calculate_cost method for VacationBookingSummary without passing "search_term".
@@ -189,8 +226,23 @@ def test_vacationbookingsummary_calculatecost():
     expected = (7 * 100 + 100) + (150 * 4) + (100 * 14)
     assert actual == expected
 
+    
+def test_adventure_trip_describe_package():
+    """
+    Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination = "Namibia",
+        cost_per_day = 200,
+        duration_in_days = 12,
+        difficulty_level = "hard"
+    )
+    actual = call(adventure_trip, "describe_package")
+    expected = "The 12 day long Adventure trip in Namibia is considered hard."
+    assert actual == expected
 
-def test_describe_package_beach_resort():
+def test_beach_resort_describe_package():
     """
     Tests the describe_package method for a BeachResort instance with surfing included.
     This test was chosen to ensure that the describe_package_beach_resort method is working properly.
@@ -206,24 +258,7 @@ def test_describe_package_beach_resort():
     expected = "The 6 day long Beach Resort vacation in Cuba includes surfing."
     assert actual == expected
 
-
-def test_describe_package_adventure():
-    """
-    Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
-    This test was chosen to ensure that the describe_package_adventure method is working properly.
-    """
-    adventure_trip = new(
-        AdventureTrip,
-        destination = "Namibia",
-        cost_per_day = 200,
-        duration_in_days = 12,
-        difficulty_level = "hard"
-    )
-    actual = call(adventure_trip, "describe_package")
-    expected = "The 12 day long Adventure trip in Namibia is considered hard."
-    assert actual == expected
-
-def test_describe_package_luxury_cruise():
+def test_luxury_cruise_describe_package():
     """
     Tests the desribe_package method for a luxuryCurise instance with a private suite.
     This test was chosen to ensure that the describe_package_luxury_cruise method is working properly.
@@ -239,7 +274,6 @@ def test_describe_package_luxury_cruise():
     expected = "The 8 day long Luxury Cruise in Japan does include a private suite."
     assert actual == expected
 
-
 def test_vacationbookingsummary_describe_package():
     """
     Tests the describe_package method for VacationBookingSummary without passing "search_term".
@@ -251,7 +285,6 @@ def test_vacationbookingsummary_describe_package():
     actual = call(vacation_booking_summary,"describe_package")
     expected = "The 7 day long Beach Resort vacation in Maldives includes surfing.\nThe 4 day long Adventure trip in Macchu Picchu is considered easy.\nThe 14 day long Luxury Cruise in Mediterranean does not include a private suite."
     assert actual == expected
-
 
 def test_vacationbookingsummary_describe_package_search_term():
     """
@@ -265,19 +298,17 @@ def test_vacationbookingsummary_describe_package_search_term():
     expected = "The 14 day long Luxury Cruise in Mediterranean does not include a private suite."
     assert actual == expected
 
-
-def test_vacationbooking_summary_invalid_search_term():
+def test_vacationbookingsummary_describe_package_no_matching_search_term():
     """
-    Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
+    Tests the instantiation of VacationBookingSummary with a search_term not matching any vacation.
     This test was chosen that the extract_total_vacation_summary method is working properly with
     passing an invalid search_term. It tests the instantiation in the new function.
     """
     create_sample_vacations()
-    try:
-        vacation_booking_summary = new(VacationBookingSummary,search_term = 12)
-        assert False, "TypeError not raised for invalid 'search_term' type"
-    except TypeError:
-        pass
+    vacation_booking_summary = new(VacationBookingSummary, search_term = "non_existing_vacation")
+    actual = call(vacation_booking_summary, "describe_package")
+    expected = ""
+    assert actual == expected
 
 
 def test_instantiation_missing_key():
@@ -295,25 +326,25 @@ def test_instantiation_missing_key():
     except KeyError:
         pass
 
-def test_beach_resort_calculatecost_float():
+def test_instantiation_too_many_key():
     """
-    Tests the calculate_cost method for a BeachResort instance with a float number.
-    This test was chosen to test the type checking systems behaviour for passing an invalid type (float).
+    Tests the new method for a vacation instance that has one more extra key. 
     """
     try:
         beach_resort = new(
-            BeachResort,
-            destination = "Bahamas",
-            cost_per_day = 280.5,
-            duration_in_days = 14,
-            include_surfing = True
-        )
-        assert False, "TypeError not raised"
-    except TypeError:
+        BeachResort,
+        destination = "Italy",
+        cost_per_day = 50,
+        duration_in_days = 5,
+        include_surfing = True,
+        extra_key = "extra"
+    )
+        assert False, "KeyError not raised"
+    except KeyError:
         pass
 
 
-def test_adventure_calculate_cost_negative_int():
+def test_adventure_trip_calculate_cost_negative_int():
     """
     Tests the calculatecost method for an adventure instance with negative cost per day.
     This test was chosen to test the type checking systems behaviour for passing an invalid type (negative int)
@@ -330,7 +361,6 @@ def test_adventure_calculate_cost_negative_int():
         assert False, "TypeError not raised"
     except TypeError:
         pass
-
 
 def test_adventure_trip_invalid_difficulty_level():
     """
@@ -350,6 +380,21 @@ def test_adventure_trip_invalid_difficulty_level():
     except TypeError:
         pass
 
+def test_beach_resort_invalid_include_surfing():
+    """
+    Tests the TypeError in the new method when passing an invalid include_surfing type
+    """
+    try:
+        beach_resort = new(
+            BeachResort,
+            destination = "Bahamas",
+            cost_per_day = 100,
+            duration_in_days = 14,
+            include_surfing = "10"
+        )
+        assert False, "TypeError not raised"
+    except TypeError:
+        pass
 
 def test_luxury_cruise_calculatecost_invalid_suite_type():
     """
@@ -369,8 +414,19 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
     except TypeError:
         pass
 
+def test_vacationbookingsummary_invalid_search_term():
+    """
+    Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
+    """
+    create_sample_vacations()
+    try:
+        vacation_booking_summary = new(VacationBookingSummary,search_term = 12)
+        assert False, "TypeError not raised for invalid 'search_term' type"
+    except TypeError:
+        pass
 
-def test_beach_resort_call_invalid_method_name():
+
+def test_call_invalid_method_name():
     """
     Tests the find_cls method for a BeachResort instance with an invalid method_name.
     """
@@ -385,6 +441,23 @@ def test_beach_resort_call_invalid_method_name():
         call(beach_resort, "description")
         assert False, "KeyError not raised for invalid method call"
     except KeyError:
+        pass
+
+def test_call_too_many_arguments():
+    """
+    Tests the call method for a BeachResort instance with an extra argument
+    """
+    beach_resort = new(
+        BeachResort,
+        destination = "Australia",
+        cost_per_day = 65,
+        duration_in_days = 6,
+        include_surfing = True
+    )
+    try:
+        call(beach_resort, "describe_package", "extra")
+        assert False, "TypeError was not raised when calling a method with an extra argument"
+    except TypeError:
         pass
 
 
