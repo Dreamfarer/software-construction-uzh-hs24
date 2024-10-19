@@ -59,11 +59,11 @@ def run_tests(all_tests: list[Callable]) -> None:
         + RESET
     )
     results = {"pass": 0, "fail": 0, "error": 0}
+    total_time = 0
     for test in all_tests:
         global booked_vacations
         booked_vacations.clear()
         start_time = time.time()
-        total_time = 0
         exception = None
         try:
             test()
