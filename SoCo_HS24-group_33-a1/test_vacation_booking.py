@@ -89,8 +89,37 @@ def create_sample_vacations() -> None:
         has_private_suite=False,
     )
 
+def test_adventure_trip_calculatecost_easy():
+    """
+    Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="easy",
+    )
+    actual = call(adventure_trip, "calculate_cost")
+    expected = 150 * 4
+    assert actual == expected
 
-def test_beach_resort_calculatecost():
+def test_adventure_trip_calculatecost_hard():
+    """
+    Tests the calculate_cost method for a AdventureTrip instance with a hard difficulty level.
+    """
+    adventure_trip = new(
+        AdventureTrip,
+        destination="Macchu Picchu",
+        cost_per_day=150,
+        duration_in_days=4,
+        difficulty_level="hard",
+    )
+    actual = call(adventure_trip, "calculate_cost")
+    expected = 150 * 4 * 2
+    assert actual == expected
+
+def test_beach_resort_calculatecost_with_surfing():
     """
     Tests the calculate_cost method for a BeachResort instance with surfing included.
     """
@@ -105,6 +134,20 @@ def test_beach_resort_calculatecost():
     expected = 7 * 100 + 100
     assert actual == expected
 
+def test_beach_resort_calculatecost_without_surfing():
+    """
+    Tests the calculate_cost method for a BeachResort instance without surfing included.
+    """
+    beach_resort = new(
+        BeachResort,
+        destination="Maldives",
+        cost_per_day=100,
+        duration_in_days=7,
+        include_surfing=False,
+    )
+    actual = call(beach_resort, "calculate_cost")
+    expected = 7 * 100
+    assert actual == expected
 
 def test_beach_resort_calculatecost_zero_days():
     """
@@ -122,24 +165,22 @@ def test_beach_resort_calculatecost_zero_days():
     expected = 0
     assert actual == expected
 
-
-def test_adventure_trip_calculatecost():
+def test_luxury_cruise_calculatecost_with_suite():
     """
-    Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
+    Tests the calculate_cost method for a LuxuryCruise instance with a private suite.
     """
-    adventure_trip = new(
-        AdventureTrip,
-        destination="Macchu Picchu",
-        cost_per_day=150,
-        duration_in_days=4,
-        difficulty_level="easy",
+    luxury_cruise = new(
+        LuxuryCruise,
+        destination="Mediterranean",
+        cost_per_day=100,
+        duration_in_days=14,
+        has_private_suite=True,
     )
-    actual = call(adventure_trip, "calculate_cost")
-    expected = 150 * 4
+    actual = call(luxury_cruise, "calculate_cost")
+    expected = 100 * 14
     assert actual == expected
 
-
-def test_luxury_cruise_calculatecost():
+def test_luxury_cruise_calculatecost_without_suite():
     """
     Tests the calculate_cost method for a LuxuryCruise instance without a private suite.
     """
@@ -153,7 +194,6 @@ def test_luxury_cruise_calculatecost():
     actual = call(luxury_cruise, "calculate_cost")
     expected = 100 * 14
     assert actual == expected
-
 
 def test_luxury_cruise_calculatecost_zero_cost_per_day():
     """
@@ -170,7 +210,6 @@ def test_luxury_cruise_calculatecost_zero_cost_per_day():
     expected = 0
     assert actual == expected
 
-
 def test_vacationbookingsummary_calculatecost():
     """
     Tests the calculate_cost method for VacationBookingSummary without passing "search_term".
@@ -181,7 +220,7 @@ def test_vacationbookingsummary_calculatecost():
     expected = (7 * 100 + 100) + (150 * 4) + (100 * 14)
     assert actual == expected
 
-
+    
 def test_describe_package_beach_resort():
     """
     Tests the describe_package method for a BeachResort instance with surfing included.
