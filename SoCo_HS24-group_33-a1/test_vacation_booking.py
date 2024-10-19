@@ -394,7 +394,7 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
     except TypeError:
         pass
 
-def test_vacationbooking_summary_invalid_search_term():
+def test_vacationbookingsummary_invalid_search_term():
     """
     Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
     """
@@ -406,7 +406,7 @@ def test_vacationbooking_summary_invalid_search_term():
         pass
 
 
-def test_beach_resort_call_invalid_method_name():
+def test_call_invalid_method_name():
     """
     Tests the find_cls method for a BeachResort instance with an invalid method_name.
     """
@@ -421,6 +421,23 @@ def test_beach_resort_call_invalid_method_name():
         call(beach_resort, "description")
         assert False, "KeyError not raised for invalid method call"
     except KeyError:
+        pass
+
+def test_call_too_many_arguments():
+    """
+    Tests the call method for a BeachResort instance with an extra argument
+    """
+    beach_resort = new(
+        BeachResort,
+        destination = "Australia",
+        cost_per_day = 65,
+        duration_in_days = 6,
+        include_surfing = True
+    )
+    try:
+        call(beach_resort, "describe_package", "extra")
+        assert False, "TypeError was not raised when calling a method with an extra argument"
+    except TypeError:
         pass
 
 
