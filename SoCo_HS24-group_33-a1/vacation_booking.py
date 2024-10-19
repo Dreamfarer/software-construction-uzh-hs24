@@ -16,7 +16,9 @@ def calculate_cost_beach_resort(cls: dict) -> int:
     cost = cls["cost_per_day"]
     duration = cls["duration_in_days"]
     include_surfing = cls["include_surfing"]
-    if include_surfing:
+    if duration == 0:
+        return 0
+    elif include_surfing:
         return cost * duration + 100
     return cost * duration
 
