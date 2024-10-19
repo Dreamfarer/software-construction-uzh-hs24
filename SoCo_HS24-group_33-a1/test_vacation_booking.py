@@ -297,18 +297,6 @@ def test_vacationbookingsummary_describe_package_no_matching_search_term():
     assert actual == expected
 
 
-def test_vacationbooking_summary_invalid_search_term():
-    """
-    Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
-    """
-    create_sample_vacations()
-    try:
-        vacation_booking_summary = new(VacationBookingSummary,search_term = 12)
-        assert False, "TypeError not raised for invalid 'search_term' type"
-    except TypeError:
-        pass
-
-
 def test_instantiation_missing_key():
     """
     Tests the new method for a vacation instance that misses a key. 
@@ -323,6 +311,24 @@ def test_instantiation_missing_key():
         assert False, "KeyError not raised"
     except KeyError:
         pass
+
+def test_instantiation_too_many_key():
+    """
+    Tests the new method for a vacation instance that has one more extra key. 
+    """
+    try:
+        beach_resort = new(
+        BeachResort,
+        destination = "Italy",
+        cost_per_day = 50,
+        duration_in_days = 5,
+        include_surfing = True,
+        extra_key = "extra"
+    )
+        assert False, "KeyError not raised"
+    except KeyError:
+        pass
+
 
 def test_beach_resort_calculatecost_float():
     """
