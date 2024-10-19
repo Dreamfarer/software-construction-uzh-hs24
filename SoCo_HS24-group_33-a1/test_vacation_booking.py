@@ -1,5 +1,6 @@
 from vacation_booking import *
 import time
+import argparse
 
 NAME_WIDTH = 75
 RESULT_WIDTH = 8
@@ -88,7 +89,7 @@ def run_tests(all_tests: list[Callable]) -> None:
     )
 
 
-def find_tests(prefix: str = "test_") -> list[Callable]:
+def find_tests(prefix: str = "test_", pattern: str = None) -> list[Callable]:
     """
     Finds all test functions whose names start with a given prefix.
 
@@ -102,7 +103,8 @@ def find_tests(prefix: str = "test_") -> list[Callable]:
     tests = []
     for name, func in globals().items():
         if name.startswith(prefix):
-            tests.append(func)
+            if pattern is None or pattern.lower() in name.lower():
+                tests.append(func)
     return tests
 
 
@@ -527,5 +529,16 @@ def test_call_too_many_arguments():
 
 
 if __name__ == "__main__":
-    tests = find_tests()
+    parser = argparse.ArgumentParser(description = "Run Tests for VacationBooking")
+    parser.add_argument(
+        "--select",
+        type = str,
+        default = None,
+        help = "Only run tests with a specific pattern"
+    )
+    args = parser.parse_args()
+    tests = find_tests(pattern = args.select)
+    if not tests:
+        print(f"No tests found matching the given pattern {args.select}")
+        exit(1)
     run_tests(tests)
