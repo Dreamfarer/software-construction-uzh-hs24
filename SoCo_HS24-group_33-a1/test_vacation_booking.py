@@ -177,7 +177,7 @@ def test_luxury_cruise_calculatecost_with_suite():
         has_private_suite=True,
     )
     actual = call(luxury_cruise, "calculate_cost")
-    expected = 100 * 14
+    expected = 100 * 14 * 1.5
     assert actual == expected
 
 def test_luxury_cruise_calculatecost_without_suite():
