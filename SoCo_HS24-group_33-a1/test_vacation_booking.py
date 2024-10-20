@@ -138,6 +138,7 @@ def create_sample_vacations() -> None:
 def test_adventure_trip_calculatecost_easy():
     """
     Tests the calculate_cost method for a AdventureTrip instance with an easy difficulty level.
+    This test was chosen to ensure that the calculate_cost_adventure method is working properly.
     """
     adventure_trip = new(
         AdventureTrip,
@@ -154,6 +155,7 @@ def test_adventure_trip_calculatecost_easy():
 def test_adventure_trip_calculatecost_hard():
     """
     Tests the calculate_cost method for a AdventureTrip instance with a hard difficulty level.
+    This test was chosen to ensure that the calculate_cost_adventure method is working properly.
     """
     adventure_trip = new(
         AdventureTrip,
@@ -187,6 +189,7 @@ def test_beach_resort_calculatecost_with_surfing():
 def test_beach_resort_calculatecost_without_surfing():
     """
     Tests the calculate_cost method for a BeachResort instance without surfing included.
+    This test was chosen to ensure that the calculate_cost_beach_resort method is working properly.
     """
     beach_resort = new(
         BeachResort,
@@ -222,6 +225,7 @@ def test_beach_resort_calculatecost_zero_days():
 def test_luxury_cruise_calculatecost_with_suite():
     """
     Tests the calculate_cost method for a LuxuryCruise instance with a private suite.
+    This test was chosen to ensure that the calculate_cost_luxury_cruise method is working properly.
     """
     luxury_cruise = new(
         LuxuryCruise,
@@ -285,6 +289,7 @@ def test_vacationbookingsummary_calculatecost():
 def test_adventure_trip_describe_package():
     """
     Tests the describe_package method for a adventureTrip instance with a hard difficulty level.
+    This test was chosen to ensure that the describe_package_adventure method is working properly.
     """
     adventure_trip = new(
         AdventureTrip,
@@ -335,7 +340,7 @@ def test_luxury_cruise_describe_package():
 def test_vacationbookingsummary_describe_package():
     """
     Tests the describe_package method for VacationBookingSummary without passing "search_term".
-    This test was chosen that the extract_total_vacation_summary method is working properly without
+    This test was chosen to ensure that the extract_total_vacation_summary method is working properly without
     passing a search_term.
     """
     create_sample_vacations()
@@ -348,7 +353,7 @@ def test_vacationbookingsummary_describe_package():
 def test_vacationbookingsummary_describe_package_search_term():
     """
     Tests the desribe_package method for VacationBookingSummary with a search term Cruise.
-    This test was chosen that the extract_total_vacation_summary method is working properly with
+    This test was chosen to ensure that the extract_total_vacation_summary method is working properly with
     passing a search_term.
     """
     create_sample_vacations()
@@ -361,7 +366,7 @@ def test_vacationbookingsummary_describe_package_search_term():
 def test_vacationbookingsummary_describe_package_no_matching_search_term():
     """
     Tests the instantiation of VacationBookingSummary with a search_term not matching any vacation.
-    This test was chosen that the extract_total_vacation_summary method is working properly with
+    This test was chosen to ensure that the extract_total_vacation_summary method is working properly with
     passing an invalid search_term. It tests the instantiation in the new function.
     """
     create_sample_vacations()
@@ -376,6 +381,7 @@ def test_vacationbookingsummary_describe_package_no_matching_search_term():
 def test_instantiation_missing_key():
     """
     Tests the new method for a vacation instance that misses a key.
+    This test was chosen to ensure that the new method raises KeyError if an argument is missing in the constructor.
     """
     try:
         beach_resort = new(
@@ -389,6 +395,7 @@ def test_instantiation_missing_key():
 def test_instantiation_too_many_key():
     """
     Tests the new method for a vacation instance that has one more extra key.
+    This test was chosen to ensure that the new method raises KeyError if there an extra argument was passed to the new method.
     """
     try:
         beach_resort = new(
@@ -407,7 +414,7 @@ def test_instantiation_too_many_key():
 def test_adventure_trip_calculate_cost_negative_int():
     """
     Tests the calculatecost method for an adventure instance with negative cost per day.
-    This test was chosen to test the type checking systems behaviour for passing an invalid type (negative int)
+    This test was chosen to test the behaviour of the type checking system when passing an invalid cost_per_day (negative int)
     as well as the instantiation in the new function.
     """
     try:
@@ -426,7 +433,7 @@ def test_adventure_trip_calculate_cost_negative_int():
 def test_adventure_trip_invalid_difficulty_level():
     """
     Tests the instantiation of a AdventureTrip instance with an invalid difficulty level.
-    This test was chosen to test the type checking systems behaviour for passing an invalid difficulty_level
+    This test was chosen to test the behaviour of the type checking system when passing an invalid difficulty_level
     as well as the instantiation in the new function.
     """
     try:
@@ -445,6 +452,8 @@ def test_adventure_trip_invalid_difficulty_level():
 def test_beach_resort_invalid_include_surfing():
     """
     Tests the TypeError in the new method when passing an invalid include_surfing type
+    This test was chosen to test the behaviour of the type checking system when passing an invalid include_surfing
+    as well as the instantiation in the new function.
     """
     try:
         beach_resort = new(
@@ -462,7 +471,7 @@ def test_beach_resort_invalid_include_surfing():
 def test_luxury_cruise_calculatecost_invalid_suite_type():
     """
     Tests the instantiation of a LuxuryCruise instance with an invalid suite type.
-    This test was chosen to test the type checking systems behaviour for passing an invalid type(str)
+    This test was chosen to test the behaviour of the type checking system when passing an invalid has_private_suite
     as well as the instantiation in the new function.
     """
     try:
@@ -481,6 +490,8 @@ def test_luxury_cruise_calculatecost_invalid_suite_type():
 def test_vacationbookingsummary_invalid_search_term():
     """
     Tests the instantiation of VacationBookingSummary with an invalid type for search_term.
+    This test was chosen to test the behaviour of the type checking system when passing an invalid search_term
+    as well as the instantiation in the new function.
     """
     create_sample_vacations()
     try:
@@ -493,6 +504,7 @@ def test_vacationbookingsummary_invalid_search_term():
 def test_call_invalid_method_name():
     """
     Tests the find_cls method for a BeachResort instance with an invalid method_name.
+    This test was chosen to ensure that the call function raises KeyError when passing a non existing method.
     """
     beach_resort = new(
         BeachResort,
@@ -511,6 +523,7 @@ def test_call_invalid_method_name():
 def test_call_too_many_arguments():
     """
     Tests the call method for a BeachResort instance with an extra argument
+    This test was chosen to ensure that the call function raises TypeError when passing an extra argument than needed for the corresponding method.
     """
     beach_resort = new(
         BeachResort,
