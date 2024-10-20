@@ -1,93 +1,93 @@
-# SoCo24
+# GROUP33 – Software Construction HS24 Task I
 
+## Table of Contents
+- [Overview](#overview): General approach 
+- [Test Documentation](#Test_Documentation): Documentation of each test
+- [Code Documentation](#Code_Documentation): Documentation of each method
+- [Disclaimer](#disclaimer): Commits and use of generative artificial intelligence
 
+## Overview
+This section outlines our general approach and the rationale behind key design decisions. For method-specific details, please refer to the [Code Documentation](#Code_Documentation).
 
-## Getting started
+#### Mocking Classes
+We chose to represent classes using dictionaries, as they best mimic the structure and behavior of real Python classes among built-in options. Each dictionary (referred to as a 'class') contains at least the following attributes:
+* Parent (`_parent`): We implemented inheritance using the `_parent` attribute, allowing child classes to reuse functionality from parent classes. This reduces code duplication and follows object-oriented programming principles. It also supports overriding methods or attributes, similar to traditional class behavior.
+* Type (`_types`): The `_types` dictionary enforces type and value constraints for attributes and methods, ensuring data integrity by validating that only correct data is assigned. This approach allows us to catch potential errors early. Our implementation is inspired by TypeScript's Interfaces.
+* Name (`_name`): The `_name` attribute serves as an identifier within the symbol table, making it easier to reference instances and their type restrictions.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Additional attributes and methods can be added as needed. Below is an example showing the implementation of `AdventureTrip`, which inherits from `VacationPackage` (and thereby from `Class`):
+```
+Class = {"_parent": None, "_name": "Class", "_types": {}}
+```
+```
+VacationPackage = {
+    "_parent": Class,
+    "_name": "VacationPackage",
+    "calculate_cost": None,
+    "describe_package": None,
+    "destination": None,
+    "cost_per_day": None,
+    "duration_in_days": None,
+}
+```
+```
+AdventureTrip = {
+    "_parent": VacationPackage,
+    "_name": "AdventureTrip",
+    "calculate_cost": calculate_cost_adventure,
+    "describe_package": describe_package_adventure,
+    "difficulty_level": None,
+}
+```
+Each class must be accompanied by a dictionary that specifies its type and value constraints. Continuing from the example above, here are the corresponding type dictionaries:
+```
+Type_Class = {"_parent": str, "_name": str, "_types": dict}
+```
+```
+Type_VacationPackage = {
+    "_parent": dict,
+    "_name": str,
+    "calculate_cost": Callable,
+    "describe_package": Callable,
+    "destination": str,
+    "cost_per_day": lambda x: isinstance(x, int) and x >= 0,
+    "duration_in_days": int,
+}
+```
+```
+Type_AdventureTrip = {
+    "difficulty_level": ["easy", "hard"],
+}
+```
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+#### Creating a New Instance
+We handle object instantiation through the `new()` method. It first merges attributes and methods from parent classes recursively using `merge_rec()`, creating a new instance. Then, the parameters passed to `new()` are validated against the class’s type and value restrictions. If valid, these parameters override the default values and the newly created object is added to a global list (`booked_vacations`) containing all booked vacations. This approach avoids complex nested dictionaries and ensures the simplicity and clarity of instance representations. Validation during instantiation helps to prevent invalid data from entering the system.
 
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Here's an example of creating a new instance of the `AdventureTrip` class:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.uzh.ch/group33/soco24.git
-git branch -M main
-git push -uf origin main
+adventure_trip = new(
+    AdventureTrip,
+    destination="Macchu Picchu",
+    cost_per_day=150,
+    duration_in_days=4,
+    difficulty_level="easy",
+)
 ```
 
-## Integrate with your tools
+#### Calling Methods
+The `call()` function is used to invoke methods on objects, mimicking how methods are called in actual Python classes. Below is an example of how to call `adventure_trip.calculate_cost()` in actual Python classes:
+```
+call(adventure_trip, "calculate_cost")
+```
 
-- [ ] [Set up project integrations](https://gitlab.uzh.ch/group33/soco24/-/settings/integrations)
+## Test Documentation
+...
 
-## Collaborate with your team
+## Code Documentation
+...
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Disclaimer
+We aimed to distribute the workload as evenly as possible, and overall, this was successful. However, the commit count varies due to different committing habits. Additionally, [Dreamfarer](https://gitlab.uzh.ch/Dreamfarer) handled most of the merge requests, resulting in a higher number of commits on his part.
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+ChatGPT was used as a tool to understand and learn concepts. However, all the code in this repository was authored exclusively by the three group members. ChatGPT contributed to writing docstrings and documentation, primarily for grammar correction and providing an outline.
