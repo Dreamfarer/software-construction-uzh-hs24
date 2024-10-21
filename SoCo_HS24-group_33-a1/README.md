@@ -89,19 +89,6 @@ Before running tests, our framework identifies all methods in the global symbol 
 Refer to [Test Documentation](#test-documentation) for detailed descriptions and explanations of each test.
 
 ## Code Documentation
-<a id="vacation_booking.find_tests"></a>
-
-#### find\_tests
-
-```python
-def find_tests() -> list[Callable]
-```
-
-Find all callables starting with "Test_" in the global symbol table.
-
-**Returns**:
-
-- `list[Callable]` - A list containing all the found callables.
 
 <a id="vacation_booking.find_symtable"></a>
 
