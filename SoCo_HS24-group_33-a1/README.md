@@ -2,12 +2,12 @@
 
 ## Table of Contents
 - [Overview](#overview): General approach 
-- [Test Documentation](#Test_Documentation): Documentation of each test
-- [Code Documentation](#Code_Documentation): Documentation of each method
+- [Test Documentation](#test-documentation): Documentation of each test
+- [Code Documentation](#code-documentation): Documentation of each method
 - [Disclaimer](#disclaimer): Commits and use of generative artificial intelligence
 
 ## Overview
-This section outlines our general approach and the rationale behind key design decisions. For method-specific details, please refer to the [Code Documentation](#Code_Documentation).
+This section outlines our general approach and the rationale behind key design decisions. For method-specific details, please refer to the [Code Documentation](#code-documentation). For details on the tests in the testing framework, see [Test Documentation](#test-documentation).
 
 #### Mocking Classes
 We chose to represent classes using dictionaries, as they best mimic the structure and behavior of real Python classes among built-in options. Each dictionary (referred to as a 'class') contains at least the following attributes:
@@ -80,6 +80,11 @@ The `call()` function is used to invoke methods on objects, mimicking how method
 ```
 call(adventure_trip, "calculate_cost")
 ```
+
+#### Testing Framework
+Before running tests, our framework identifies all methods in the global symbol table that start with the prefix `test_` using the find_tests() method. It then iterates through each test with `run_tests()`, measuring the time taken for each test, and prints the results (pass, fail, or error) along with the execution time using `print_results()`. We chose this symbol table approach so that we don't need to manually track all the written tests.
+
+Refer to [Test Documentation](#test-documentation) for detailed descriptions and explanations of each test.
 
 ## Test Documentation
 ...
