@@ -1,10 +1,12 @@
 # GROUP33 – Software Construction HS24 Task I
+**Building an Object System, Type Enforcement, and Testing Framework – Without the `class` Keyword**\
+*By Ceyhun, Gianluca and Mischa*
 
 ## Table of Contents
-- [Overview](#overview): General approach 
-- [Test Documentation](#test-documentation): Documentation of each test
-- [Code Documentation](#code-documentation): Documentation of each method
-- [Disclaimer](#disclaimer): Commits and use of generative artificial intelligence
+- [Overview](#overview): Explanation and design decisions
+- [Test Documentation](#test-documentation): Detailed overview of each test
+- [Code Documentation](#code-documentation): Detailed overview of each method
+- [Disclaimer](#disclaimer): Use of AI tools and commit distribution explanation
 
 ## Overview
 This section outlines our general approach and the rationale behind key design decisions. For method-specific details, please refer to the [Code Documentation](#code-documentation). For details on the tests in the testing framework, see [Test Documentation](#test-documentation).
