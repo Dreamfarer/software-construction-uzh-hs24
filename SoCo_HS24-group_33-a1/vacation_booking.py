@@ -147,20 +147,6 @@ Type_VacationBookingSummary = {
 }
 
 
-def find_tests() -> list[Callable]:
-    """
-    Find all callables starting with "Test_" in the global symbol table.
-
-    Returns:
-        list[Callable]: A list containing all the found callables.
-    """
-    tests = []
-    for key in globals().items:
-        if key.startswith("Test_"):
-            tests.append(globals()[key])
-    return tests
-
-
 def find_symtable(cls_name: str) -> dict:
     """
     Retrieve a dictionary (object) starting with "Type_" from the global symbol table.
