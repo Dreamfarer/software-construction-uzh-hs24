@@ -21,6 +21,17 @@ class Frame:
         self.environment[name] = value
 
 
+class Function:
+
+    def __init__(self, frame: Frame, parameters: str | list[str], body: list) -> None:
+        self.__frame = frame
+        self.parameters = parameters
+        self.body = body
+
+    def call(self, *args) -> None:
+        pass
+
+
 def add(a: int, b: int) -> int:
     pass
 
@@ -55,15 +66,24 @@ def parse(frame: Frame, expression: list) -> any:
             return get(frame, name)
         case "call":
             return call(frame, name, value)
+        case "function":
+            return function(frame, name, value)
         case _:
             raise ValueError(f"{identifier} is not a valid identifier.")
 
 
-def function(frame: Frame, parameter: list[str] | str, body: list) -> callable:
+def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
     """
     Introduce a new function
     Create a new frame along with every function introduction
-    If the body or the parameters cannot be set right away (e.g. because of nesting or evaluation), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
+    """
+    function_frame = Frame(frame.parent)
+    return Function(function_frame, parameters, body)
+
+
+def evaluate(frame, expression: str):
+    """
+    Evaluate a single expression (e.g. '2+2')
     """
     pass
 
