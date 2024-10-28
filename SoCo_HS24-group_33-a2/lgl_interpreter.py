@@ -43,31 +43,35 @@ def power(base: int, exponent: int) -> int:
 
 def parse(frame: Frame, expression: list) -> any:
     """
-    Recursively parse content between two brackets [] and find correct method to call.
-
-    Example: ["set", "get_cube_power", ["function", "x", ["power", ["get", "x"], 3]]]
-    The parser sees that ["function", "x", ["power", ["get", "x"], 3]] cannot directly
-    be evaluated and therefore cannot be set right away, that's why it calls 'parse'
-    again with this list.
-    Then, in the recursive step, it calls 'function' to get a callable (which intern might
-    also call 'parse' if something is not directly evaluatable). In the end,
-    after returning from the recursive statements it adds "get_cube_power"
-    as a callable to the current frame.
+    Parse content between two brackets [] and find correct method to call.
     """
-    pass
+    identifier = expression[0]
+    name = expression[1]
+    value = expression[2:] if len(expression) > 2 else None
+    match identifier:
+        case "set":
+            return set(frame, name, value)
+        case "get":
+            return get(frame, name)
+        case "call":
+            return call(frame, name, value)
+        case _:
+            raise ValueError(f"{identifier} is not a valid identifier.")
 
 
 def function(frame: Frame, parameter: list[str] | str, body: list) -> callable:
     """
     Introduce a new function
     Create a new frame along with every function introduction
+    If the body or the parameters cannot be set right away (e.g. because of nesting or evaluation), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
     """
     pass
 
 
-def set(frame: Frame, name: str, value: str | int | list) -> None:
+def set(frame: Frame, name: str, value: list) -> None:
     """
     Set a new variable to the current frame
+    If the value cannot be set right away (e.g. because of evaluation), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
     """
     pass
 
@@ -79,7 +83,7 @@ def get(frame: Frame, name: str) -> any:
     pass
 
 
-def call(frame: Frame, name: str, *args: any) -> None:
+def call(frame: Frame, name: str, args: list) -> None:
     """
     Retrieve the function of the current frame (or parents if not found) and call it
     """
