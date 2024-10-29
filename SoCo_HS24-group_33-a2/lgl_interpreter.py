@@ -10,11 +10,12 @@ class Frame:
 
     def get(self, var_name: str) -> any:
         """Look in the current frame. If not found, recursively look at parents."""
-        if not var_name in self.environment:
-            if self.parent == None:
-                raise KeyError(f"{var_name} was not found.")
+        if var_name in self.environment:
+            return self.environment[var_name]
+        elif self.parent:
             return self.parent.get(var_name)
-        return self.environment[var_name]
+        else:
+            raise KeyError(f"{var_name} was not found.")
 
     def add(self, name: str, value: any) -> None:
         """Add to the current frame"""
