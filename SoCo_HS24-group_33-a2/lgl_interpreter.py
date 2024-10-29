@@ -52,6 +52,18 @@ def power(frame: Frame, base: int | list, exponent: int | list) -> int:
     pass
 
 
+def AND(frame: Frame, a: int | list, b: int | list) -> int:
+    pass
+
+
+def OR(frame: Frame, a: int | list, b: int | list) -> int:
+    pass
+
+
+def XOR(frame: Frame, a: int | list, b: int | list) -> int:
+    pass
+
+
 def parse(frame: Frame, expression: list) -> any:
     """
     Parse content between two brackets [] and find correct method to call.
@@ -85,6 +97,12 @@ def parse(frame: Frame, expression: list) -> any:
                 return multiply(id_0, id_2)
             case "/":
                 return divide(id_0, id_2)
+            case "AND":
+                return AND(id_0, id_2)
+            case "OR":
+                return OR(id_0, id_2)
+            case "XOR":
+                return XOR(id_0, id_2)
     raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
 
 
