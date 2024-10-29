@@ -32,44 +32,60 @@ class Function:
         pass
 
 
-def add(a: int, b: int) -> int:
+def add(frame: Frame, a: int | list, b: int | list) -> int:
     pass
 
 
-def subtract(a: int, b: int) -> int:
+def subtract(frame: Frame, a: int | list, b: int | list) -> int:
     pass
 
 
-def multiply(a: int, b: int) -> int:
+def multiply(frame: Frame, a: int | list, b: int | list) -> int:
     pass
 
 
-def divide(numerator: int, denominator: int) -> int:
+def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
     pass
 
 
-def power(base: int, exponent: int) -> int:
+def power(frame: Frame, base: int | list, exponent: int | list) -> int:
     pass
 
 
 def parse(frame: Frame, expression: list) -> any:
     """
     Parse content between two brackets [] and find correct method to call.
+    The called methods (e.g. 'add') are responsible to resolve nesting.
+
+    Example: [[2, "+", 2], "+", 3]
+    'parse' calls 'add' with parameters [2, "+", 2] and 3. 'add' can't simply compute it because the first parameter is a list. But it is 'add's responsibilty to call 'parse' again with the parameter [2, "+", 2], so that it receives an actual value back which then can be used to add 3 to it.
     """
-    identifier = expression[0]
-    name = expression[1]
-    value = expression[2:] if len(expression) > 2 else None
-    match identifier:
-        case "set":
-            return set(frame, name, value)
-        case "get":
-            return get(frame, name)
-        case "call":
-            return call(frame, name, value)
-        case "function":
-            return function(frame, name, value)
-        case _:
-            raise ValueError(f"{identifier} is not a valid identifier.")
+    valid_identifier_id_0 = ["set", "get", "call", "function"]
+    valid_identifier_id_1 = ["+", "-", "*", "/"]
+    id_0 = expression[0]
+    id_1 = expression[1]
+    id_2 = expression[2:] if len(expression) > 2 else None
+    if id_0 in valid_identifier_id_0:
+        match id_0:
+            case "set":
+                return set(frame, id_1, id_2)
+            case "get":
+                return get(frame, id_1)
+            case "call":
+                return call(frame, id_1, id_2)
+            case "function":
+                return function(frame, id_1, id_2)
+    elif id_1 in valid_identifier_id_1:
+        match id_1:
+            case "+":
+                return add(id_0, id_2)
+            case "-":
+                return subtract(id_0, id_2)
+            case "*":
+                return multiply(id_0, id_2)
+            case "/":
+                return divide(id_0, id_2)
+    raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
 
 
 def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
@@ -79,13 +95,6 @@ def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
     """
     function_frame = Frame(frame.parent)
     return Function(function_frame, parameters, body)
-
-
-def evaluate(frame, expression: str):
-    """
-    Evaluate a single expression (e.g. '2+2')
-    """
-    pass
 
 
 def set(frame: Frame, name: str, value: list) -> None:
