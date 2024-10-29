@@ -77,7 +77,7 @@ def parse(frame: Frame, expression: list) -> any:
     id_0 = expression[0]
     id_1 = expression[1]
     id_2 = expression[2:] if len(expression) > 2 else None
-    if id_0 in valid_identifier_id_0:
+    if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
         match id_0:
             case "set":
                 return set(frame, id_1, id_2)
@@ -87,7 +87,7 @@ def parse(frame: Frame, expression: list) -> any:
                 return call(frame, id_1, id_2)
             case "function":
                 return function(frame, id_1, id_2)
-    elif id_1 in valid_identifier_id_1:
+    elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
         match id_1:
             case "+":
                 return add(id_0, id_2)
