@@ -6,7 +6,6 @@ class Frame:
     def __init__(self, parent: "Frame" = None) -> None:
         self.parent = parent
         self.environment = {}
-        self.content = []
 
     def get(self, var_name: str) -> any:
         """Look in the current frame. If not found, recursively look at parents."""
