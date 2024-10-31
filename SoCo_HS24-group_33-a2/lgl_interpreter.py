@@ -42,7 +42,13 @@ def add(frame: Frame, a: int | list, b: int | list) -> int:
     return right + left
 
 def subtract(frame: Frame, a: int | list, b: int | list) -> int:
-    pass
+    assert not isinstance(a,list) or len(a) == 3
+    assert not isinstance(b,list) or len(b) == 3
+
+    left = parse(frame,a) if isinstance(a,list) else a
+    right = parse(frame,b) if isinstance(b,list) else b
+
+    return left - right
 
 
 def multiply(frame: Frame, a: int | list, b: int | list) -> int:
