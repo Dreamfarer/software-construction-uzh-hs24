@@ -52,7 +52,13 @@ def subtract(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def multiply(frame: Frame, a: int | list, b: int | list) -> int:
-    pass
+    assert not isinstance(a,list) or len(a) == 3
+    assert not isinstance(b,list) or len(b) == 3
+
+    left = parse(frame,a) if isinstance(a,list) else a
+    right = parse(frame,b) if isinstance(b,list) else b
+
+    return a * b
 
 
 def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
