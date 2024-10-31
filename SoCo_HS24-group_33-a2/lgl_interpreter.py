@@ -82,7 +82,16 @@ def power(frame: Frame, base: int | list, exponent: int | list) -> int:
 
 
 def AND(frame: Frame, a: int | list, b: int | list) -> int:
-    pass
+    assert not isinstance(a,list) or len(a) == 3
+    assert not isinstance(b,list) or len(b) == 3
+
+    left = parse(frame,a) if isinstance(a,list) else a
+    right = parse(frame,b) if isinstance(b,list) else b
+
+    left = 1 if left != 0 else 0
+    right = 1 if right != 0 else 0
+
+    return left & right
 
 
 def OR(frame: Frame, a: int | list, b: int | list) -> int:
