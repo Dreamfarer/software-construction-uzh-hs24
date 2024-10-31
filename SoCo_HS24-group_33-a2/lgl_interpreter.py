@@ -72,7 +72,13 @@ def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
     return numerator/denominator
 
 def power(frame: Frame, base: int | list, exponent: int | list) -> int:
-    pass
+    assert not isinstance(base, list) or len(base) == 3
+    assert not isinstance(exponent,list) or len(exponent) == 3
+
+    base = parse(frame, base) if isinstance(base,list) else base
+    exponent = parse(frame,exponent) if isinstance(exponent,list) else exponent
+
+    return base ** exponent
 
 
 def AND(frame: Frame, a: int | list, b: int | list) -> int:
