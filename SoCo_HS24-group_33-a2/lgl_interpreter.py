@@ -33,8 +33,18 @@ class Function:
 
 
 def add(frame: Frame, a: int | list, b: int | list) -> int:
-    pass
+    if isinstance(a, list):
+        assert len(a) == 3
+        left = parse(frame,a)
+    else:
+        left = a
 
+    if isinstance(b,list):
+        assert len(b) == 3
+        right = parse(frame, b)
+    else:
+        right = b
+    return right + left
 
 def subtract(frame: Frame, a: int | list, b: int | list) -> int:
     pass
