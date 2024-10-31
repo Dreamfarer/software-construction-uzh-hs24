@@ -62,8 +62,14 @@ def multiply(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
-    pass
+    assert not isinstance(numerator,list) or len(numerator) == 3
+    assert not isinstance(denominator,list) or len(denominator) == 3
 
+    left = parse(frame,numerator) if isinstance(numerator,list) else numerator
+    right = parse(frame, denominator) if isinstance(denominator,list) else denominator
+
+    assert denominator != 0, "Invalid division: denominator is 0"
+    return numerator/denominator
 
 def power(frame: Frame, base: int | list, exponent: int | list) -> int:
     pass
