@@ -29,7 +29,10 @@ class Function:
         self.body = body
 
     def call(self, *args) -> None:
-        pass
+        new_frame = Frame(self.__frame)
+        for parameter, arg in zip(self.parameters, args):
+            new_frame.add(parameter, arg)
+        return parse(new_frame, self.body)
 
 
 def add(frame: Frame, a: int | list, b: int | list) -> int:
