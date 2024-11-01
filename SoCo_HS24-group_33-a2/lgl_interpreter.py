@@ -58,15 +58,15 @@ def multiply(frame: Frame, a: int | list, b: int | list) -> int:
     left = parse(frame,a) if isinstance(a,list) else a
     right = parse(frame,b) if isinstance(b,list) else b
 
-    return a * b
+    return left * right
 
 
 def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
     assert not isinstance(numerator,list) or len(numerator) == 3
     assert not isinstance(denominator,list) or len(denominator) == 3
 
-    left = parse(frame,numerator) if isinstance(numerator,list) else numerator
-    right = parse(frame, denominator) if isinstance(denominator,list) else denominator
+    numerator = parse(frame,numerator) if isinstance(numerator,list) else numerator
+    denominator = parse(frame, denominator) if isinstance(denominator,list) else denominator
 
     assert denominator != 0, "Invalid division: denominator is 0"
     return numerator/denominator
