@@ -28,8 +28,11 @@ class Function:
         self.parameters = parameters
         self.body = body
 
-    def call(self, *args) -> None:
-        pass
+    def call(self, *parsed_args) -> any:
+        new_frame = Frame(self.__frame)
+        for parameter, arg in zip(self.parameters, parsed_args):
+            new_frame.add(parameter, arg)
+        return parse(new_frame, self.body)
 
 
 def add(frame: Frame, a: int | list, b: int | list) -> int:
@@ -146,11 +149,15 @@ def get(frame: Frame, name: str) -> any:
     return frame.get(name)
 
 
-def call(frame: Frame, name: str, args: list) -> None:
+def call(frame: Frame, name: str, args: list) -> any:
     """
     Retrieve the function of the current frame (or parents if not found) and call it
     """
-    pass
+    func = frame.get(name)
+    if not isinstance(func, Function):
+        raise ValueError(f"'{name}' is not a function")
+    parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
+    return func.call(*parsed_args)
 
 
 def main() -> None:
