@@ -28,9 +28,9 @@ class Function:
         self.parameters = parameters
         self.body = body
 
-    def call(self, *args) -> None:
+    def call(self, *parsed_args) -> any:
         new_frame = Frame(self.__frame)
-        for parameter, arg in zip(self.parameters, args):
+        for parameter, arg in zip(self.parameters, parsed_args):
             new_frame.add(parameter, arg)
         return parse(new_frame, self.body)
 
@@ -140,7 +140,9 @@ def call(frame: Frame, name: str, args: list) -> any:
     func = frame.get(name)
     if not isinstance(func, Function):
         raise ValueError(f"'{name}' is not a function")
-    return func.call(*args)
+    parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
+    return func.call(*parsed_args)
+
 
 def main() -> None:
     """
