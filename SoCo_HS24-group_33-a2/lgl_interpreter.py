@@ -69,7 +69,7 @@ def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
     denominator = parse(frame, denominator) if isinstance(denominator,list) else denominator
 
     assert denominator != 0, "Invalid division: denominator is 0"
-    return numerator/denominator
+    return round(numerator/denominator,2)
 
 def power(frame: Frame, base: int | list, exponent: int | list) -> int:
     assert not isinstance(base, list) or len(base) == 3
