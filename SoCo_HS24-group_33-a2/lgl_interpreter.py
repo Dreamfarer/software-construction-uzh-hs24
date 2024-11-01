@@ -130,12 +130,14 @@ def get(frame: Frame, name: str) -> any:
     pass
 
 
-def call(frame: Frame, name: str, args: list) -> None:
+def call(frame: Frame, name: str, args: list) -> any:
     """
     Retrieve the function of the current frame (or parents if not found) and call it
     """
-    pass
-
+    func = frame.get(name)
+    if not isinstance(func, Function):
+        raise ValueError(f"'{name}' is not a function")
+    return func.call(*args)
 
 def main() -> None:
     """
