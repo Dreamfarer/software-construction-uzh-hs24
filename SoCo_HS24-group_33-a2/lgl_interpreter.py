@@ -28,8 +28,11 @@ class Function:
         self.parameters = parameters
         self.body = body
 
-    def call(self, *args) -> None:
-        pass
+    def call(self, *parsed_args) -> any:
+        new_frame = Frame(self.__frame)
+        for parameter, arg in zip(self.parameters, parsed_args):
+            new_frame.add(parameter, arg)
+        return parse(new_frame, self.body)
 
 
 def add(frame: Frame, a: int | list, b: int | list) -> int:
@@ -164,6 +167,21 @@ def XOR(frame: Frame, a: int | list, b: int | list) -> int:
     return left ^ right
 
 
+def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
+    """
+    Return the third item of the expression in the correct format.
+    Return 'None' if the third element does not exist, a value if the third item is a single value and a list if the expression contains more than three items.
+    """
+    id_0 = expression[0]
+    id_1 = expression[1]
+    id_2 = None
+    if len(expression) == 3:
+        id_2 = expression[2]
+    elif len(expression) > 3:
+        id_2 = expression[2:]
+    return id_0, id_1, id_2
+
+
 def parse(frame: Frame, expression: list) -> any:
     """
     Parse content between two brackets [] and find correct method to call.
@@ -174,9 +192,8 @@ def parse(frame: Frame, expression: list) -> any:
     """
     valid_identifier_id_0 = ["set", "get", "call", "function"]
     valid_identifier_id_1 = ["+", "-", "*", "/"]
-    id_0 = expression[0]
-    id_1 = expression[1]
-    id_2 = expression[2:] if len(expression) > 2 else None
+    id_0, id_1, id_2 = sanitize_expression(expression)
+
     if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
         match id_0:
             case "set":
@@ -190,19 +207,19 @@ def parse(frame: Frame, expression: list) -> any:
     elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
         match id_1:
             case "+":
-                return add(id_0, id_2)
+                return add(frame, id_0, id_2)
             case "-":
-                return subtract(id_0, id_2)
+                return subtract(frame, id_0, id_2)
             case "*":
-                return multiply(id_0, id_2)
+                return multiply(frame, id_0, id_2)
             case "/":
-                return divide(id_0, id_2)
+                return divide(frame, id_0, id_2)
             case "AND":
-                return AND(id_0, id_2)
+                return AND(frame, id_0, id_2)
             case "OR":
-                return OR(id_0, id_2)
+                return OR(frame, id_0, id_2)
             case "XOR":
-                return XOR(id_0, id_2)
+                return XOR(frame, id_0, id_2)
     raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
 
 
@@ -220,21 +237,27 @@ def set(frame: Frame, name: str, value: list) -> None:
     Set a new variable to the current frame
     If the value cannot be set right away (e.g. because of evaluation), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
     """
-    pass
+    if isinstance(value, list):
+        value = parse(frame, value)
+    frame.add(name, value)
 
 
 def get(frame: Frame, name: str) -> any:
     """
     Retrieve a variable of the current frame (or parents if not found)
     """
-    pass
+    return frame.get(name)
 
 
-def call(frame: Frame, name: str, args: list) -> None:
+def call(frame: Frame, name: str, args: list) -> any:
     """
     Retrieve the function of the current frame (or parents if not found) and call it
     """
-    pass
+    func = frame.get(name)
+    if not isinstance(func, Function):
+        raise ValueError(f"'{name}' is not a function")
+    parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
+    return func.call(*parsed_args)
 
 
 def main() -> None:
