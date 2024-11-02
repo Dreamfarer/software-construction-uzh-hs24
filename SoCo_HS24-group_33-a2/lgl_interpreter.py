@@ -33,6 +33,10 @@ class Function:
 
 
 def add(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Adds two values together.
+    In terms of a list or nested list 'add' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
@@ -42,6 +46,10 @@ def add(frame: Frame, a: int | list, b: int | list) -> int:
     return right + left
 
 def subtract(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Substract two values from each other.
+    In terms of a list or nested list 'substract' calls 'parse' recursively to resolve nesting. 
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
@@ -52,6 +60,10 @@ def subtract(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def multiply(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Multiplies two values.
+    In terms of a list or nested list 'multiply' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
@@ -62,6 +74,10 @@ def multiply(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
+    """
+    Divides to values and rounds the value to two decimal places.
+    In terms of a list or nested list 'divide' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(numerator,list) or len(numerator) == 3
     assert not isinstance(denominator,list) or len(denominator) == 3
 
@@ -72,6 +88,10 @@ def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
     return round(numerator/denominator,2)
 
 def power(frame: Frame, base: int | list, exponent: int | list) -> int:
+    """
+    Calculates the power of a given base with the corresponding exponent.
+    In terms of a list or nested list 'power' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(base, list) or len(base) == 3
     assert not isinstance(exponent,list) or len(exponent) == 3
 
@@ -82,6 +102,14 @@ def power(frame: Frame, base: int | list, exponent: int | list) -> int:
 
 
 def AND(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Implements the AND functionality:
+    1 AND 1 = 1
+    1 AND 0 = 0
+    0 AND 1 = 0
+    0 AND 0 = 0
+    In terms of a list or nested list 'ADD' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
@@ -95,6 +123,14 @@ def AND(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def OR(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Implements the OR functionality:
+    1 OR 1 = 1
+    1 OR 0 = 1
+    0 OR 1 = 1
+    0 OR 0 = 0
+    In terms of a list or nested list 'OR' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
@@ -108,6 +144,14 @@ def OR(frame: Frame, a: int | list, b: int | list) -> int:
 
 
 def XOR(frame: Frame, a: int | list, b: int | list) -> int:
+    """
+    Implements the XOR functionality:
+    1 XOR 1 = 0
+    1 XOR 0 = 1
+    0 XOR 1 = 1
+    0 XOR 0 = 0
+    In terms of a list or nested list 'XOR' calls 'parse' recursively to resolve nesting.
+    """
     assert not isinstance(a,list) or len(a) == 3
     assert not isinstance(b,list) or len(b) == 3
 
