@@ -339,3 +339,39 @@ def call(frame: Frame, name: str, args: list) -> any:
         raise ValueError(f"'{name}' is not a function")
     parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
     return func.call(*parsed_args)
+
+
+def load_lgl(file_name: str) -> list:
+    """
+    Load the LGL code
+
+    Args:
+        file_name (str): The path to the file containing the LGL code (.gsc file)
+
+    Returns
+        list: The LGL code as a list
+    """
+    import json
+
+    with open(file_name, "r") as file:
+        return json.load(file)
+
+
+def trace(file_name: str) -> any:
+    pass
+
+
+if __name__ == "__main__":
+    import argparse
+
+    arg_parser = argparse.ArgumentParser(description="LGL interpreter")
+    arg_parser.add_argument(
+        "filename", type=str, help="Path to file containing LGL code (.gsc file)"
+    )
+    arg_parser.add_argument("--trace", type=str, help="Path to store trace log")
+    args = arg_parser.parse_args()
+
+    root = Frame()
+    print(parse(root, load_lgl(args.filename)))
+    if args.trace:
+        trace(args.trace)
