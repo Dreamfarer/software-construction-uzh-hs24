@@ -35,76 +35,48 @@ class Function:
         return parse(new_frame, self.body)
 
 
-def add(frame: Frame, a: int | list, b: int | list) -> int:
+def add(a: int | list, b: int | list) -> int:
     """
     Adds two values together.
     In terms of a list or nested list 'add' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
+    return a + b
 
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
 
-    return right + left
-
-def subtract(frame: Frame, a: int | list, b: int | list) -> int:
+def subtract(a: int | list, b: int | list) -> int:
     """
     Substract two values from each other.
-    In terms of a list or nested list 'substract' calls 'parse' recursively to resolve nesting. 
+    In terms of a list or nested list 'substract' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
-
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
-
-    return left - right
+    return a - b
 
 
-def multiply(frame: Frame, a: int | list, b: int | list) -> int:
+def multiply(a: int | list, b: int | list) -> int:
     """
     Multiplies two values.
     In terms of a list or nested list 'multiply' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
-
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
-
-    return left * right
+    return a * b
 
 
-def divide(frame: Frame, numerator: int | list, denominator: int | list) -> int:
+def divide(numerator: int | list, denominator: int | list) -> int:
     """
     Divides to values and rounds the value to two decimal places.
     In terms of a list or nested list 'divide' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(numerator,list) or len(numerator) == 3
-    assert not isinstance(denominator,list) or len(denominator) == 3
-
-    numerator = parse(frame,numerator) if isinstance(numerator,list) else numerator
-    denominator = parse(frame, denominator) if isinstance(denominator,list) else denominator
-
     assert denominator != 0, "Invalid division: denominator is 0"
-    return round(numerator/denominator,2)
+    return round(numerator / denominator, 2)
 
-def power(frame: Frame, base: int | list, exponent: int | list) -> int:
+
+def power(base: int | list, exponent: int | list) -> int:
     """
     Calculates the power of a given base with the corresponding exponent.
     In terms of a list or nested list 'power' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(base, list) or len(base) == 3
-    assert not isinstance(exponent,list) or len(exponent) == 3
-
-    base = parse(frame, base) if isinstance(base,list) else base
-    exponent = parse(frame,exponent) if isinstance(exponent,list) else exponent
-
-    return base ** exponent
+    return base**exponent
 
 
-def AND(frame: Frame, a: int | list, b: int | list) -> int:
+def AND(a: int | list, b: int | list) -> int:
     """
     Implements the AND functionality:
     1 AND 1 = 1
@@ -113,19 +85,12 @@ def AND(frame: Frame, a: int | list, b: int | list) -> int:
     0 AND 0 = 0
     In terms of a list or nested list 'ADD' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
-
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
-
-    left = 1 if left != 0 else 0
-    right = 1 if right != 0 else 0
-
-    return left & right
+    a = 1 if a != 0 else 0
+    b = 1 if b != 0 else 0
+    return a & b
 
 
-def OR(frame: Frame, a: int | list, b: int | list) -> int:
+def OR(a: int | list, b: int | list) -> int:
     """
     Implements the OR functionality:
     1 OR 1 = 1
@@ -134,19 +99,12 @@ def OR(frame: Frame, a: int | list, b: int | list) -> int:
     0 OR 0 = 0
     In terms of a list or nested list 'OR' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
-
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
-
-    left = 1 if left != 0 else 0
-    right = 1 if right != 0 else 0
-
-    return left | right
+    a = 1 if a != 0 else 0
+    b = 1 if b != 0 else 0
+    return a | b
 
 
-def XOR(frame: Frame, a: int | list, b: int | list) -> int:
+def XOR(a: int | list, b: int | list) -> int:
     """
     Implements the XOR functionality:
     1 XOR 1 = 0
@@ -155,16 +113,9 @@ def XOR(frame: Frame, a: int | list, b: int | list) -> int:
     0 XOR 0 = 0
     In terms of a list or nested list 'XOR' calls 'parse' recursively to resolve nesting.
     """
-    assert not isinstance(a,list) or len(a) == 3
-    assert not isinstance(b,list) or len(b) == 3
-
-    left = parse(frame,a) if isinstance(a,list) else a
-    right = parse(frame,b) if isinstance(b,list) else b
-
-    left = 1 if left != 0 else 0
-    right = 1 if right != 0 else 0
-
-    return left ^ right
+    a = 1 if a != 0 else 0
+    b = 1 if b != 0 else 0
+    return a ^ b
 
 
 def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
@@ -191,9 +142,8 @@ def parse(frame: Frame, expression: list) -> any:
     'parse' calls 'add' with parameters [2, "+", 2] and 3. 'add' can't simply compute it because the first parameter is a list. But it is 'add's responsibilty to call 'parse' again with the parameter [2, "+", 2], so that it receives an actual value back which then can be used to add 3 to it.
     """
     valid_identifier_id_0 = ["set", "get", "call", "function"]
-    valid_identifier_id_1 = ["+", "-", "*", "/"]
+    valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
     id_0, id_1, id_2 = sanitize_expression(expression)
-
     if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
         match id_0:
             case "set":
@@ -205,21 +155,25 @@ def parse(frame: Frame, expression: list) -> any:
             case "function":
                 return function(frame, id_1, id_2)
     elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
+        id_0 = parse(frame, id_0) if isinstance(id_0, list) else id_0
+        id_2 = parse(frame, id_2) if isinstance(id_2, list) else id_2
         match id_1:
             case "+":
-                return add(frame, id_0, id_2)
+                return add(id_0, id_2)
             case "-":
-                return subtract(frame, id_0, id_2)
+                return subtract(id_0, id_2)
             case "*":
-                return multiply(frame, id_0, id_2)
+                return multiply(id_0, id_2)
             case "/":
-                return divide(frame, id_0, id_2)
+                return divide(id_0, id_2)
+            case "^":
+                return power(id_0, id_2)
             case "AND":
-                return AND(frame, id_0, id_2)
+                return AND(id_0, id_2)
             case "OR":
-                return OR(frame, id_0, id_2)
+                return OR(id_0, id_2)
             case "XOR":
-                return XOR(frame, id_0, id_2)
+                return XOR(id_0, id_2)
     raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
 
 
@@ -258,9 +212,3 @@ def call(frame: Frame, name: str, args: list) -> any:
         raise ValueError(f"'{name}' is not a function")
     parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
     return func.call(*parsed_args)
-
-
-def main() -> None:
-    """
-    Entry point to setup global frame and then call parse()
-    """
