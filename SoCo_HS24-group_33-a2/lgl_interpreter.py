@@ -1,6 +1,7 @@
 class Frame:
     """
-    This class imitates real Python frames (environments). Allows for nested function definitions.
+    This class imitates real Python frames (environments).
+    Allows for nested function definitions.
     """
 
     def __init__(self, parent: "Frame" = None) -> None:
@@ -8,7 +9,19 @@ class Frame:
         self.environment = {}
 
     def get(self, var_name: str) -> any:
-        """Look in the current frame. If not found, recursively look at parents."""
+        """
+        Look for the variable with given name the current frame.
+        If not found, recursively look at parents.
+
+        Args:
+            var_name (str): The name of the to-be found variable
+
+        Returns:
+            any: The value of the found variable
+
+        Raises:
+            KeyError: If the variable was not found
+        """
         if var_name in self.environment:
             return self.environment[var_name]
         elif self.parent:
@@ -17,101 +30,175 @@ class Frame:
             raise KeyError(f"{var_name} was not found.")
 
     def add(self, name: str, value: any) -> None:
-        """Add to the current frame"""
+        """
+        Add a new variable with given name and value to the current frame.
+
+        Args:
+            name (str): The name of the variable
+            value (any): The value of the variable
+
+        Return:
+            None: Returns nothing
+        """
         self.environment[name] = value
 
 
 class Function:
+    """
+    This class imitates Python functions.
+    Implements callability for functions defined in lgl.
+    """
 
     def __init__(self, frame: Frame, parameters: str | list[str], body: list) -> None:
         self.__frame = frame
         self.parameters = parameters
         self.body = body
 
-    def call(self, *parsed_args) -> any:
+    def call(self, *parsed_args: tuple[int]) -> any:
+        """
+        Call this function.
+        Add passed arguments to the current frame and then call 'parse' to resolve the values (i.e. execute the function).
+
+        Args:
+            parsed_args (tuple of int): Arguments passed to the to-be called function
+
+        Return:
+            any: Return the result of calling the function
+        """
         new_frame = Frame(self.__frame)
         for parameter, arg in zip(self.parameters, parsed_args):
             new_frame.add(parameter, arg)
         return parse(new_frame, self.body)
 
 
-def add(a: int | list, b: int | list) -> int:
+def add(a: int, b: int) -> int:
     """
-    Adds two values together.
-    In terms of a list or nested list 'add' calls 'parse' recursively to resolve nesting.
+    Add two values: a + b
+
+    Args:
+        a (int): Value a
+        b (int): Value b
+
+    Returns:
+        int: The resulting value of adding two values
     """
     return a + b
 
 
-def subtract(a: int | list, b: int | list) -> int:
+def subtract(a: int, b: int) -> int:
     """
-    Substract two values from each other.
-    In terms of a list or nested list 'substract' calls 'parse' recursively to resolve nesting.
+    Subtract two values: a - b
+
+    Args:
+        a (int): Value a
+        b (int): Value b
+
+    Returns:
+        int: The resulting value of subtracting b from a
     """
     return a - b
 
 
-def multiply(a: int | list, b: int | list) -> int:
+def multiply(a: int, b: int) -> int:
     """
-    Multiplies two values.
-    In terms of a list or nested list 'multiply' calls 'parse' recursively to resolve nesting.
+    Multiply two values: a * b
+
+    Args:
+        a (int): Value a
+        b (int): Value b
+
+    Returns:
+        int: The resulting value of multiplying a and b
     """
     return a * b
 
 
-def divide(numerator: int | list, denominator: int | list) -> int:
+def divide(numerator: int, denominator: int) -> int:
     """
-    Divides to values and rounds the value to two decimal places.
-    In terms of a list or nested list 'divide' calls 'parse' recursively to resolve nesting.
+    Divides to values and rounds the value to two decimal places: numerator / denominator
+
+    Args:
+        numerator (int): Numerator
+        denominator (int): Denominator
+
+    Returns:
+        int: The resulting value of dividing the numerator by the denominator
     """
     assert denominator != 0, "Invalid division: denominator is 0"
     return round(numerator / denominator, 2)
 
 
-def power(base: int | list, exponent: int | list) -> int:
+def power(base: int, exponent: int) -> int:
     """
-    Calculates the power of a given base with the corresponding exponent.
-    In terms of a list or nested list 'power' calls 'parse' recursively to resolve nesting.
+    Computes the result of raising a base to a specified exponent: base^(exponent)
+
+    Args:
+        base (int): Base
+        exponent (int): Exponent
+
+    Returns:
+        int: The result of base raised to the power of exponent.
     """
     return base**exponent
 
 
-def AND(a: int | list, b: int | list) -> int:
+def AND(a: int, b: int) -> int:
     """
-    Implements the AND functionality:
+    AND boolean operation: a AND b
+
     1 AND 1 = 1
     1 AND 0 = 0
     0 AND 1 = 0
     0 AND 0 = 0
-    In terms of a list or nested list 'ADD' calls 'parse' recursively to resolve nesting.
+
+    Args:
+        a (int): boolean a
+        b (int): boolean b
+
+    Returns:
+        int: The result of the boolean operation a AND b
     """
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
     return a & b
 
 
-def OR(a: int | list, b: int | list) -> int:
+def OR(a: int, b: int) -> int:
     """
-    Implements the OR functionality:
+    AND boolean operation: a OR b
+
     1 OR 1 = 1
     1 OR 0 = 1
     0 OR 1 = 1
     0 OR 0 = 0
-    In terms of a list or nested list 'OR' calls 'parse' recursively to resolve nesting.
+
+    Args:
+        a (int): Boolean a
+        b (int): Boolean b
+
+    Returns:
+        int: The result of the boolean operation a OR b
     """
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
     return a | b
 
 
-def XOR(a: int | list, b: int | list) -> int:
+def XOR(a: int, b: int) -> int:
     """
-    Implements the XOR functionality:
+    XOR boolean operation: a XOR b
+
     1 XOR 1 = 0
     1 XOR 0 = 1
     0 XOR 1 = 1
     0 XOR 0 = 0
-    In terms of a list or nested list 'XOR' calls 'parse' recursively to resolve nesting.
+
+    Args:
+        a (int): Boolean a
+        b (int): Boolean b
+
+    Returns:
+        int: The result of the boolean operation a XOR b
     """
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
@@ -120,8 +207,13 @@ def XOR(a: int | list, b: int | list) -> int:
 
 def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
     """
-    Return the third item of the expression in the correct format.
-    Return 'None' if the third element does not exist, a value if the third item is a single value and a list if the expression contains more than three items.
+    Return the third item of the expression in the correct format: Return 'None' if the third element does not exist, a value if the third item is a single value and a list if the expression contains more than three items.
+
+    Args:
+        expression (list of any): Expression to be sanitized and split
+
+    Return:
+        tuple of any: Split and sanitized expression
     """
     id_0 = expression[0]
     id_1 = expression[1]
@@ -136,10 +228,16 @@ def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
 def parse(frame: Frame, expression: list) -> any:
     """
     Parse content between two brackets [] and find correct method to call.
-    The called methods (e.g. 'add') are responsible to resolve nesting.
 
-    Example: [[2, "+", 2], "+", 3]
-    'parse' calls 'add' with parameters [2, "+", 2] and 3. 'add' can't simply compute it because the first parameter is a list. But it is 'add's responsibilty to call 'parse' again with the parameter [2, "+", 2], so that it receives an actual value back which then can be used to add 3 to it.
+    Args:
+        frame (Frame): The frame to read/write from
+        expression (list): lgl expression
+
+    Return:
+        any: The single atomic value (except 'None' for 'set')
+
+    Raises:
+        ValueError: If the expression contains invalid identifiers
     """
     valid_identifier_id_0 = ["set", "get", "call", "function"]
     valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
@@ -179,17 +277,30 @@ def parse(frame: Frame, expression: list) -> any:
 
 def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
     """
-    Introduce a new function
-    Create a new frame along with every function introduction
+    Add new function to provided Frame (only initialization)
+    Create a new frame along with every function introduction.
+
+    Args:
+        frame (Frame): The frame to add the function to
+        parameters (list of str): The parameter of said function in lgl
+        body (list): The body of said function in lgl
     """
     function_frame = Frame(frame.parent)
     return Function(function_frame, parameters, body)
 
 
-def set(frame: Frame, name: str, value: list) -> None:
+def set(frame: Frame, name: str, value: int | list) -> None:
     """
-    Set a new variable to the current frame
-    If the value cannot be set right away (e.g. because of evaluation), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
+    Set a new variable to the current frame.
+    If the value cannot be set right away (e.g. because of non atomic value), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
+
+    Args:
+        frame (Frame): The frame to set the new variable to
+        name (str): The name of said variable
+        value (list | int): The value of said variable
+
+    Returns:
+        None: Returns nothing
     """
     if isinstance(value, list):
         value = parse(frame, value)
@@ -198,14 +309,30 @@ def set(frame: Frame, name: str, value: list) -> None:
 
 def get(frame: Frame, name: str) -> any:
     """
-    Retrieve a variable of the current frame (or parents if not found)
+    Retrieve a variable of the current frame (or parents if not found).
+
+    Args:
+        frame (Frame): The frame to get the variable from
+        name (str): The name of the variable
+
+    Returns:
+        any: The value of the variable
+
     """
     return frame.get(name)
 
 
 def call(frame: Frame, name: str, args: list) -> any:
     """
-    Retrieve the function of the current frame (or parents if not found) and call it
+    Retrieve the function of the current frame (or parents if not found) and call it.
+
+    Args:
+        frame (Frame): The frame to call the function from
+        name (str): The name of the function to call
+        args (list): The arguments to call said function with
+
+    Returns
+        any: The output of the called function
     """
     func = frame.get(name)
     if not isinstance(func, Function):
