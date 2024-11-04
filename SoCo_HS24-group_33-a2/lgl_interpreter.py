@@ -361,7 +361,7 @@ def trace(file_name: str) -> any:
     pass
 
 
-if __name__ == "__main__":
+def main() -> None:
     import argparse
 
     arg_parser = argparse.ArgumentParser(description="LGL interpreter")
@@ -371,7 +371,13 @@ if __name__ == "__main__":
     arg_parser.add_argument("--trace", type=str, help="Path to store trace log")
     args = arg_parser.parse_args()
 
-    root = Frame()
-    print(parse(root, load_lgl(args.filename)))
+    global_frame = Frame()
+    program = load_lgl(args.filename)
+    result = parse(global_frame, program)
+    print(result)
     if args.trace:
         trace(args.trace)
+
+
+if __name__ == "__main__":
+    main()
