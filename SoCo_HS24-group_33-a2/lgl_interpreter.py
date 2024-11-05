@@ -239,11 +239,13 @@ def parse(frame: Frame, expression: list) -> any:
     Raises:
         ValueError: If the expression contains invalid identifiers
     """
-    valid_identifier_id_0 = ["set", "get", "call", "function"]
+    valid_identifier_id_0 = ["seq", "set", "get", "call", "function"]
     valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
     id_0, id_1, id_2 = sanitize_expression(expression)
     if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
         match id_0:
+            case "seq":
+                return seq(frame, expression)
             case "set":
                 return set(frame, id_1, id_2)
             case "get":
@@ -273,6 +275,12 @@ def parse(frame: Frame, expression: list) -> any:
             case "XOR":
                 return XOR(id_0, id_2)
     raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
+
+
+def seq(frame: Frame, lines: list) -> any:
+    for line in lines[1:]:
+        parsed_line = parse(frame, line)
+    return parsed_line
 
 
 def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
