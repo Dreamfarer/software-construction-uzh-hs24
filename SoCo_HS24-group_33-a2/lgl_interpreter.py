@@ -73,7 +73,7 @@ class Function:
         new_frame = Frame(self.__frame)
         for parameter, arg in zip(self.parameters, parsed_args):
             new_frame.add(parameter, arg)
-        return parse(new_frame, self.body)
+        return do(new_frame, self.body)
 
 
 class Trace:
@@ -314,8 +314,8 @@ def do_function(_: Frame, args: list) -> Function:
 
 def do_set(frame: Frame, args: list) -> None:
     """
-    Sets a new variable to the current frame.
-    If the value is not a atomic value, it will be evaluated before being set.
+    Sets a new variable to the current frame
+    If the value is not a atomic value, it will be evaluated before being set
 
     Args:
         frame (Frame): The current execution frame in which the new variable will be set
@@ -335,7 +335,7 @@ def do_get(frame: Frame, args: list) -> any:
     Retrieves the specified variable's value from the current frame or any parent frame if not found.
 
     Args:
-        frame (Frame): The current execution frame.
+        frame (Frame): The current execution frame
         args(list): A list containing the name of the variable
 
     Returns:
@@ -351,7 +351,7 @@ def do_call(frame: Frame, args: list) -> any:
     Calls the passed function with the given arguments
 
     Args:
-        frame (Frame): The current execution frame.
+        frame (Frame): The current execution frame
         args(list): A list containing the function name and the parameter(s)
 
     Returns
@@ -363,97 +363,49 @@ def do_call(frame: Frame, args: list) -> any:
     return func.call(frame, arguments)
 
 
-def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
+def do(frame: Frame, args: list) -> any:
     """
-    Return the third item of the expression in the correct format: Return 'None' if the third element does not exist, a value if the third item is a single value and a list if the expression contains more than three items.
+    Evaluates the given expression
 
     Args:
-        expression (list of any): Expression to be sanitized and split
+        frame (Frame): The current execution frame.
+        args (list): A list containing the operation name, either as a prefix (first element) or an infix (second element), followed by the expression
 
     Return:
-        tuple of any: Split and sanitized expression
+        any: The result of the evaluated expression (except 'None' for 'set')
     """
-    id_0 = expression[0]
-    id_1 = expression[1]
-    id_2 = None
-    if len(expression) == 3:
-        id_2 = expression[2]
-    elif len(expression) > 3:
-        id_2 = expression[2:]
-    return id_0, id_1, id_2
 
-
-def parse(frame: Frame, expression: list) -> any:
-    """
-    Parse content between two brackets [] and find correct method to call.
-
-    Args:
-        frame (Frame): The frame to read/write from
-        expression (list): lgl expression
-
-    Return:
-        any: The single atomic value (except 'None' for 'set')
-
-    Raises:
-        ValueError: If the expression contains invalid identifiers
-    """
-    valid_identifier_id_0 = [
-        "seq",
-        "set",
-        "get",
-        "call",
-        "function",
-        "add",
-        "subtract",
-        "multiply",
-        "divide",
-        "power",
-    ]
-    valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
-    id_0, id_1, id_2 = sanitize_expression(expression)
-    if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
-        match id_0:
-            case "seq":
-                return seq(frame, expression)
-            case "set":
-                return set(frame, id_1, id_2)
-            case "get":
-                return get(frame, id_1)
-            case "call":
-                return call(frame, id_1, id_2)
-            case "function":
-                return function(frame, id_1, id_2)
-            case "add":
-                return add(id_1, id_2)
-            case "subtract":
-                return subtract(id_1, id_2)
-            case "multiply":
-                return multiply(id_1, id_2)
-            case "divide":
-                return divide(id_1, id_2)
-            case "power":
-                return power(id_1, id_2)
-    elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
-        id_0 = parse(frame, id_0) if isinstance(id_0, list) else id_0
-        id_2 = parse(frame, id_2) if isinstance(id_2, list) else id_2
-        match id_1:
+    if args[1] in ["+", "-", "*", "/", "^", "AND", "OR", "XOR"]:
+        operation_name = ""
+        match args[1]:
             case "+":
-                return add(id_0, id_2)
+                operation_name = "add"
             case "-":
-                return subtract(id_0, id_2)
+                operation_name = "subtract"
             case "*":
-                return multiply(id_0, id_2)
+                operation_name = "multiply"
             case "/":
-                return divide(id_0, id_2)
+                operation_name = "divide"
             case "^":
-                return power(id_0, id_2)
+                operation_name = "power"
             case "AND":
-                return AND(id_0, id_2)
+                operation_name = "AND"
             case "OR":
-                return OR(id_0, id_2)
+                operation_name = "OR"
             case "XOR":
-                return XOR(id_0, id_2)
-    raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
+                operation_name = "XOR"
+        args = [operation_name, args[0], args[2]]
+
+    operation_name = args[0]
+    arguments = args[1:]
+    return operations(operation_name)(frame, arguments)
+
+
+def operations(operation_name: str) -> callable:
+    modified_name = "do_" + operation_name
+    if modified_name in globals():
+        return globals()[modified_name]
+    raise KeyError(f"{operation_name} was not found.")
 
 
 def load_lgl(file_name: str) -> list:
@@ -488,7 +440,7 @@ def main() -> None:
 
     global_frame = Frame()
     program = load_lgl(args.filename)
-    result = parse(global_frame, program)
+    result = do(global_frame, program)
     print(result)
 
     if args.trace:
