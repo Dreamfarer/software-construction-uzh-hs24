@@ -76,47 +76,78 @@ class Function:
 
 
 class Trace:
+    """
+    This class holds every functionality of tracing the call stack. Provides a decorator '@Trace.decorate' that, when set, logs the call stack.
+    """
 
     call_stack = []
-    file_path = None
 
     def __init__(self, function_name: str) -> None:
         self.id: str = self.__hash(function_name)
         self.function_name = function_name
 
-    def start(self) -> None:
-        self.__add(f"{datetime.now()}", "start")
+    @staticmethod
+    def decorate(func: callable) -> any:
+        """
+        Wrap any function containing the '@Trace.decorate' decorator. Add an entry to the call stack whenever a function starts and stops executing.
 
-    def stop(self) -> None:
-        self.__add(f"{datetime.now()}", "stop")
+        Args:
+            func (callable): The wrapped function to execute
 
+        Returns:
+            any: Returns the return value of the wrapped function
+        """
+
+        def inner(*args) -> any:
+            function_name = args[1][0]
+            trace = Trace(function_name)
+            trace.add("start")
+            result = func(*args)
+            trace.add("stop")
+            return result
+
+        return inner
+
+    @classmethod
     def write(cls, file_path: str) -> None:
-        if not file_path is None:
-            with open(file_path, "w", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerow(cls.call_stack)
-        else:
-            raise ValueError(
-                "Logging path has not been set yet. Set it with Trace.set_file_path()!"
-            )
+        """
+        Log the call stack to a .csv file.
 
-    def __add(self, timestamp: str, event: str) -> None:
-        Trace.call_stack.append([self.id, timestamp, self.function_name, event])
+        Args:
+            file_path (str): The path to log the call stack to
 
-    def __hash(self, function_name: str):
+        Returns:
+            None: Returns nothing
+        """
+        with open(file_path, "w", newline="") as file:
+            header = [["id", "timestamp", "function_name", "event"]]
+            writer = csv.writer(file)
+            writer.writerows(header + cls.call_stack)
+
+    def add(self, event: str) -> None:
+        """
+        Add an event to the call stack.
+
+        Args:
+            event (str): The event, e.g. 'start', 'stop'
+
+        Returns:
+            None: Returns nothing
+        """
+        Trace.call_stack.append([self.id, f"{datetime.now()}", self.function_name, event])
+
+    def __hash(self, function_name: str) -> str:
+        """
+        Generate a hash out of a function name and the current date and time to create a unique six digit hash.
+
+        Args:
+            function_name (str): The name of the function to be used as hashing parameter
+
+        Returns:
+            str: The string representation of the first six digits of the hash
+        """
         data = f"{function_name}{datetime.now()}"
         return sha256(data.encode()).hexdigest()[:6]
-
-
-def trace(func):
-    def inner(*args) -> any:
-        tr = Trace(args[1])
-        tr.start()
-        result = func(*args)
-        tr.stop()
-        return result
-
-    return inner
 
 
 def do_add(frame: Frame, args: list) -> int:
@@ -345,6 +376,7 @@ def do_get(frame: Frame, args: list) -> any:
     return frame.get(variable_name)
 
 
+@Trace.decorate
 def do_call(frame: Frame, args: list) -> any:
     """
     Calls the passed function with the given arguments
@@ -423,17 +455,11 @@ def load_lgl(file_name: str) -> list:
         return json.load(file)
 
 
-def trace(file_name: str) -> any:
-    pass
-
-
 def main() -> None:
     import argparse
 
     arg_parser = argparse.ArgumentParser(description="LGL interpreter")
-    arg_parser.add_argument(
-        "filename", type=str, help="Path to file containing LGL code (.gsc file)"
-    )
+    arg_parser.add_argument("filename", type=str, help="Path to file containing LGL code (.gsc file)")
     arg_parser.add_argument("--trace", type=str, help="Path to store trace log")
     args = arg_parser.parse_args()
 
