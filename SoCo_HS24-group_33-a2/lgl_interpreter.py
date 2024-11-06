@@ -91,12 +91,9 @@ class Trace:
     def stop(self) -> None:
         self.__add(f"{datetime.now()}", "stop")
 
-    def set_file_path(cls, file_path: str):
-        cls.file_path = file_path
-
-    def write(cls) -> None:
-        if not cls.file_path is None:
-            with open(cls.file_path, "w", newline="") as file:
+    def write(cls, file_path: str) -> None:
+        if not file_path is None:
+            with open(file_path, "w", newline="") as file:
                 writer = csv.writer(file)
                 writer.writerow(cls.call_stack)
         else:
@@ -457,9 +454,9 @@ def main() -> None:
     program = load_lgl(args.filename)
     result = parse(global_frame, program)
     print(result)
-    print(Trace.call_stack)
+
     if args.trace:
-        trace(args.trace)
+        Trace.write(args.trace)
 
 
 if __name__ == "__main__":
