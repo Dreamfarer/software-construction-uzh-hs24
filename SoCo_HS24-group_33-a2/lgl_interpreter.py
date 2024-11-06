@@ -50,28 +50,27 @@ class Frame:
 
 class Function:
     """
-    This class imitates Python functions.
-    Implements callability for functions defined in lgl.
+    This class imitates Python functions
+    Implements callability for functions defined in lgl
     """
 
-    def __init__(self, frame: Frame, parameters: str | list[str], body: list) -> None:
-        self.__frame = frame
-        self.parameters = parameters
+    def __init__(self, parameters: str | list[str], body: list) -> None:
+        self.parameters = parameters if isinstance(parameters, list) else [parameters]
         self.body = body
 
-    def call(self, *parsed_args: tuple[int]) -> any:
+    def call(self, current_frame: Frame, evaluated_args: list[int]) -> any:
         """
-        Call this function.
-        Add passed arguments to the current frame and then call 'parse' to resolve the values (i.e. execute the function).
+        Calls this Function object
+        Creates a new frame for the function, assigns the provided arguments to its parameters, and then evaluates the function body
 
         Args:
-            parsed_args (tuple of int): Arguments passed to the to-be called function
+            evaluated_args (list[int]): A list of evaluated arguments to pass to the function parameters
 
         Return:
-            any: Return the result of calling the function
+            any: The result of evaluating the function's body
         """
-        new_frame = Frame(self.__frame)
-        for parameter, arg in zip(self.parameters, parsed_args):
+        new_frame = Frame(current_frame)
+        for parameter, arg in zip(self.parameters, evaluated_args):
             new_frame.add(parameter, arg)
         return do(new_frame, self.body)
 
