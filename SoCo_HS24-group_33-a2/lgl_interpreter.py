@@ -1,3 +1,8 @@
+from datetime import datetime
+from hashlib import sha256
+import csv
+
+
 class Frame:
     """
     This class imitates real Python frames (environments).
@@ -69,6 +74,53 @@ class Function:
         for parameter, arg in zip(self.parameters, parsed_args):
             new_frame.add(parameter, arg)
         return parse(new_frame, self.body)
+
+
+class Trace:
+
+    call_stack = []
+    file_path = None
+
+    def __init__(self, function_name: str) -> None:
+        self.id: str = self.__hash(function_name)
+        self.function_name = function_name
+
+    def start(self) -> None:
+        self.__add(f"{datetime.now()}", "start")
+
+    def stop(self) -> None:
+        self.__add(f"{datetime.now()}", "stop")
+
+    def set_file_path(cls, file_path: str):
+        cls.file_path = file_path
+
+    def write(cls) -> None:
+        if not cls.file_path is None:
+            with open(cls.file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(cls.call_stack)
+        else:
+            raise ValueError(
+                "Logging path has not been set yet. Set it with Trace.set_file_path()!"
+            )
+
+    def __add(self, timestamp: str, event: str) -> None:
+        Trace.call_stack.append([self.id, timestamp, self.function_name, event])
+
+    def __hash(self, function_name: str):
+        data = f"{function_name}{datetime.now()}"
+        return sha256(data.encode()).hexdigest()[:6]
+
+
+def trace(func):
+    def inner(*args) -> any:
+        tr = Trace(args[1])
+        tr.start()
+        result = func(*args)
+        tr.stop()
+        return result
+
+    return inner
 
 
 def add(a: int, b: int) -> int:
@@ -239,7 +291,18 @@ def parse(frame: Frame, expression: list) -> any:
     Raises:
         ValueError: If the expression contains invalid identifiers
     """
-    valid_identifier_id_0 = ["seq", "set", "get", "call", "function"]
+    valid_identifier_id_0 = [
+        "seq",
+        "set",
+        "get",
+        "call",
+        "function",
+        "add",
+        "subtract",
+        "multiply",
+        "divide",
+        "power",
+    ]
     valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
     id_0, id_1, id_2 = sanitize_expression(expression)
     if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
@@ -254,6 +317,16 @@ def parse(frame: Frame, expression: list) -> any:
                 return call(frame, id_1, id_2)
             case "function":
                 return function(frame, id_1, id_2)
+            case "add":
+                return add(id_1, id_2)
+            case "subtract":
+                return subtract(id_1, id_2)
+            case "multiply":
+                return multiply(id_1, id_2)
+            case "divide":
+                return divide(id_1, id_2)
+            case "power":
+                return power(id_1, id_2)
     elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
         id_0 = parse(frame, id_0) if isinstance(id_0, list) else id_0
         id_2 = parse(frame, id_2) if isinstance(id_2, list) else id_2
@@ -330,6 +403,7 @@ def get(frame: Frame, name: str) -> any:
     return frame.get(name)
 
 
+@trace
 def call(frame: Frame, name: str, args: list) -> any:
     """
     Retrieve the function of the current frame (or parents if not found) and call it.
@@ -383,6 +457,7 @@ def main() -> None:
     program = load_lgl(args.filename)
     result = parse(global_frame, program)
     print(result)
+    print(Trace.call_stack)
     if args.trace:
         trace(args.trace)
 
