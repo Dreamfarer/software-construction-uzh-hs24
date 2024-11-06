@@ -1,6 +1,7 @@
 from datetime import datetime
 from hashlib import sha256
 import csv
+import time
 
 
 class Frame:
@@ -134,7 +135,7 @@ class Trace:
         Returns:
             None: Returns nothing
         """
-        Trace.call_stack.append([self.id, f"{datetime.now()}", self.function_name, event])
+        Trace.call_stack.append([self.id, self.__accurate_clock(), self.function_name, event])
 
     def __hash(self, function_name: str) -> str:
         """
@@ -146,8 +147,16 @@ class Trace:
         Returns:
             str: The string representation of the first six digits of the hash
         """
-        data = f"{function_name}{datetime.now()}"
+        data = f"{function_name}{self.__accurate_clock()}"
         return sha256(data.encode()).hexdigest()[:6]
+
+    def __accurate_clock(self) -> str:
+        """
+        Get the accurate time (only 'datetime.now()' yielded same timing)
+        """
+        datetime_part = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        perf_counter_part = int((time.perf_counter() % 1) * 1000000)
+        return f"{datetime_part}.{perf_counter_part:06d}"
 
 
 def do_add(frame: Frame, args: list) -> int:
