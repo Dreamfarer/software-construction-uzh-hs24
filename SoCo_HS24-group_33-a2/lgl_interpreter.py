@@ -1,3 +1,8 @@
+from datetime import datetime
+from hashlib import sha256
+import csv
+
+
 class Frame:
     """
     This class imitates real Python frames (environments).
@@ -45,104 +50,162 @@ class Frame:
 
 class Function:
     """
-    This class imitates Python functions.
-    Implements callability for functions defined in lgl.
+    This class imitates Python functions
+    Implements callability for functions defined in lgl
     """
 
-    def __init__(self, frame: Frame, parameters: str | list[str], body: list) -> None:
-        self.__frame = frame
-        self.parameters = parameters
+    def __init__(self, parameters: str | list[str], body: list) -> None:
+        self.parameters = parameters if isinstance(parameters, list) else [parameters]
         self.body = body
 
-    def call(self, *parsed_args: tuple[int]) -> any:
+    def call(self, current_frame: Frame, evaluated_args: list[int]) -> any:
         """
-        Call this function.
-        Add passed arguments to the current frame and then call 'parse' to resolve the values (i.e. execute the function).
+        Calls this Function object
+        Creates a new frame for the function, assigns the provided arguments to its parameters, and then evaluates the function body
 
         Args:
-            parsed_args (tuple of int): Arguments passed to the to-be called function
+            evaluated_args (list[int]): A list of evaluated arguments to pass to the function parameters
 
         Return:
-            any: Return the result of calling the function
+            any: The result of evaluating the function's body
         """
-        new_frame = Frame(self.__frame)
-        for parameter, arg in zip(self.parameters, parsed_args):
+        new_frame = Frame(current_frame)
+        for parameter, arg in zip(self.parameters, evaluated_args):
             new_frame.add(parameter, arg)
-        return parse(new_frame, self.body)
+        return do(new_frame, self.body)
 
 
-def add(a: int, b: int) -> int:
+class Trace:
+
+    call_stack = []
+    file_path = None
+
+    def __init__(self, function_name: str) -> None:
+        self.id: str = self.__hash(function_name)
+        self.function_name = function_name
+
+    def start(self) -> None:
+        self.__add(f"{datetime.now()}", "start")
+
+    def stop(self) -> None:
+        self.__add(f"{datetime.now()}", "stop")
+
+    def write(cls, file_path: str) -> None:
+        if not file_path is None:
+            with open(file_path, "w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(cls.call_stack)
+        else:
+            raise ValueError(
+                "Logging path has not been set yet. Set it with Trace.set_file_path()!"
+            )
+
+    def __add(self, timestamp: str, event: str) -> None:
+        Trace.call_stack.append([self.id, timestamp, self.function_name, event])
+
+    def __hash(self, function_name: str):
+        data = f"{function_name}{datetime.now()}"
+        return sha256(data.encode()).hexdigest()[:6]
+
+
+def trace(func):
+    def inner(*args) -> any:
+        tr = Trace(args[1])
+        tr.start()
+        result = func(*args)
+        tr.stop()
+        return result
+
+    return inner
+
+
+def do_add(frame: Frame, args: list) -> int:
     """
-    Add two values: a + b
+    Adds two evaluated values: a + b
 
     Args:
-        a (int): Value a
-        b (int): Value b
+        frame (Frame): The current execution frame
+        args (list): A list containing two integers to add. Each integer can be a direct value or an expression that requires evaluation
 
     Returns:
-        int: The resulting value of adding two values
+        int: The resulting value of adding two evaluated values
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     return a + b
 
 
-def subtract(a: int, b: int) -> int:
+def do_subtract(frame: Frame, args: list) -> int:
     """
-    Subtract two values: a - b
+    Substracts two evaluated values: a - b
 
     Args:
-        a (int): Value a
-        b (int): Value b
+        frame (Frame): The current execution frame
+        args (list): A list containing two integers to substract. Each integer can be a direct value or an expression that requires evaluation
 
     Returns:
-        int: The resulting value of subtracting b from a
+        int: The resulting value of substracting two evaluated values
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     return a - b
 
 
-def multiply(a: int, b: int) -> int:
+def do_multiply(frame: Frame, args: list) -> int:
     """
-    Multiply two values: a * b
+    Multiplies two evaluated values: a * b
 
     Args:
-        a (int): Value a
-        b (int): Value b
+        frame (Frame): The current execution frame
+        args (list): A list containing two integers to multiply. Each integer can be a direct value or an expression that requires evaluation
 
     Returns:
-        int: The resulting value of multiplying a and b
+        int: The resulting value of multiplying two evaluated values
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     return a * b
 
 
-def divide(numerator: int, denominator: int) -> int:
+def do_divide(frame: Frame, args: list) -> float:
     """
-    Divides to values and rounds the value to two decimal places: numerator / denominator
+    Divides two evaluated values: a / b
 
     Args:
-        numerator (int): Numerator
-        denominator (int): Denominator
+        frame (Frame): The current execution frame
+        args (list): A list containing two integers to divide. Each integer can be a direct value or an expression that requires evaluation
 
     Returns:
-        int: The resulting value of dividing the numerator by the denominator
+        float: The resulting value of dividing the numerator by the denominator
     """
+    assert len(args) == 2
+    numerator = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    denominator = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     assert denominator != 0, "Invalid division: denominator is 0"
     return round(numerator / denominator, 2)
 
 
-def power(base: int, exponent: int) -> int:
+def do_power(frame: Frame, args: list) -> int:
     """
     Computes the result of raising a base to a specified exponent: base^(exponent)
 
     Args:
-        base (int): Base
-        exponent (int): Exponent
+        frame (Frame): The current execution frame
+        args (list): A list containing two integers to compute the power. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        int: The result of base raised to the power of exponent.
+        int: The result of base raised to the power of exponent
     """
+    assert len(args) == 2
+    base = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    exponent = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     return base**exponent
 
 
-def AND(a: int, b: int) -> int:
+def do_AND(frame: Frame, args: list) -> int:
     """
     AND boolean operation: a AND b
 
@@ -152,20 +215,23 @@ def AND(a: int, b: int) -> int:
     0 AND 0 = 0
 
     Args:
-        a (int): boolean a
-        b (int): boolean b
+        frame (Frame): The current execution frame
+        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
 
     Returns:
         int: The result of the boolean operation a AND b
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
     return a & b
 
 
-def OR(a: int, b: int) -> int:
+def do_OR(frame: Frame, args: list) -> int:
     """
-    AND boolean operation: a OR b
+    OR boolean operation: a OR b
 
     1 OR 1 = 1
     1 OR 0 = 1
@@ -173,18 +239,21 @@ def OR(a: int, b: int) -> int:
     0 OR 0 = 0
 
     Args:
-        a (int): Boolean a
-        b (int): Boolean b
+        frame (Frame): The current execution frame
+        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
 
     Returns:
         int: The result of the boolean operation a OR b
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
     return a | b
 
 
-def XOR(a: int, b: int) -> int:
+def do_XOR(frame: Frame, args: list) -> int:
     """
     XOR boolean operation: a XOR b
 
@@ -194,159 +263,148 @@ def XOR(a: int, b: int) -> int:
     0 XOR 0 = 0
 
     Args:
-        a (int): Boolean a
-        b (int): Boolean b
+        frame (Frame): The current execution frame
+        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
 
     Returns:
         int: The result of the boolean operation a XOR b
     """
+    assert len(args) == 2
+    a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
+    b = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     a = 1 if a != 0 else 0
     b = 1 if b != 0 else 0
     return a ^ b
 
 
-def sanitize_expression(expression: list[any]) -> tuple[any, any, any]:
+def do_seq(frame: Frame, args: list) -> any:
     """
-    Return the third item of the expression in the correct format: Return 'None' if the third element does not exist, a value if the third item is a single value and a list if the expression contains more than three items.
+    Evaluates a sequence of expression in order and returns the result of the last expression
 
     Args:
-        expression (list of any): Expression to be sanitized and split
+        frame (Frame): The current execution frame
+        args (list): A list expressions to evaluate sequentially
 
-    Return:
-        tuple of any: Split and sanitized expression
+    Returns:
+        any: The result of the last evaluated expression
     """
-    id_0 = expression[0]
-    id_1 = expression[1]
-    id_2 = None
-    if len(expression) == 3:
-        id_2 = expression[2]
-    elif len(expression) > 3:
-        id_2 = expression[2:]
-    return id_0, id_1, id_2
+    assert len(args) > 1
+    for expr in args:
+        evaluated_expr = do(frame, expr)
+    return evaluated_expr
 
 
-def parse(frame: Frame, expression: list) -> any:
+def do_function(_: Frame, args: list) -> Function:
     """
-    Parse content between two brackets [] and find correct method to call.
+    Creates a new Function object with its parameter(s) and body
 
     Args:
-        frame (Frame): The frame to read/write from
-        expression (list): lgl expression
+        _ (Frame): The current execution frame
+        args (list): A list containing the parameters and the body of the function
 
-    Return:
-        any: The single atomic value (except 'None' for 'set')
-
-    Raises:
-        ValueError: If the expression contains invalid identifiers
+    Returns:
+        Function: Function object with its parameter(s) and body
     """
-    valid_identifier_id_0 = ["seq", "set", "get", "call", "function"]
-    valid_identifier_id_1 = ["+", "-", "*", "/", "^"]
-    id_0, id_1, id_2 = sanitize_expression(expression)
-    if isinstance(id_0, str) and id_0 in valid_identifier_id_0:
-        match id_0:
-            case "seq":
-                return seq(frame, expression)
-            case "set":
-                return set(frame, id_1, id_2)
-            case "get":
-                return get(frame, id_1)
-            case "call":
-                return call(frame, id_1, id_2)
-            case "function":
-                return function(frame, id_1, id_2)
-    elif isinstance(id_1, str) and id_1 in valid_identifier_id_1:
-        id_0 = parse(frame, id_0) if isinstance(id_0, list) else id_0
-        id_2 = parse(frame, id_2) if isinstance(id_2, list) else id_2
-        match id_1:
-            case "+":
-                return add(id_0, id_2)
-            case "-":
-                return subtract(id_0, id_2)
-            case "*":
-                return multiply(id_0, id_2)
-            case "/":
-                return divide(id_0, id_2)
-            case "^":
-                return power(id_0, id_2)
-            case "AND":
-                return AND(id_0, id_2)
-            case "OR":
-                return OR(id_0, id_2)
-            case "XOR":
-                return XOR(id_0, id_2)
-    raise ValueError(f"{id_0} or {id_1} are not valid identifiers.")
+    assert len(args) == 2
+    parameters = args[0]
+    body = args[1]
+    return Function(parameters, body)
 
 
-def seq(frame: Frame, lines: list) -> any:
-    for line in lines[1:]:
-        parsed_line = parse(frame, line)
-    return parsed_line
-
-
-def function(frame: Frame, parameters: list[str] | str, body: list) -> Function:
+def do_set(frame: Frame, args: list) -> None:
     """
-    Add new function to provided Frame (only initialization)
-    Create a new frame along with every function introduction.
+    Sets a new variable to the current frame
+    If the value is not a atomic value, it will be evaluated before being set
 
     Args:
-        frame (Frame): The frame to add the function to
-        parameters (list of str): The parameter of said function in lgl
-        body (list): The body of said function in lgl
-    """
-    function_frame = Frame(frame.parent)
-    return Function(function_frame, parameters, body)
-
-
-def set(frame: Frame, name: str, value: int | list) -> None:
-    """
-    Set a new variable to the current frame.
-    If the value cannot be set right away (e.g. because of non atomic value), call 'parse' again on the part that cannot be resolved right away (divide-and-conquer).
-
-    Args:
-        frame (Frame): The frame to set the new variable to
-        name (str): The name of said variable
-        value (list | int): The value of said variable
+        frame (Frame): The current execution frame in which the new variable will be set
+        args (list): A list containing the new variable name and its value. Value will be evaluated if it is an expression that needs evaluation
 
     Returns:
         None: Returns nothing
     """
-    if isinstance(value, list):
-        value = parse(frame, value)
+    assert len(args) == 2
+    name = args[0]
+    value = do(frame, args[1]) if isinstance(args[1], list) else args[1]
     frame.add(name, value)
 
 
-def get(frame: Frame, name: str) -> any:
+def do_get(frame: Frame, args: list) -> any:
     """
-    Retrieve a variable of the current frame (or parents if not found).
+    Retrieves the specified variable's value from the current frame or any parent frame if not found.
 
     Args:
-        frame (Frame): The frame to get the variable from
-        name (str): The name of the variable
+        frame (Frame): The current execution frame
+        args(list): A list containing the name of the variable
 
     Returns:
         any: The value of the variable
-
     """
-    return frame.get(name)
+    assert len(args) == 1
+    variable_name = args[0]
+    return frame.get(variable_name)
 
 
-def call(frame: Frame, name: str, args: list) -> any:
+def do_call(frame: Frame, args: list) -> any:
     """
-    Retrieve the function of the current frame (or parents if not found) and call it.
+    Calls the passed function with the given arguments
 
     Args:
-        frame (Frame): The frame to call the function from
-        name (str): The name of the function to call
-        args (list): The arguments to call said function with
+        frame (Frame): The current execution frame
+        args(list): A list containing the function name and the parameter(s)
 
     Returns
         any: The output of the called function
     """
-    func = frame.get(name)
-    if not isinstance(func, Function):
-        raise ValueError(f"'{name}' is not a function")
-    parsed_args = [parse(frame, arg) if isinstance(arg, list) else arg for arg in args]
-    return func.call(*parsed_args)
+    function_name = args[0]
+    arguments = [do(frame, arg) if isinstance(arg, list) else arg for arg in args[1:]]
+    func = frame.get(function_name)
+    return func.call(frame, arguments)
+
+
+def do(frame: Frame, args: list) -> any:
+    """
+    Evaluates the given expression
+
+    Args:
+        frame (Frame): The current execution frame.
+        args (list): A list containing the operation name, either as a prefix (first element) or an infix (second element), followed by the expression
+
+    Return:
+        any: The result of the evaluated expression (except 'None' for 'set')
+    """
+
+    if args[1] in ["+", "-", "*", "/", "^", "AND", "OR", "XOR"]:
+        operation_name = ""
+        match args[1]:
+            case "+":
+                operation_name = "add"
+            case "-":
+                operation_name = "subtract"
+            case "*":
+                operation_name = "multiply"
+            case "/":
+                operation_name = "divide"
+            case "^":
+                operation_name = "power"
+            case "AND":
+                operation_name = "AND"
+            case "OR":
+                operation_name = "OR"
+            case "XOR":
+                operation_name = "XOR"
+        args = [operation_name, args[0], args[2]]
+
+    operation_name = args[0]
+    arguments = args[1:]
+    return operations(operation_name)(frame, arguments)
+
+
+def operations(operation_name: str) -> callable:
+    modified_name = "do_" + operation_name
+    if modified_name in globals():
+        return globals()[modified_name]
+    raise KeyError(f"{operation_name} was not found.")
 
 
 def load_lgl(file_name: str) -> list:
@@ -381,10 +439,11 @@ def main() -> None:
 
     global_frame = Frame()
     program = load_lgl(args.filename)
-    result = parse(global_frame, program)
+    result = do(global_frame, program)
     print(result)
+
     if args.trace:
-        trace(args.trace)
+        Trace.write(args.trace)
 
 
 if __name__ == "__main__":
