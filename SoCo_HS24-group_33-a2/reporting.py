@@ -9,12 +9,16 @@ def parse_log(log_file):
                 continue
             id, timestamp,function_name,event = line.strip().split(",")
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f")
-            if id not in time and event == "start":
-                time[id] = [function_name,timestamp]
+            if id not in time:
+                time[id] = [0]
+            if event == "start" and id in time:
+                time[id].append(function_name)
+                time[id].append(timestamp)
+                time[id][0] += 1
             if event == "stop" and id in time:
-                total_time = round((timestamp - time[id][1]).total_seconds() * 1000,3)
-                time[id][1] = total_time
-             
+                total_time = round((timestamp - time[id][2]).total_seconds() * 1000,3)
+                time[id][2] = total_time
+                time[id][0] += 1 
     return time
 
 def print_logs(logs):
