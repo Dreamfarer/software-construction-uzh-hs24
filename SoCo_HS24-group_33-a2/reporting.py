@@ -7,12 +7,12 @@ def parse_log(log_file):
         for line in file:
             if line.startswith("id"):
                 continue
-            id, timestamp,function_name,event = line.split(",")
+            id, timestamp,function_name,event = line.strip().split(",")
             timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f")
-            if event == "start":
+            if id not in time and event == "start":
                 time[id] = [function_name,timestamp]
             if event == "stop" and id in time:
-                total_time = (timestamp - time[id][1]).total_seconds() * 1000
+                total_time = round((timestamp - time[id][1]).total_seconds() * 1000,3)
                 time[id][1] = total_time
              
     return time
