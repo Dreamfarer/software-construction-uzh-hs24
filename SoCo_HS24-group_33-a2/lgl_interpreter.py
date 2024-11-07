@@ -88,7 +88,7 @@ class Trace:
         self.function_name = function_name
 
     @staticmethod
-    def decorate(func: callable) -> any:
+    def decorate(func: callable) -> callable:
         """
         Wrap any function containing the '@Trace.decorate' decorator. Add an entry to the call stack whenever a function starts and stops executing.
 
@@ -135,7 +135,9 @@ class Trace:
         Returns:
             None: Returns nothing
         """
-        Trace.call_stack.append([self.id, self.__accurate_clock(), self.function_name, event])
+        Trace.call_stack.append(
+            [self.id, self.__accurate_clock(), self.function_name, event]
+        )
 
     def __hash(self, function_name: str) -> str:
         """
@@ -468,7 +470,9 @@ def main() -> None:
     import argparse
 
     arg_parser = argparse.ArgumentParser(description="LGL interpreter")
-    arg_parser.add_argument("filename", type=str, help="Path to file containing LGL code (.gsc file)")
+    arg_parser.add_argument(
+        "filename", type=str, help="Path to file containing LGL code (.gsc file)"
+    )
     arg_parser.add_argument("--trace", type=str, help="Path to store trace log")
     args = arg_parser.parse_args()
 
