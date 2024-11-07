@@ -1,6 +1,9 @@
 import sys
 from datetime import datetime
 
+BLUE = "\033[36m"
+RESET = "\033[0m"
+
 def parse_log(log_file) -> dict:
     data = {}
     with open(log_file, "r") as file:
@@ -24,7 +27,7 @@ def parse_log(log_file) -> dict:
 
 def print_results(data: dict) -> None:
     print("\n")
-    print("|  Function Name   | Num. of calls |  Total Time (ms) |  Average Time (ms)|")
+    print(f"| {BLUE} Function Name  {RESET} |{BLUE} Num. of calls{RESET} | {BLUE} Total Time (ms) {RESET}| {BLUE}Average Time (ms) {RESET}|")
     print("|-------------------------------------------------------------------------|")
     for value in data.values():
         name = value["function_name"]
