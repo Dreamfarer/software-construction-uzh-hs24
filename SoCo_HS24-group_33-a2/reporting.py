@@ -24,7 +24,7 @@ def parse_log(log_file) -> dict:
                 data[id]["function_name"] = function_name
                 data[id]["start_time"] = timestamp
                 data[id]["calls"] += 1
-            if event == "stop" and data[id]["start_time"] is not None:
+            if event == "stop":
                 elapsed_time = round((timestamp - data[id]["start_time"]).total_seconds() * 1000, 3)
                 elapsed_time = "{:.3f}".format(elapsed_time)
                 data[id]["total_time"] = elapsed_time
