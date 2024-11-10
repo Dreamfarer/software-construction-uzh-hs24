@@ -28,7 +28,6 @@ def parse_log(log_file: str) -> dict:
                 elapsed_time = round((timestamp - data[id]["start_time"]).total_seconds() * 1000, 3)
                 elapsed_time = "{:.3f}".format(elapsed_time)
                 data[id]["total_time"] = elapsed_time
-                data[id]["calls"] += 1
     return data
 
 
