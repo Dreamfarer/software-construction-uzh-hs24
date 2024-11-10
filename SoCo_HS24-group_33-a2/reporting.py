@@ -69,7 +69,6 @@ def print_results(data: dict) -> None:
 def main():
     assert len(sys.argv) == 2
     log_file = sys.argv[1]
-    parse_log(log_file)
     print_results(parse_log(log_file))
 
 
