@@ -55,11 +55,12 @@ class Function:
     Implements callability for functions defined in lgl
     """
 
-    def __init__(self, parameters: str | list[str], body: list) -> None:
+    def __init__(self, parameters: str | list[str], body: list, frame: Frame) -> None:
         self.parameters = parameters if isinstance(parameters, list) else [parameters]
         self.body = body
+        self.frame = Frame(frame)
 
-    def call(self, current_frame: Frame, evaluated_args: list[int]) -> any:
+    def call(self, evaluated_args: list[int]) -> any:
         """
         Calls this Function object
         Creates a new frame for the function, assigns the provided arguments to its parameters, and then evaluates the function body
@@ -70,10 +71,9 @@ class Function:
         Return:
             any: The result of evaluating the function's body
         """
-        new_frame = Frame(current_frame)
         for parameter, arg in zip(self.parameters, evaluated_args):
-            new_frame.add(parameter, arg)
-        return do(new_frame, self.body)
+            self.frame.add(parameter, arg)
+        return do(self.frame, self.body)
 
 
 class Trace:
@@ -336,7 +336,7 @@ def do_seq(frame: Frame, args: list) -> any:
     return evaluated_expr
 
 
-def do_function(_: Frame, args: list) -> Function:
+def do_function(frame: Frame, args: list) -> Function:
     """
     Creates a new Function object with its parameter(s) and body
 
@@ -350,7 +350,7 @@ def do_function(_: Frame, args: list) -> Function:
     assert len(args) == 2
     parameters = args[0]
     body = args[1]
-    return Function(parameters, body)
+    return Function(parameters, body, frame)
 
 
 def do_set(frame: Frame, args: list) -> None:
@@ -402,7 +402,7 @@ def do_call(frame: Frame, args: list) -> any:
     function_name = args[0]
     arguments = [do(frame, arg) if isinstance(arg, list) else arg for arg in args[1:]]
     func = frame.get(function_name)
-    return func.call(frame, arguments)
+    return func.call(arguments)
 
 
 def do(frame: Frame, args: list) -> any:
@@ -483,7 +483,6 @@ def main() -> None:
 
     if args.trace:
         Trace.write(args.trace)
-
 
 if __name__ == "__main__":
     main()
