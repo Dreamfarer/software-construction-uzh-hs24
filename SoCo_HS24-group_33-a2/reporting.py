@@ -37,9 +37,9 @@ def print_results(data: dict) -> None:
         average_time = "{:.3f}".format(average_time)
 
         print(f"|" + " " * 2 + name + " " * (16 - len(name)) +
-               "|" + " " * 7 + str(calls) + " " * (9 - 2)+
-               "|" + " " * 7 + str(total_time) + " " * (11 - 5)+
-               "|" + " " * 7  +  str(average_time) + " " * (11 - 4) +
+               "|" + " " * 7 + str(calls) + " " * (8 - len(str(calls)))+
+               "|" + " " * 7 + str(total_time) + " " * (11 - len(str(total_time)))+
+               "|" + " " * 7  +  str(average_time) + " " * (12 - len(average_time)) +
                "|")
     print("|_________________________________________________________________________|")
     print("\n")
