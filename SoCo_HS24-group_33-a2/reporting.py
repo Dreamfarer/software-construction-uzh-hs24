@@ -5,7 +5,7 @@ BLUE = "\033[36m"
 RESET = "\033[0m"
 
 
-def parse_log(log_file) -> dict:
+def parse_log(log_file: str) -> dict:
     data = {}
     with open(log_file, "r") as file:
         for line in file:
