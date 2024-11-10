@@ -25,8 +25,7 @@ def parse_log(log_file: str) -> dict:
                 data[id]["start_time"] = timestamp
                 data[id]["calls"] += 1
             if event == "stop":
-                elapsed_time = round((timestamp - data[id]["start_time"]).total_seconds() * 1000, 3)
-                elapsed_time = "{:.3f}".format(elapsed_time)
+                elapsed_time = (timestamp - data[id]["start_time"]).total_seconds() * 1000
                 data[id]["total_time"] = elapsed_time
     return data
 
@@ -39,13 +38,14 @@ def print_results(data: dict) -> None:
         name = value["function_name"]
         calls = value["calls"]
         total_time = value["total_time"]
-        average_time = round(float(total_time) / calls, 3)
-        average_time = "{:.3f}".format(average_time)
+        average_time = total_time / calls
+        total_time_formatted = f"{total_time:.3f}"
+        average_time_formatted = f"{average_time:.3f}"
 
         print(f"|" + " " * 2 + name + " " * (16 - len(name)) +
                "|" + " " * 7 + str(calls) + " " * (8 - len(str(calls)))+
-               "|" + " " * 7 + str(total_time) + " " * (11 - len(str(total_time)))+
-               "|" + " " * 7  +  str(average_time) + " " * (12 - len(average_time)) +
+               "|" + " " * 7 + str(total_time_formatted) + " " * (11 - len(str(total_time_formatted)))+
+               "|" + " " * 7  +  str(average_time_formatted) + " " * (12 - len(average_time_formatted)) +
                "|")
     print("|_________________________________________________________________________|")
     print("\n")
