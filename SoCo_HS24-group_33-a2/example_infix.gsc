@@ -12,7 +12,8 @@
     ["call", "substract_two",4,1],
     ["call", "multiply_two",5,8],
     ["call", "divide_two",9,3],
-    ["call", "logical_and",12,0],
-    ["call", "logical_or",4,7],
+    ["call", "power_two",3,4],
+    ["call", "logical_and",1,0],
+    ["call", "logical_or",0,1],
     ["call", "logical_xor",0,0]
 ]
