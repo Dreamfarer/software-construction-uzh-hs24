@@ -107,3 +107,6 @@ $RECYCLE.BIN/
 # Others
 *.swp
 *.swo
+
+# pydoc-markdown
+pydoc-markdown.yml
