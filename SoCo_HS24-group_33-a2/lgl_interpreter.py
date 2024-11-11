@@ -6,27 +6,32 @@ import time
 
 class Frame:
     """
-    This class imitates real Python frames (environments).
-    Allows for nested function definitions.
+    Mimics real Python frames (environments), enabling nested function definitions.
     """
 
     def __init__(self, parent: "Frame" = None) -> None:
+        """
+        Initializes a new frame with an optional parent frame.
+
+        Args:
+            parent (Frame, optional): The parent frame. Defaults to None.
+        """
         self.parent = parent
         self.environment = {}
 
     def get(self, var_name: str) -> any:
         """
-        Look for the variable with given name the current frame.
-        If not found, recursively look at parents.
+        Retrieves the value of a variable with the given name from the current frame.
+        If not found, searches recursively in parent frames.
 
         Args:
-            var_name (str): The name of the to-be found variable
+            var_name (str): The name of the variable to find.
 
         Returns:
-            any: The value of the found variable
+            any: The value of the found variable.
 
         Raises:
-            KeyError: If the variable was not found
+            KeyError: If the variable is not found in the current or any parent frame.
         """
         if var_name in self.environment:
             return self.environment[var_name]
@@ -37,39 +42,45 @@ class Frame:
 
     def add(self, name: str, value: any) -> None:
         """
-        Add a new variable with given name and value to the current frame.
+        Adds a new variable with the given name and value to the current frame.
 
         Args:
-            name (str): The name of the variable
-            value (any): The value of the variable
+            name (str): The name of the variable.
+            value (any): The value of the variable.
 
-        Return:
-            None: Returns nothing
+        Returns:
+            None
         """
         self.environment[name] = value
 
 
 class Function:
     """
-    This class imitates Python functions
-    Implements callability for functions defined in lgl
+    Imitates a Python function. This class holds the function's parameters, body, and frame, which contains variables and other functions defined within this function. It also implements the callability of the 'Function' object.
     """
 
     def __init__(self, parameters: str | list[str], body: list, frame: Frame) -> None:
+        """
+        Initializes a Function instance with parameters, body, and a frame.
+
+        Args:
+            parameters (str | list[str]): The parameters of the function
+            body (list): The body of the function, represented as a list of expressions.
+            frame (Frame): The frame in which the function's variables and nested functions are defined.
+        """
         self.parameters = parameters if isinstance(parameters, list) else [parameters]
         self.body = body
         self.frame = Frame(frame)
 
     def call(self, evaluated_args: list[int]) -> any:
         """
-        Calls this Function object
-        Creates a new frame for the function, assigns the provided arguments to its parameters, and then evaluates the function body
+        Calls this 'Function' object. Adds the parameters as variables to the current frame and evaluates the function body in the current frame.
 
         Args:
-            evaluated_args (list[int]): A list of evaluated arguments to pass to the function parameters
+            evaluated_args (list[int]): A list of evaluated expressions to assign to the function parameters.
 
-        Return:
-            any: The result of evaluating the function's body
+        Returns:
+            any: The result of evaluating the function's body.
         """
         for parameter, arg in zip(self.parameters, evaluated_args):
             self.frame.add(parameter, arg)
@@ -78,27 +89,34 @@ class Function:
 
 class Trace:
     """
-    This class holds every functionality of tracing the call stack. Provides a decorator '@Trace.decorate' that, when set, logs the call stack.
+    Handles functionality for tracing the call stack. Provides a decorator '@Trace.decorate' 
+    that logs entries to the call stack when functions start and stop execution.
     """
 
     call_stack = []
 
     def __init__(self, function_name: str) -> None:
+        """
+        Initializes a Trace instance with a unique ID and the function name.
+
+        Args:
+            function_name (str): The name of the function being traced.
+        """
         self.id: str = self.__hash(function_name)
         self.function_name = function_name
 
     @staticmethod
     def decorate(func: callable) -> callable:
         """
-        Wrap any function containing the '@Trace.decorate' decorator. Add an entry to the call stack whenever a function starts and stops executing.
+        Decorator to wrap functions with trace logging. Adds an entry to the call stack 
+        whenever the decorated function starts and stops executing.
 
         Args:
-            func (callable): The wrapped function to execute
+            func (callable): The function to be wrapped and traced.
 
         Returns:
-            any: Returns the return value of the wrapped function
+            callable: The wrapped function with trace logging.
         """
-
         def inner(*args) -> any:
             function_name = args[1][0]
             trace = Trace(function_name)
@@ -112,13 +130,13 @@ class Trace:
     @classmethod
     def write(cls, file_path: str) -> None:
         """
-        Log the call stack to a .csv file.
+        Logs the call stack to a specified .csv file.
 
         Args:
-            file_path (str): The path to log the call stack to
+            file_path (str): The file path where the call stack should be logged.
 
         Returns:
-            None: Returns nothing
+            None
         """
         with open(file_path, "w", newline="") as file:
             header = [["id", "timestamp", "function_name", "event"]]
@@ -127,13 +145,13 @@ class Trace:
 
     def add(self, event: str) -> None:
         """
-        Add an event to the call stack.
+        Adds an event to the call stack.
 
         Args:
-            event (str): The event, e.g. 'start', 'stop'
+            event (str): The event type, such as 'start' or 'stop'.
 
         Returns:
-            None: Returns nothing
+            None
         """
         Trace.call_stack.append(
             [self.id, self.__accurate_clock(), self.function_name, event]
@@ -141,20 +159,23 @@ class Trace:
 
     def __hash(self, function_name: str) -> str:
         """
-        Generate a hash out of a function name and the current date and time to create a unique six digit hash.
+        Generates a unique six digit hash for a function based on its name and the current timestamp.
 
         Args:
-            function_name (str): The name of the function to be used as hashing parameter
+            function_name (str): The function name to be used in generating the hash.
 
         Returns:
-            str: The string representation of the first six digits of the hash
+            str: A string representation of the first six characters of the hash.
         """
         data = f"{function_name}{self.__accurate_clock()}"
         return sha256(data.encode()).hexdigest()[:6]
 
     def __accurate_clock(self) -> str:
         """
-        Get the accurate time (only 'datetime.now()' yielded same timing)
+        Provides an accurate timestamp combining 'datetime' and 'perf_counter'.
+
+        Returns:
+            str: A timestamp with high precision, formatted as 'YYYY-MM-DD HH:MM:SS.microseconds'.
         """
         datetime_part = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         perf_counter_part = int((time.perf_counter() % 1) * 1000000)
@@ -163,14 +184,14 @@ class Trace:
 
 def do_add(frame: Frame, args: list) -> int:
     """
-    Adds two evaluated values: a + b
+    Adds two evaluated values: a + b.
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two integers to add. Each integer can be a direct value or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two integers to add. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        int: The resulting value of adding two evaluated values
+        int: The result of adding the two evaluated values.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -180,14 +201,14 @@ def do_add(frame: Frame, args: list) -> int:
 
 def do_subtract(frame: Frame, args: list) -> int:
     """
-    Substracts two evaluated values: a - b
+    Subtracts two evaluated values: a - b.
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two integers to substract. Each integer can be a direct value or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two integers to subtract. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        int: The resulting value of substracting two evaluated values
+        int: The result of subtracting the two evaluated values.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -197,14 +218,14 @@ def do_subtract(frame: Frame, args: list) -> int:
 
 def do_multiply(frame: Frame, args: list) -> int:
     """
-    Multiplies two evaluated values: a * b
+    Multiplies two evaluated values: a * b.
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two integers to multiply. Each integer can be a direct value or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two integers to multiply. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        int: The resulting value of multiplying two evaluated values
+        int: The result of multiplying the two evaluated values.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -214,14 +235,17 @@ def do_multiply(frame: Frame, args: list) -> int:
 
 def do_divide(frame: Frame, args: list) -> float:
     """
-    Divides two evaluated values: a / b
+    Divides two evaluated values: a / b.
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two integers to divide. Each integer can be a direct value or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two integers to divide. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        float: The resulting value of dividing the numerator by the denominator
+        float: The result of dividing the numerator by the denominator.
+
+    Raises:
+        AssertionError: If the denominator is zero.
     """
     assert len(args) == 2
     numerator = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -232,14 +256,14 @@ def do_divide(frame: Frame, args: list) -> float:
 
 def do_power(frame: Frame, args: list) -> int:
     """
-    Computes the result of raising a base to a specified exponent: base^(exponent)
+    Computes the result of raising a base to a specified exponent: base^(exponent).
 
     Args:
-        frame (Frame): The current execution frame
+        frame (Frame): The current execution frame.
         args (list): A list containing two integers to compute the power. Each integer can be a direct value or an expression that requires evaluation.
 
     Returns:
-        int: The result of base raised to the power of exponent
+        int: The result of base raised to the power of the exponent.
     """
     assert len(args) == 2
     base = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -249,19 +273,20 @@ def do_power(frame: Frame, args: list) -> int:
 
 def do_AND(frame: Frame, args: list) -> int:
     """
-    AND boolean operation: a AND b
+    Performs the AND boolean operation: a AND b.
 
-    1 AND 1 = 1
-    1 AND 0 = 0
-    0 AND 1 = 0
-    0 AND 0 = 0
+    Examples:
+        1 AND 1 = 1
+        1 AND 0 = 0
+        0 AND 1 = 0
+        0 AND 0 = 0
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two boolean values (0 or 1). Each value can be a direct 0 or 1 or an expression that requires evaluation.
 
     Returns:
-        int: The result of the boolean operation a AND b
+        int: The result of the boolean operation a AND b.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -273,19 +298,20 @@ def do_AND(frame: Frame, args: list) -> int:
 
 def do_OR(frame: Frame, args: list) -> int:
     """
-    OR boolean operation: a OR b
+    Performs the OR boolean operation: a OR b.
 
-    1 OR 1 = 1
-    1 OR 0 = 1
-    0 OR 1 = 1
-    0 OR 0 = 0
+    Examples:
+        1 OR 1 = 1
+        1 OR 0 = 1
+        0 OR 1 = 1
+        0 OR 0 = 0
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two boolean values (0 or 1). Each value can be a direct 0 or 1 or an expression that requires evaluation.
 
     Returns:
-        int: The result of the boolean operation a OR b
+        int: The result of the boolean operation a OR b.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -297,19 +323,20 @@ def do_OR(frame: Frame, args: list) -> int:
 
 def do_XOR(frame: Frame, args: list) -> int:
     """
-    XOR boolean operation: a XOR b
+    Performs the XOR boolean operation: a XOR b.
 
-    1 XOR 1 = 0
-    1 XOR 0 = 1
-    0 XOR 1 = 1
-    0 XOR 0 = 0
+    Examples:
+        1 XOR 1 = 0
+        1 XOR 0 = 1
+        0 XOR 1 = 1
+        0 XOR 0 = 0
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list containing two boolean values (0 or 1). Each boolean value (0 or 1) can be a direct 0 or 1 or an expression that requires evaluation
+        frame (Frame): The current execution frame.
+        args (list): A list containing two boolean values (0 or 1). Each value can be a direct 0 or 1 or an expression that requires evaluation.
 
     Returns:
-        int: The result of the boolean operation a XOR b
+        int: The result of the boolean operation a XOR b.
     """
     assert len(args) == 2
     a = do(frame, args[0]) if isinstance(args[0], list) else args[0]
@@ -321,14 +348,14 @@ def do_XOR(frame: Frame, args: list) -> int:
 
 def do_seq(frame: Frame, args: list) -> any:
     """
-    Evaluates a sequence of expression in order and returns the result of the last expression
+    Evaluates a sequence of expressions in order and returns the result of the last expression.
 
     Args:
-        frame (Frame): The current execution frame
-        args (list): A list expressions to evaluate sequentially
+        frame (Frame): The current execution frame.
+        args (list): A list of expressions to evaluate sequentially.
 
     Returns:
-        any: The result of the last evaluated expression
+        any: The result of the last evaluated expression.
     """
     assert len(args) > 1
     for expr in args:
@@ -338,14 +365,14 @@ def do_seq(frame: Frame, args: list) -> any:
 
 def do_function(frame: Frame, args: list) -> Function:
     """
-    Creates a new Function object with its parameter(s) and body
+    Creates a new Function object with specified parameters and body.
 
     Args:
-        _ (Frame): The current execution frame
-        args (list): A list containing the parameters and the body of the function
+        frame (Frame): The current execution frame.
+        args (list): A list containing the parameters and body of the function.
 
     Returns:
-        Function: Function object with its parameter(s) and body
+        Function: A Function object with its parameters and body.
     """
     assert len(args) == 2
     parameters = args[0]
@@ -355,15 +382,14 @@ def do_function(frame: Frame, args: list) -> Function:
 
 def do_set(frame: Frame, args: list) -> None:
     """
-    Sets a new variable to the current frame
-    If the value is not a atomic value, it will be evaluated before being set
+    Sets a new variable in the current frame. If the value is not atomic, it will be evaluated before being set.
 
     Args:
-        frame (Frame): The current execution frame in which the new variable will be set
-        args (list): A list containing the new variable name and its value. Value will be evaluated if it is an expression that needs evaluation
+        frame (Frame): The current execution frame in which the variable will be set.
+        args (list): A list containing the variable name and its value. The value will be evaluated if it requires further computation.
 
     Returns:
-        None: Returns nothing
+        None
     """
     assert len(args) == 2
     name = args[0]
@@ -373,14 +399,14 @@ def do_set(frame: Frame, args: list) -> None:
 
 def do_get(frame: Frame, args: list) -> any:
     """
-    Retrieves the specified variable's value from the current frame or any parent frame if not found.
+    Retrieves the value of a specified variable from the current or parent frames.
 
     Args:
-        frame (Frame): The current execution frame
-        args(list): A list containing the name of the variable
+        frame (Frame): The current execution frame.
+        args (list): A list containing the name of the variable.
 
     Returns:
-        any: The value of the variable
+        any: The value of the variable.
     """
     assert len(args) == 1
     variable_name = args[0]
@@ -390,14 +416,14 @@ def do_get(frame: Frame, args: list) -> any:
 @Trace.decorate
 def do_call(frame: Frame, args: list) -> any:
     """
-    Calls the passed function with the given arguments
+    Calls the specified function with provided arguments. If the arguments are not atomic, they will be evaluated before calling the function.
 
     Args:
-        frame (Frame): The current execution frame
-        args(list): A list containing the function name and the parameter(s)
+        frame (Frame): The current execution frame.
+        args (list): A list containing the function name and parameters.
 
-    Returns
-        any: The output of the called function
+    Returns:
+        any: The result of the function call.
     """
     function_name = args[0]
     arguments = [do(frame, arg) if isinstance(arg, list) else arg for arg in args[1:]]
@@ -407,14 +433,14 @@ def do_call(frame: Frame, args: list) -> any:
 
 def do(frame: Frame, args: list) -> any:
     """
-    Evaluates the given expression
+    Evaluates the specified list of expressions.
 
     Args:
         frame (Frame): The current execution frame.
-        args (list): A list containing the operation name, either as a prefix (first element) or an infix (second element), followed by the expression
+        args (list): A list containing the operation name, either as a prefix (first element) or an infix (second element), followed by the expression.
 
-    Return:
-        any: The result of the evaluated expression (except 'None' for 'set')
+    Returns:
+        any: The result of the evaluated expression (or 'None' for 'set').
     """
 
     if args[1] in ["+", "-", "*", "/", "^", "AND", "OR", "XOR"]:
@@ -444,6 +470,18 @@ def do(frame: Frame, args: list) -> any:
 
 
 def operations(operation_name: str) -> callable:
+    """
+    Matches the operation from the LGL code to the actual method by searching for it in the global frame.
+
+    Args:
+        operation_name (str): The name of the operation.
+
+    Returns:
+        callable: The function corresponding to the operation name.
+
+    Raises:
+        KeyError: If the operation name does not correspond to a valid function.
+    """
     modified_name = "do_" + operation_name
     if modified_name in globals():
         return globals()[modified_name]
@@ -452,13 +490,13 @@ def operations(operation_name: str) -> callable:
 
 def load_lgl(file_name: str) -> list:
     """
-    Load the LGL code
+    Loads the LGL code (list of expressions) from a file.
 
     Args:
-        file_name (str): The path to the file containing the LGL code (.gsc file)
+        file_name (str): The path to the file containing the LGL code (.gsc file).
 
-    Returns
-        list: The LGL code as a list
+    Returns:
+        list: The LGL code as a list.
     """
     import json
 
@@ -467,6 +505,10 @@ def load_lgl(file_name: str) -> list:
 
 
 def main() -> None:
+    """
+    Main entry point for the LGL interpreter. Parses command-line arguments, loads the LGL code,
+    executes it, and optionally writes a trace log if specified.
+    """
     import argparse
 
     arg_parser = argparse.ArgumentParser(description="LGL interpreter")
