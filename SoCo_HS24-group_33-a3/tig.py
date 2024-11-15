@@ -21,19 +21,19 @@ class Commit:
     Class that can be instanciated to represent one single commit but also serves all other functionalities that have to do with committing.
     """
 
-    def __init__(self, date: str, message: str, manifests: list[tuple[str, str]]) -> None:
+    def __init__(self, date: str, message: str, records: list[tuple[str, str]]) -> None:
         def __unique_id() -> str:
             """
             Generate a unique ID to identify the commit.
             """
             pass
 
-        self.__configuration = {"id": __unique_id(), "date": date, "message": message, "manifests": manifests}
+        self.__configuration = {"id": __unique_id(), "date": date, "message": message, "manifest": records}
 
     @staticmethod
     def commit(message: str) -> None:
         """
-        Add a new commit_xxx.json file containing the commit ID (unique), commit date and commit message along with all previously staged manifests. Remove the newly commited files from the 'staged.json' file. Add the timestamp in the filename. Copy the files to the backup.
+        Add a new commit_xxx.json file containing the commit ID (unique), commit date and commit message along with all previously staged records. Remove the newly commited files from the 'staged.json' file. Add the timestamp in the filename. Copy the files to the backup.
         """
         pass
 
@@ -60,9 +60,9 @@ class Commit:
         """
         pass
 
-    def manifests(self) -> list[tuple[str, str]]:
+    def manifest(self) -> list[tuple[str, str]]:
         """
-        Get all manifests in this commit as a tuple of (filename, hash)
+        Get all records in this commit as a tuple of (filename, hash)
         """
         pass
 
@@ -101,9 +101,9 @@ class Stage:
         pass
 
     @staticmethod
-    def current_manifests() -> list[tuple[str, str]]:
+    def manifest() -> list[tuple[str, str]]:
         """
-        Return a list of manifests that are currently staged (return the 'staged.json' file content).
+        Return a list of the records that are currently staged (return the 'staged.json' file content).
         """
         pass
 
@@ -146,9 +146,9 @@ class TIG:
         pass
 
     @staticmethod
-    def manifest() -> list[tuple[str, str]]:
+    def records() -> list[tuple[str, str]]:
         """
-        Get the manifest of each file in the current working directory as a tuple of (filename, hash)
+        Get the records of each file in the current working directory as a tuple of (filename, hash)
         """
 
         def hash(path: str) -> str:
@@ -165,7 +165,7 @@ class TIG:
     @staticmethod
     def get_modified_files() -> list[str]:
         """
-        Return a list of files that have a different manifest than in the latest commit. Use 'TIG.manifest()' to get all manifests and 'Commit.latest().manifests()' to get the manifests of the latest commit.
+        Return a list of files that have a different record than in the latest commit. Use 'TIG.records()' to get all records and 'Commit.latest().manifest()' to get the records of the latest commit.
         """
         pass
 
