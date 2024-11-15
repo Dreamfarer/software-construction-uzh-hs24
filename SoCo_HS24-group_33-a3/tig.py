@@ -116,7 +116,11 @@ class TIG:
     @staticmethod
     def init(dir: str) -> None:
         """Create a new '.tig/' folder inside the provided path."""
-        pass
+        import os
+
+        path = os.path.join(dir, ".tig")
+        if not os.path.exists(path):
+            os.mkdir(path)
 
     @staticmethod
     def status() -> None:
@@ -177,7 +181,9 @@ def main() -> None:
 
     # Command for 'init'
     init_parser = subparsers.add_parser("init", help="Initialize a version control repository")
-    init_parser.add_argument("directory", type=str, help="Directory to initialize the repository in")
+    init_parser.add_argument(
+        "directory", type=str, nargs="?", default=".", help="Directory to initialize the repository in"
+    )
 
     # Command for 'add'
     add_parser = subparsers.add_parser("add", help="Add a file to the staged state")
