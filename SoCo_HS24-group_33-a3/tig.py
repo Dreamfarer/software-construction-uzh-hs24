@@ -1,3 +1,6 @@
+import os
+
+
 class TIG:
     """
     Class that holds all functionality which is tig general or simply does not belong to committing and staging.
@@ -38,30 +41,29 @@ class TIG:
     @staticmethod
     def records() -> list[tuple[str, str]]:
         """
-        Get the records of each file in the current working directory as a tuple of (filename, hash)
+        Get the records of each file in the current working directory as a tuple of (filename, hash).
+        Use TIG.record() for the actual record generation.
         """
-        import os
-        import hashlib
-
-        def hash(path: str) -> str:
-            """
-            Calculate the SHA-1 hash from the file content by reading 4 KB per read operation.
-            """
-            sha1 = hashlib.sha1()
-            with open(path, "rb") as file:
-                while chunk := file.read(4096):
-                    sha1.update(chunk)
-            return sha1.hexdigest()
 
         records = []
         for root, dirs, filenames in os.walk("."):
             dirs[:] = [d for d in dirs if d not in (".stage", ".commit")]
             for filename in filenames:
-                path = os.path.join(root, filename)
-                relative_path = os.path.relpath(path, start=".")
-                file_hash = hash(path)
-                records.append((relative_path, file_hash))
+                relative_path = os.path.relpath(os.path.join(root, filename), start=".")
+                records.append(TIG.record(relative_path))
         return records
+
+    @staticmethod
+    def record(filename: str) -> tuple[str, str] | None:
+        """
+        Get the record of a specific file in the current working directory as a tuple of (filename, hash).
+        """
+        import os
+
+        absolute_path = os.path.abspath(filename)
+        relative_path = os.path.relpath(absolute_path, start=".")
+        file_hash = TIG.__hash(absolute_path)
+        return (relative_path, file_hash)
 
     @staticmethod
     def get_untracked_files() -> list[str]:
@@ -74,6 +76,18 @@ class TIG:
         Return a list of files that have a different record than in the latest commit. Use 'TIG.records()' to get all records and 'Commit.latest().manifest()' to get the records of the latest commit.
         """
         pass
+
+    def __hash(path: str) -> str:
+        """
+        Calculate the SHA-1 hash from the file content by reading 4 KB per read operation.
+        """
+        import hashlib
+
+        sha1 = hashlib.sha1()
+        with open(path, "rb") as file:
+            while chunk := file.read(4096):
+                sha1.update(chunk)
+        return sha1.hexdigest()
 
 
 if __name__ == "__main__":
