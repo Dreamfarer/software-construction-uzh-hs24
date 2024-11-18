@@ -8,7 +8,7 @@ class Backup:
     """
 
     @staticmethod
-    def add(directory: str, records: str | list[str]) -> None:
+    def add(directory: str, records: tuple | list[tuple]) -> None:
         """
         Add a backup of the provided files (as record) to the provided directory.
         """
@@ -23,6 +23,21 @@ class Backup:
             new_filename = hash + file_extension
             destination_path = os.path.join(directory, new_filename)
             shutil.copy(source_path, destination_path)
+
+    @staticmethod
+    def remove(directory: str, records: tuple | list[tuple]) -> None:
+        """
+        Remove files with the specified hash names from the provided directory.
+        """
+        if isinstance(records, tuple):
+            records = [records]
+        for record in records:
+            hash = record[1]
+            matching_files = [file for file in os.listdir(directory) if file.startswith(hash)]
+            for file in matching_files:
+                file_path = os.path.join(directory, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
 
     @staticmethod
     def checkout(id: str) -> None:
