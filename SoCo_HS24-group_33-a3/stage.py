@@ -26,11 +26,14 @@ class Stage:
         Stage.__write_json(staged_records)
 
     @staticmethod
-    def remove(filenames: str | list[str]) -> None:
+    def remove(record: tuple[str, str]) -> None:
         """
         Remove provided files from the 'staged.json' file.
         """
-        pass
+        staged_records = Stage.__read_json()
+        print(record)
+        staged_records.remove(record)
+        Stage.__write_json(staged_records)
 
     @staticmethod
     def manifest() -> list[tuple[str, str]]:
@@ -40,7 +43,7 @@ class Stage:
         return Stage.__read_json()
 
     @staticmethod
-    def __read_json() -> list[tuple[int, int]]:
+    def __read_json() -> list[tuple[str, str]]:
         """
         Return the current records from the 'staged.json' file.
         Return an empty list, if the file is currently empty.
@@ -48,14 +51,14 @@ class Stage:
         os.makedirs(os.path.dirname(Stage.STAGED_FILE), exist_ok=True)
         if os.path.exists(Stage.STAGED_FILE):
             with open(Stage.STAGED_FILE, "r") as file:
-                return json.load(file)
+                return [tuple(record) for record in json.load(file)]
         return []
 
     @staticmethod
-    def __write_json(staged_records: list[tuple[int, int]]) -> None:
+    def __write_json(staged_records: list[tuple[str, str]]) -> None:
         """
         Write the current records to the '.staged/staged.json' file.
         """
         os.makedirs(os.path.dirname(Stage.STAGED_FILE), exist_ok=True)
         with open(Stage.STAGED_FILE, "w") as file:
-            json.dump(staged_records, file, indent=4)
+            json.dump([list(record) for record in staged_records], file, indent=4)
