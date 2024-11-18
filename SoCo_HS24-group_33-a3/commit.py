@@ -10,7 +10,10 @@ class Commit:
             """
             pass
 
-        self.__configuration = {"id": __unique_id(), "date": date, "message": message, "manifest": records}
+        self.__id = __unique_id()
+        self.__date = date
+        self.__message = message
+        self.__manifest = records
 
     @staticmethod
     def commit(message: str) -> None:
@@ -25,8 +28,8 @@ class Commit:
         Return all commits (oldest first, newest last)
         """
 
-        def __read() -> list["Commit"]:
-            """Convert the commit_xxx.json file to a 'Commit' object"""
+        def __read() -> "Commit":
+            """Convert a commit_xxx.json file to a 'Commit' object"""
             pass
 
     @staticmethod
@@ -53,11 +56,12 @@ class Commit:
         Get all file names in this commit as a string.
         """
 
+    def write(self) -> "Commit":
+        """Write a commit_xxx.json file containing the current variables."""
+        pass
+
     def __str__(self) -> str:
         """
         String representation of this object. Used when printing via Print(some_commit).
         """
-        id = self.__configuration["id"]
-        date = self.__configuration["date"]
-        message = self.__configuration["message"]
-        return f"[{id} | {date} | {message}]"  # TO-DO: Make prettier
+        return f"[{self.id} | {self.date} | {self.message}]"  # TO-DO: Make prettier
