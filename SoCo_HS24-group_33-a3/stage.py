@@ -37,7 +37,7 @@ class Stage:
         """
         Return a list of the records that are currently staged (return the 'staged.json' file content).
         """
-        pass
+        return Stage.__read_json()
 
     @staticmethod
     def __read_json() -> list[tuple[int, int]]:
@@ -59,6 +59,3 @@ class Stage:
         os.makedirs(os.path.dirname(Stage.STAGED_FILE), exist_ok=True)
         with open(Stage.STAGED_FILE, "w") as file:
             json.dump(staged_records, file, indent=4)
-
-
-Stage.add("test3.txt")
