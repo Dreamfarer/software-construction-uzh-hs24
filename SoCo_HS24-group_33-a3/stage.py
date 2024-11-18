@@ -1,6 +1,7 @@
 import os
 import json
 from tig import TIG
+from backup import Backup
 
 
 class Stage:
@@ -22,6 +23,7 @@ class Stage:
         for filename in filenames:
             record = TIG.record(filename)
             if not record[1] in existing_hashes:
+                Backup.add(os.path.dirname(Stage.STAGED_FILE), record)
                 staged_records.append(record)
         Stage.__write_json(staged_records)
 

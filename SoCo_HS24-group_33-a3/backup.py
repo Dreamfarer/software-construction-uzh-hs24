@@ -1,14 +1,28 @@
+import os
+import shutil
+
+
 class Backup:
     """
     Class that handles all the backup-ing; moving, deleting files and so on.
     """
 
     @staticmethod
-    def create(files: list[str]) -> None:
+    def add(directory: str, records: str | list[str]) -> None:
         """
-        Create a backup of provided files.
+        Add a backup of the provided files (as record) to the provided directory.
         """
-        pass
+        if isinstance(records, tuple):
+            records = [records]
+        os.makedirs(directory, exist_ok=True)
+        print(directory, records)
+        for record in records:
+            source_path = record[0]
+            hash = record[1]
+            _, file_extension = os.path.splitext(source_path)
+            new_filename = hash + file_extension
+            destination_path = os.path.join(directory, new_filename)
+            shutil.copy(source_path, destination_path)
 
     @staticmethod
     def checkout(id: str) -> None:
