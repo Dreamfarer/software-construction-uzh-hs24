@@ -40,12 +40,28 @@ class TIG:
         """
         Get the records of each file in the current working directory as a tuple of (filename, hash)
         """
+        import os
+        import hashlib
 
         def hash(path: str) -> str:
             """
-            Calculate the hash from the file content.
+            Calculate the SHA-1 hash from the file content by reading 4 KB per read operation.
             """
-            pass
+            sha1 = hashlib.sha1()
+            with open(path, "rb") as file:
+                while chunk := file.read(4096):
+                    sha1.update(chunk)
+            return sha1.hexdigest()
+
+        records = []
+        for root, dirs, filenames in os.walk("."):
+            dirs[:] = [d for d in dirs if d not in (".stage", ".commit")]
+            for filename in filenames:
+                path = os.path.join(root, filename)
+                relative_path = os.path.relpath(path, start=".")
+                file_hash = hash(path)
+                records.append((relative_path, file_hash))
+        return records
 
     @staticmethod
     def get_untracked_files() -> list[str]:
