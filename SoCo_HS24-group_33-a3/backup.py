@@ -15,7 +15,6 @@ class Backup:
         if isinstance(records, tuple):
             records = [records]
         os.makedirs(directory, exist_ok=True)
-        print(directory, records)
         for record in records:
             source_path = record[0]
             hash = record[1]
@@ -33,11 +32,12 @@ class Backup:
             records = [records]
         for record in records:
             hash = record[1]
-            matching_files = [file for file in os.listdir(directory) if file.startswith(hash)]
-            for file in matching_files:
-                file_path = os.path.join(directory, file)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
+            for file in os.listdir(directory):
+                if file.startswith(hash):
+                    file_path = os.path.join(directory, file)
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                    break
 
     @staticmethod
     def checkout(id: str) -> None:

@@ -33,8 +33,8 @@ class Stage:
         Remove provided files from the 'staged.json' file.
         """
         staged_records = Stage.__read_json()
-        print(record)
         staged_records.remove(record)
+        Backup.remove(os.path.dirname(Stage.STAGED_FILE), record)
         Stage.__write_json(staged_records)
 
     @staticmethod
