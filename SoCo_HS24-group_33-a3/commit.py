@@ -6,6 +6,9 @@ from backup import Backup
 import json
 import os
 
+YELLOW = "\033[33m"
+RESET = "\033[0m"
+
 class Commit:
     """
     Class that can be instanciated to represent one single commit but also serves all other functionalities that have to do with committing.
@@ -105,5 +108,5 @@ class Commit:
         """
         String representation of this object. Used when printing via Print(some_commit).
         """
-        return f"commit {self.__id}\nDate: {self.__date}\n\n   {self.__message}\n"
+        return f"{YELLOW}commit {self.__id}{RESET}\nDate: {self.__date}\n\n   {self.__message}\n"
     
