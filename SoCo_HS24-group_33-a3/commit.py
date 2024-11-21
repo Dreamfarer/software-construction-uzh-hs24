@@ -34,9 +34,13 @@ class Commit:
         """
         staged_files = Status.staged()
         commit_date  = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        commit = Commit(commit_date, message, staged_files)
+        new_commit = Commit(commit_date, message, staged_files)
 
-        Status.move(staged_files, Record.COMMITED)
+        for record in staged_files:
+            Status.move(record, Record.COMMITED)
+        
+        commit_file = new_commit.write()
+        Backup.add(".tig/backup", staged_files)
 
 
     @staticmethod
