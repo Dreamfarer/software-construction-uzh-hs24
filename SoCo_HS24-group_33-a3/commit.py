@@ -34,13 +34,14 @@ class Commit:
         """
         staged_files = Status.staged()
         commit_date  = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        new_commit = Commit(commit_date, message, staged_files)
+        records = [(r.filename, r.hash) for r in staged_files]
+        new_commit = Commit(commit_date, message, records)
 
-        for record in staged_files:
+        for record in records:
             Status.move(record, Record.COMMITED)
         
         commit_file = new_commit.write()
-        Backup.add(".tig/backup", staged_files)
+        Backup.add(".tig/backup", records)
 
 
     @staticmethod
@@ -79,7 +80,8 @@ class Commit:
 
     def write(self) -> "Commit":
         """Write a commit_xxx.json file containing the current variables."""
-        commit_filename = f"commit_{self.__id}_{self.__date.replace(" ", "_").replace(":","-")}.json"
+        commit_filename = f".tig/commits/commit_{self.__id}_{self.__date.replace(" ", "_").replace(":","-")}.json"
+        os.makedirs(os.path.dirname(commit_filename), exist_ok=True)
         commit_data = {
             "commit_id": self.__id,
             "date": self.__date,
@@ -88,7 +90,6 @@ class Commit:
         }
         with open(commit_filename, "w") as commit_file:
             json.dump(commit_data, commit_file, indent=4)
-        
         return commit_filename
         
 
