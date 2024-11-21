@@ -105,4 +105,5 @@ class Commit:
         """
         String representation of this object. Used when printing via Print(some_commit).
         """
-        return f"[{self.id} | {self.date} | {self.message}]"  # TO-DO: Make prettier
+        return f"commit {self.__id}\nDate: {self.__date}\n\n   {self.__message}\n"
+    
