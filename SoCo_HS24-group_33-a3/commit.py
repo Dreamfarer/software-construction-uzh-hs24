@@ -1,4 +1,9 @@
 from hashlib import sha256
+from datetime import datetime
+from record import Record
+from status import Status
+from backup import Backup
+import json
 
 class Commit:
     """
@@ -24,7 +29,14 @@ class Commit:
         """
         Add a new commit_xxx.json file containing the commit ID (unique), commit date and commit message along with all previously staged records. Remove the newly commited files from the 'staged.json' file. Add the timestamp in the filename. Copy the files to the backup.
         """
-        pass
+        staged_files = Status.staged()
+        commit_date  = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        commit = Commit(commit_date, message, staged_files)
+        commit.write()
+
+        Status.move(staged_files, Record.COMMITED)
+        
+
 
     @staticmethod
     def all() -> list["Commit"]:
@@ -62,7 +74,16 @@ class Commit:
 
     def write(self) -> "Commit":
         """Write a commit_xxx.json file containing the current variables."""
-        pass
+        commit_filename = f"commit_{self.__id}_{self.__date.replace(" ", "_").replace(":","-")}.json"
+        commit_data = {
+            "commit_id": self.__id,
+            "date": self.__date,
+            "message": self.__message,
+            "records": self.__manifest
+        }
+        with open(commit_filename, "w") as commit_file:
+            json.dump(commit_data, commit_file, indent=4)
+        
 
     def __str__(self) -> str:
         """
