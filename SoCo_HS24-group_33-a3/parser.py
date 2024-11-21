@@ -50,8 +50,9 @@ class Parser:
         checkout_parser = subparsers.add_parser("checkout", help="Restore files to a specific commit state")
         checkout_parser.add_argument("commit_id", type=str, help="Commit ID to checkout")
 
-        args = parser.parse_args()
+        Status.sync()
 
+        args = parser.parse_args()
         if args.command == "init":
             TIG.init(args.directory)
         elif args.command == "add":
