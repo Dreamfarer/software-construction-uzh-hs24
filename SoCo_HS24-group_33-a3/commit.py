@@ -4,6 +4,7 @@ from record import Record
 from status import Status
 from backup import Backup
 import json
+import os
 
 class Commit:
     """
@@ -32,10 +33,8 @@ class Commit:
         staged_files = Status.staged()
         commit_date  = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         commit = Commit(commit_date, message, staged_files)
-        commit.write()
 
         Status.move(staged_files, Record.COMMITED)
-        
 
 
     @staticmethod
@@ -83,6 +82,8 @@ class Commit:
         }
         with open(commit_filename, "w") as commit_file:
             json.dump(commit_data, commit_file, indent=4)
+        
+        return commit_filename
         
 
     def __str__(self) -> str:
