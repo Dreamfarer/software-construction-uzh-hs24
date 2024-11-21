@@ -28,7 +28,9 @@ class Commit:
     @staticmethod
     def commit(message: str) -> None:
         """
-        Add a new commit_xxx.json file containing the commit ID (unique), commit date and commit message along with all previously staged records. Remove the newly commited files from the 'staged.json' file. Add the timestamp in the filename. Copy the files to the backup.
+        Add a new commit_xxx.json file containing the commit ID (unique), commit date and commit message along with all previously staged records.
+        Move the staged files to commited files '.status.json'.
+        Add the timestamp in the filename. Copy the files to the backup.
         """
         staged_files = Status.staged()
         commit_date  = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
