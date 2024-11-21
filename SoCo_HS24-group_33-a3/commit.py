@@ -47,7 +47,7 @@ class Commit:
         """
         Return the unique ID of the commit.
         """
-        pass
+        return self.__id
 
     def manifest(self) -> list[tuple[str, str]]:
         """
