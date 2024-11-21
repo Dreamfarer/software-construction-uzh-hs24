@@ -2,6 +2,7 @@ from tig import TIG
 from backup import Backup
 from commit import Commit
 from stage import Stage
+from status import Status
 
 
 class Parser:
@@ -60,7 +61,7 @@ class Parser:
         elif args.command == "log":
             TIG.log(args.N)
         elif args.command == "status":
-            TIG.status()
+            Status.status()
         elif args.command == "diff":
             TIG.diff(args.filename)
         elif args.command == "checkout":
