@@ -90,7 +90,7 @@ class Commit:
 
     def write(self) -> "Commit":
         """Write a commit_xxx.json file containing the current variables."""
-        commit_filename = f".tig/commits/commit_{self.__id}_{self.__date.replace(" ", "_").replace(":","-")}.json"
+        commit_filename = f".tig/commits/commit_{self.__id}_{self.__date.replace(" ","_").replace(":","-")}.json"
         os.makedirs(os.path.dirname(commit_filename), exist_ok=True)
         commit_data = {
             "commit_id": self.__id,
