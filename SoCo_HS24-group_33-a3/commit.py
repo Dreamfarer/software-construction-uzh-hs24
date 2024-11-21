@@ -49,10 +49,17 @@ class Commit:
         """
         Return all commits (oldest first, newest last)
         """
-
-        def __read() -> "Commit":
+        def __read(commit_file) -> "Commit":
             """Convert a commit_xxx.json file to a 'Commit' object"""
-            pass
+            json_dict = json.load(commit_file)
+            return Commit(**json_dict)
+        
+        commit_folder = ".tig/commits"
+        if not os.path.exists(commit_folder):
+            return []
+        
+        return [__read(c) for c in sorted(os.listdir(commit_folder))]
+            
 
     @staticmethod
     def latest() -> "Commit":
