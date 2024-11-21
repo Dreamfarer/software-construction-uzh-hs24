@@ -71,7 +71,7 @@ class Commit:
         """
         Get all records in this commit as a tuple of (filename, hash)
         """
-        pass
+        return self.__manifest
 
     def files(self) -> list[str]:
         """
@@ -90,8 +90,6 @@ class Commit:
         }
         with open(commit_filename, "w") as commit_file:
             json.dump(commit_data, commit_file, indent=4)
-        return commit_filename
-        
 
     def __str__(self) -> str:
         """
