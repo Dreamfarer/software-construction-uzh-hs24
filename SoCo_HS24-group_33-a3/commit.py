@@ -1,3 +1,5 @@
+from hashlib import sha256
+
 class Commit:
     """
     Class that can be instanciated to represent one single commit but also serves all other functionalities that have to do with committing.
@@ -8,7 +10,9 @@ class Commit:
             """
             Generate a unique ID to identify the commit.
             """
-            pass
+            data = self.__message + self.__date
+            hash_code = sha256(data).hexdigest()
+            return hash_code
 
         self.__id = __unique_id()
         self.__date = date
