@@ -40,8 +40,8 @@ class Commit:
         for record in records:
             Status.move(record, Record.COMMITED)
         
-        commit_file = new_commit.write()
-        Backup.add(".tig/backup", records)
+        new_commit.write()
+        Backup.add(".tig/backup",records)
 
 
     @staticmethod
@@ -77,6 +77,7 @@ class Commit:
         """
         Get all file names in this commit as a string.
         """
+        return [r[0] for r in self.__manifest]
 
     def write(self) -> "Commit":
         """Write a commit_xxx.json file containing the current variables."""
