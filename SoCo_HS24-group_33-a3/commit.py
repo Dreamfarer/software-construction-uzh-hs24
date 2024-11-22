@@ -20,7 +20,7 @@ class Commit:
             Generate a unique ID to identify the commit.
             """
             data = self.__message + self.__date
-            hash_code = sha256(data).hexdigest()
+            hash_code = sha256(data.encode()).hexdigest()
             return hash_code
 
         self.__id = __unique_id()
