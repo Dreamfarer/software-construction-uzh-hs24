@@ -2,6 +2,7 @@ from tig import TIG
 from backup import Backup
 from commit import Commit
 from stage import Stage
+from status import Status
 
 
 class Parser:
@@ -50,7 +51,11 @@ class Parser:
         checkout_parser.add_argument("commit_id", type=str, help="Commit ID to checkout")
 
         args = parser.parse_args()
-
+        if args.command == "init":
+            return TIG.init(args.directory)
+        if not TIG.is_repository():
+            return print("No repository has been found. Create it first with 'python tig.py init <path>'")
+        Status.sync()
         if args.command == "init":
             TIG.init(args.directory)
         elif args.command == "add":
@@ -60,7 +65,7 @@ class Parser:
         elif args.command == "log":
             TIG.log(args.N)
         elif args.command == "status":
-            TIG.status()
+            Status.status()
         elif args.command == "diff":
             TIG.diff(args.filename)
         elif args.command == "checkout":
