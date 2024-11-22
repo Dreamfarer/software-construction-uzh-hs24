@@ -46,17 +46,14 @@ class Status:
     def add(record: Record) -> None:
         """
         Add a new record to the '.status.json' file.
-        If the record already exists (same filename and hash), it won't be added.
-        If a record with the same filename but a different status exists, update its status.
+        If the record already exists (same filename or same hash), merely modify it without adding.
         """
         records = Status.__read_json()
-        for r in records:
-            if r.filename == record.filename and r.hash == record.hash:
-                if r.status != record.status:
-                    r.status = record.status
-                break
-        else:
-            records.append(record)
+        for i, r in enumerate(records):
+            if r.filename == record.filename or r.hash == record.hash:
+                records[i] = record
+                return Status.__write_json(records)
+        records.append(record)
         Status.__write_json(records)
 
     @staticmethod
