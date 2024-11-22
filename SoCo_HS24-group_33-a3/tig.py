@@ -27,6 +27,15 @@ class TIG:
         """
         pass
 
+    @staticmethod
+    def is_repository() -> bool:
+        """
+        Check if the currect working directory is a tig-repository.
+        """
+        import os
+
+        return os.path.isdir(os.path.join(os.getcwd(), ".tig"))
+
 
 if __name__ == "__main__":
     from parser import Parser
