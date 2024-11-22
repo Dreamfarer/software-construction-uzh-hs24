@@ -20,6 +20,13 @@ class Record:
         return {"filename": self.filename, "hash": self.hash, "status": self.status}
 
     @staticmethod
+    def to_dicts(records: list["Record"]):
+        """
+        Covert a list of Records to a list of ditionaries.
+        """
+        return [r.to_dict() for r in records]
+
+    @staticmethod
     def get_hash(filename: str) -> str:
         """
         Get the SHA-1 hash of a specific file in the current working directory by reading 4 KB per read operation.
