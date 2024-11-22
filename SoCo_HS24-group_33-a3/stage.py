@@ -1,25 +1,15 @@
+from record import Record
+from status import Status
+
+
 class Stage:
     """
     Class that cannot be instanciated. Only serves all functionality related to staging.
     """
 
     @staticmethod
-    def add(filenames: str | list[str]) -> None:
+    def add(filename: str) -> None:
         """
-        Add the provided files to the 'staged.json' file containg all currently stated files.
+        Add the provided file to the '.status.json' file if it has not already been staged before.
         """
-        pass
-
-    @staticmethod
-    def remove(filenames: str | list[str]) -> None:
-        """
-        Remove provided files from the 'staged.json' file.
-        """
-        pass
-
-    @staticmethod
-    def manifest() -> list[tuple[str, str]]:
-        """
-        Return a list of the records that are currently staged (return the 'staged.json' file content).
-        """
-        pass
+        Status.add(Record(filename, Record.STAGED))

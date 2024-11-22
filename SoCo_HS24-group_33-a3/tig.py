@@ -13,14 +13,6 @@ class TIG:
             os.mkdir(path)
 
     @staticmethod
-    def status() -> None:
-        """
-        Print the current status of each file in the working directory, indicating if they are untracked, modified,staged, or committed.
-        Use 'get_untracked_files()', 'get_modified_files()', 'get_staged_files()', 'get_commited_files()'.
-        """
-        pass
-
-    @staticmethod
     def log(number: int = 5) -> None:
         """
         Print the commit ID, commit date, and commit message of the last N commits. If -N is not given, the default N=5 is used.
@@ -36,28 +28,13 @@ class TIG:
         pass
 
     @staticmethod
-    def records() -> list[tuple[str, str]]:
+    def is_repository() -> bool:
         """
-        Get the records of each file in the current working directory as a tuple of (filename, hash)
+        Check if the currect working directory is a tig-repository.
         """
+        import os
 
-        def hash(path: str) -> str:
-            """
-            Calculate the hash from the file content.
-            """
-            pass
-
-    @staticmethod
-    def get_untracked_files() -> list[str]:
-        """Return the list of files that are not staged (get with Stage.current()) and are also not commited (get with Commit.latest().files())"""
-        pass
-
-    @staticmethod
-    def get_modified_files() -> list[str]:
-        """
-        Return a list of files that have a different record than in the latest commit. Use 'TIG.records()' to get all records and 'Commit.latest().manifest()' to get the records of the latest commit.
-        """
-        pass
+        return os.path.isdir(os.path.join(os.getcwd(), ".tig"))
 
 
 if __name__ == "__main__":
