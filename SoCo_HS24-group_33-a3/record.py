@@ -38,4 +38,4 @@ class Record:
         with open(absolute_path, "rb") as file:
             while chunk := file.read(4096):
                 sha1.update(chunk)
-        return sha1.hexdigest()
+        return sha1.hexdigest()[:8]
