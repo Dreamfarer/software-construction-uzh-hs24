@@ -103,7 +103,7 @@ class Commit:
         """
         data = self._message + self._date
         hash_code = sha256(data.encode()).hexdigest()
-        return hash_code
+        return hash_code[:8]
 
     def __str__(self) -> str:
         """
