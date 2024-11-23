@@ -37,7 +37,7 @@ class Parser:
 
         # Command for 'log'
         log_parser = subparsers.add_parser("log", help="Show the commit history")
-        log_parser.add_argument("N", type=int, default=5, help="Number of recent commits to display")
+        log_parser.add_argument("N", type=int, nargs="?", default=-5, help="Number of recent commits to display")
 
         # Command for 'status'
         status_parser = subparsers.add_parser("status", help="Show the current status of files")
