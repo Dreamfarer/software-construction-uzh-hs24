@@ -1,3 +1,4 @@
+from commit import Commit
 class TIG:
     """
     Class that holds all functionality which is tig general or simply does not belong to committing and staging.
@@ -13,12 +14,18 @@ class TIG:
             os.mkdir(path)
 
     @staticmethod
-    def log(number: int = 5) -> None:
+    def log(number: int) -> None:
         """
         Print the commit ID, commit date, and commit message of the last N commits. If -N is not given, the default N=5 is used.
         Essentially pretty print the string representation of each commit of 'Commit.all()'
         """
-        pass
+        commits = sorted(Commit.all(), key=lambda commit: commit._date)
+
+        for commit in commits[:-number]:
+            print(f"commit {commit._id}")
+            print(f"Date:   {commit._date}")
+            print(f"\n    {commit._message}\n")
+
 
     @staticmethod
     def diff(filename: str) -> None:
