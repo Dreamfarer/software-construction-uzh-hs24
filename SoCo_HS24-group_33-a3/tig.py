@@ -1,4 +1,5 @@
 from commit import Commit
+from status import Status
 import os
 from difflib import unified_diff
 class TIG:
@@ -37,21 +38,32 @@ class TIG:
             print(f"File: {filename} does not exist")
             return
         
-        sorted_commits = sorted(Commit.all(), key=lambda commit: commit._date, reverse=True)
-        hash_of_files = []
-        for commit in sorted_commits:
+        status_file_hash = None
+        Status.sync()
+        status_records = Status.all()
+        print(status_records)
+        for record in status_records:
+            if record.filename == filename:
+                status_file_hash = record.hash
+                break
+        if status_file_hash == None:
+            print(f"File {filename} was not found in the current working directory.")
+            return
+        
+        all_commits = Commit.all()
+        commit_file_hash = None
+        for commit in all_commits:
             for record in commit._manifest:
-                if record["filename"] == filename and record["hash"] not in hash_of_files:
-                    hash_of_files.append(record["hash"])
-                    if len(hash_of_files) == 2:
-                        break
-        if len(hash_of_files) < 2:
-            print(f"Not enough unique versions of {filename} to perform a diff.")
+                if record.filename == filename:
+                    commit_file_hash = record.hash
+                    break
+        if commit_file_hash == None:
+            print(f"No commit with {filename} was not found to perform a diff.")
             return
         
         _, file_extension = os.path.splitext(filename)
-        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[0]}{file_extension}")
-        path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[1]}{file_extension}")
+        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{status_file_hash}{file_extension}")
+        path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{commit_file_hash}{file_extension}")
         
         with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
             new_file_lines = new_file.readlines()
