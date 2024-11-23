@@ -56,9 +56,7 @@ class Parser:
         if not TIG.is_repository():
             return print("No repository has been found. Create it first with 'python tig.py init <path>'")
         Status.sync()
-        if args.command == "init":
-            TIG.init(args.directory)
-        elif args.command == "add":
+        if args.command == "add":
             Stage.add(args.filename)
         elif args.command == "commit":
             Commit.commit(args.commit_message)
