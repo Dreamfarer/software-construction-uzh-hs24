@@ -1,4 +1,6 @@
 from commit import Commit
+import os
+from difflib import unified_diff
 class TIG:
     """
     Class that holds all functionality which is tig general or simply does not belong to committing and staging.
@@ -7,8 +9,6 @@ class TIG:
     @staticmethod
     def init(dir: str) -> None:
         """Create a new '.tig/' folder inside the provided path."""
-        import os
-
         path = os.path.join(dir, ".tig")
         if not os.path.exists(path):
             os.mkdir(path)
@@ -20,7 +20,6 @@ class TIG:
         Essentially pretty print the string representation of each commit of 'Commit.all()'
         """
         commits = sorted(Commit.all(), key=lambda commit: commit._date)
-
         for commit in commits[:-number]:
             print(f"commit {commit._id}")
             print(f"Date:   {commit._date}")
@@ -32,15 +31,45 @@ class TIG:
         """
         Compare the current version of the file with its last committed version. Print the differences in a unified diff format. Use a library for this.
         """
-        pass
+        working_dir = os.getcwd()
+        file_path = os.path.join(working_dir, filename)
+        if not os.path.exists(file_path):
+            print(f"File: {filename} does not exist")
+            return
+        
+        sorted_commits = sorted(Commit.all(), key=lambda commit: commit._date, reverse=True)
+        hash_of_files = []
+        for commit in sorted_commits:
+            for record in commit._manifest:
+                if record["filename"] == filename and record["hash"] not in hash_of_files:
+                    hash_of_files.append(record["hash"])
+                    if len(hash_of_files) == 2:
+                        break
+        if len(hash_of_files) < 2:
+            print(f"Not enough unique versions of {filename} to perform a diff.")
+            return
+        
+        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[0]}.txt")
+        path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[1]}.txt")
+        
+        with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
+            new_file_lines = new_file.readlines()
+            old_file_lines = old_file.readlines()
+            diff = unified_diff(
+                old_file_lines,
+                new_file_lines,
+                fromfile=f"{filename} (old)",
+                tofile=f"{filename} (new)",
+                lineterm=""
+            )
+            print("\n".join(diff))
+
 
     @staticmethod
     def is_repository() -> bool:
         """
         Check if the currect working directory is a tig-repository.
         """
-        import os
-
         return os.path.isdir(os.path.join(os.getcwd(), ".tig"))
 
 
