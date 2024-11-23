@@ -2,7 +2,6 @@ import os
 import shutil
 from record import Record
 
-
 class Backup:
     """
     Class that handles all the backup-ing; moving, deleting files and so on.
@@ -27,4 +26,32 @@ class Backup:
         """
         Restore the directory's files to the state of a specific commit ID. Use the 'Commit' class to get the files you need to move.
         """
-        pass
+        from commit import Commit
+
+        commit = None
+        for c in Commit.all():
+            if c._id == id:
+                commit = c
+                break
+        if commit == None:
+            print(f"No commit found with ID: {id}")
+            return
+        
+        restored_files = []
+        for record in commit.manifest():
+            print(record)
+            _, file_extension = os.path.splitext(record.filename)
+            source_path = os.path.join(".tig", "backup", record.hash + file_extension)
+            destination_path = os.path.join(os.getcwd(), record.filename)
+            restored_files.append(destination_path)
+            shutil.copy(source_path, destination_path)
+
+        for root, dirs, files in os.walk(os.getcwd()):
+            if root.startswith(os.path.join(os.getcwd(), ".tig")):
+                continue
+            for file in files:
+                file_path = os.path.join(root, file)
+                if file_path not in restored_files:
+                    os.remove(file_path)
+
+
