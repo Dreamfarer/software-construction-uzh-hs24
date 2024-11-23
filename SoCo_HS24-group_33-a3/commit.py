@@ -15,12 +15,12 @@ class Commit:
     Class that can be instanciated to represent one single commit but also serves all other functionalities that have to do with committing.
     """
 
-    def __init__(self, date: str, message: str, records: list[Record]) -> None:
+    def __init__(self, date: str, message: str, records: list[Record], commit_id: str = None) -> None:
 
-        self.__date = date
-        self.__message = message
-        self.__manifest = records
-        self.__id = self.__unique_id()
+        self._date = date
+        self._message = message
+        self._manifest = records
+        self._id = commit_id if commit_id else self.__unique_id()
 
     @staticmethod
     def commit(message: str) -> None:
@@ -68,31 +68,31 @@ class Commit:
         """
         Return the unique ID of the commit.
         """
-        return self.__id
+        return self._id
 
     def manifest(self) -> list[Record]:
         """
         Get all records in this commit.
         """
-        return self.__manifest
+        return self._manifest
 
     def files(self) -> list[str]:
         """
         Get all file names in this commit as a string.
         """
-        return [r[0] for r in self.__manifest]
+        return [r[0] for r in self._manifest]
 
     def write(self) -> "Commit":
         """
         Write a commit_xxx.json file containing the current variables.
         """
-        commit_filename = f".tig/commits/commit_{self.__id}_{self.__date.replace(' ','_').replace(':','-')}.json"
+        commit_filename = f".tig/commits/commit_{self._id}_{self._date.replace(' ','_').replace(':','-')}.json"
         os.makedirs(os.path.dirname(commit_filename), exist_ok=True)
         commit_data = {
-            "commit_id": self.__id,
-            "date": self.__date,
-            "message": self.__message,
-            "records": Record.to_dicts(self.__manifest),
+            "commit_id": self._id,
+            "date": self._date,
+            "message": self._message,
+            "records": Record.to_dicts(self._manifest),
         }
         with open(commit_filename, "w") as commit_file:
             json.dump(commit_data, commit_file, indent=4)
@@ -101,7 +101,7 @@ class Commit:
         """
         Generate a unique ID to identify the commit.
         """
-        data = self.__message + self.__date
+        data = self._message + self._date
         hash_code = sha256(data.encode()).hexdigest()
         return hash_code
 
@@ -109,4 +109,4 @@ class Commit:
         """
         String representation of this object. Used when printing via Print(some_commit).
         """
-        return f"{YELLOW}commit {self.__id}{RESET}\nDate: {self.__date}\n\n   {self.__message}\n"
+        return f"{YELLOW}commit {self._id}{RESET}\nDate: {self._date}\n\n   {self._message}\n"
