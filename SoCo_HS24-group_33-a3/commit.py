@@ -52,7 +52,13 @@ class Commit:
             """Convert a commit_xxx.json file to a 'Commit' object"""
             with open(file_path, "r") as commit_file:
                 json_dict = json.load(commit_file)
-                return Commit(**json_dict)
+                records = [Record(**record) for record in json_dict["records"]]
+                return Commit(
+                    date=json_dict["date"], 
+                    message=json_dict["message"], 
+                    records=records, 
+                    commit_id=json_dict["commit_id"]
+                )
 
         commit_folder = ".tig/commits"
         if not os.path.exists(commit_folder):
