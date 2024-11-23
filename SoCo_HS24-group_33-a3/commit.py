@@ -29,13 +29,18 @@ class Commit:
         Move the staged files to commited files '.status.json'.
         Add the timestamp in the filename. Copy the files to the backup.
         """
-        records = Status.staged()
+        staged_files = Status.staged()
+
+        if not staged_files:
+            print("No changes to commit.")
+            return
+        
         commit_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_commit = Commit(commit_date, message, records)
-        for record in records:
+        new_commit = Commit(commit_date, message, staged_files)
+        for record in staged_files:
             Status.move(record, Record.COMMITED)
         new_commit.write()
-        Backup.add(".tig/backup", records)
+        Backup.add(".tig/backup", staged_files)
 
     @staticmethod
     def all() -> list["Commit"]:
