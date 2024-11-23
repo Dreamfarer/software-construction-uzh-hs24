@@ -49,8 +49,9 @@ class TIG:
             print(f"Not enough unique versions of {filename} to perform a diff.")
             return
         
-        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[0]}.txt")
-        path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[1]}.txt")
+        _, file_extension = os.path.splitext(filename)
+        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[0]}{file_extension}")
+        path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{hash_of_files[1]}{file_extension}")
         
         with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
             new_file_lines = new_file.readlines()
