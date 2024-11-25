@@ -37,7 +37,7 @@ class Parser:
 
         # Command for 'log'
         log_parser = subparsers.add_parser("log", help="Show the commit history")
-        log_parser.add_argument("-N", type=int, default=5, help="Number of recent commits to display")
+        log_parser.add_argument("N", type=int, nargs="?", default=-5, help="Number of recent commits to display")
 
         # Command for 'status'
         status_parser = subparsers.add_parser("status", help="Show the current status of files")
@@ -56,9 +56,7 @@ class Parser:
         if not TIG.is_repository():
             return print("No repository has been found. Create it first with 'python tig.py init <path>'")
         Status.sync()
-        if args.command == "init":
-            TIG.init(args.directory)
-        elif args.command == "add":
+        if args.command == "add":
             Stage.add(args.filename)
         elif args.command == "commit":
             Commit.commit(args.commit_message)

@@ -7,6 +7,7 @@ class Record:
     MODIFIED = 1
     STAGED = 2
     COMMITED = 3
+    REPRESENT = {0: "untracked", 1: "modified", 2: "staged", 3: "commited"}
 
     def __init__(self, filename: str, status: int, hash: str = None) -> None:
         self.filename = filename
@@ -38,4 +39,4 @@ class Record:
         with open(absolute_path, "rb") as file:
             while chunk := file.read(4096):
                 sha1.update(chunk)
-        return sha1.hexdigest()
+        return sha1.hexdigest()[:8]

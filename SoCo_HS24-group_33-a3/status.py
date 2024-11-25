@@ -67,50 +67,65 @@ class Status:
         Status.__write_json(records)
 
     @staticmethod
-    def move(record: Record, status: int) -> None:
+    def move(record: Record, hash: str, status: int) -> None:
         """
         Move a record into another status (e.g., go from staged to committed).
         """
         records = Status.__read_json()
         for r in records:
             if r.filename == record.filename and r.hash == record.hash:
-                r.status = status  # Update status in-place
+                r.status = status
+                r.hash = hash
                 break
         else:
-            # If the record doesn't exist, add it with the new status
             record.status = status
             records.append(record)
         Status.__write_json(records)
 
-    # To-Do: Make prettier
     @staticmethod
     def status() -> None:
         """
         Print the current status of each file in the working directory, indicating if they are untracked, modified, staged, or committed.
         """
-        for record in Status.__read_json():
-            print(f"Filename: {record.filename} | Status: {record.status} | Hash: {record.hash}")
+        records = Status.__read_json()
+        max_filename_length = max(len(record.filename) for record in records)
+        max_status_length = max(len(Record.REPRESENT[record.status]) for record in records)
+        max_hash_length = max(len(record.hash) for record in records)
+        print(
+            f"{'Filename'.ljust(max_filename_length)} | {'Status'.ljust(max_status_length)} | {'Hash'.ljust(max_hash_length)}"
+        )
+        print("-" * (max_filename_length + max_status_length + max_hash_length + 6))
+        for record in records:
+            print(
+                f"{record.filename.ljust(max_filename_length)} | {Record.REPRESENT[record.status].ljust(max_status_length)} | {record.hash.ljust(max_hash_length)}"
+            )
 
     @staticmethod
     def sync() -> None:
         """
         Synchronize the current files in the working directory with the .status.json file.
-        If the filename or hash of a file has changed, call move() and update its status to Record.MODIFIED.
+        If the filename or hash of a file has changed, update its status accordingly.
         """
         current_records = Status.all()
         current_files = Status.__records()
         filename_lookup = {record.filename: record for record in current_records}
+        hash_lookup = {record.hash: record for record in current_records}
         for file_record in current_files:
             existing_record = filename_lookup.get(file_record.filename)
             if existing_record:
                 if existing_record.hash != file_record.hash:
-                    Status.move(existing_record, Record.MODIFIED)
+                    Status.move(existing_record, file_record.hash, Record.MODIFIED)
             else:
-                Status.add(file_record)
+                existing_by_hash = hash_lookup.get(file_record.hash)
+                if existing_by_hash:
+                    Status.move(existing_by_hash, file_record.hash, Record.MODIFIED)
+                else:
+                    Status.add(file_record)
         current_file_names = {file_record.filename for file_record in current_files}
         for record in current_records:
             if record.filename not in current_file_names:
-                Status.remove(record)
+                if record.hash not in {file_record.hash for file_record in current_files}:
+                    Status.remove(record)
 
     @staticmethod
     def __read_json() -> list[Record]:
