@@ -42,7 +42,6 @@ class TIG:
         status_file_hash = None
         Status.sync()
         status_records = Status.all()
-        print(status_records)
         for record in status_records:
             if record.filename == filename:
                 status_file_hash = record.hash
@@ -63,7 +62,7 @@ class TIG:
             return
 
         _, file_extension = os.path.splitext(filename)
-        path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{status_file_hash}{file_extension}")
+        path_of_newest_file = os.path.join(working_dir, filename)
         path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{commit_file_hash}{file_extension}")
 
         with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
