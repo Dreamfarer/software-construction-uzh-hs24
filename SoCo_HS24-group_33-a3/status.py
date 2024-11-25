@@ -87,8 +87,18 @@ class Status:
         """
         Print the current status of each file in the working directory, indicating if they are untracked, modified, staged, or committed.
         """
-        for record in Status.__read_json():
-            print(f"Filename: {record.filename} | Status: {record.status} | Hash: {record.hash}")
+        records = Status.__read_json()
+        max_filename_length = max(len(record.filename) for record in records)
+        max_status_length = max(len(Record.REPRESENT[record.status]) for record in records)
+        max_hash_length = max(len(record.hash) for record in records)
+        print(
+            f"{'Filename'.ljust(max_filename_length)} | {'Status'.ljust(max_status_length)} | {'Hash'.ljust(max_hash_length)}"
+        )
+        print("-" * (max_filename_length + max_status_length + max_hash_length + 6))
+        for record in records:
+            print(
+                f"{record.filename.ljust(max_filename_length)} | {Record.REPRESENT[record.status].ljust(max_status_length)} | {record.hash.ljust(max_hash_length)}"
+            )
 
     @staticmethod
     def sync() -> None:
