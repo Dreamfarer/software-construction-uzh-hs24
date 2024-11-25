@@ -104,22 +104,28 @@ class Status:
     def sync() -> None:
         """
         Synchronize the current files in the working directory with the .status.json file.
-        If the filename or hash of a file has changed, call move() and update its status to Record.MODIFIED.
+        If the filename or hash of a file has changed, update its status accordingly.
         """
         current_records = Status.all()
         current_files = Status.__records()
         filename_lookup = {record.filename: record for record in current_records}
+        hash_lookup = {record.hash: record for record in current_records}
         for file_record in current_files:
             existing_record = filename_lookup.get(file_record.filename)
             if existing_record:
                 if existing_record.hash != file_record.hash:
                     Status.move(existing_record, file_record.hash, Record.MODIFIED)
             else:
-                Status.add(file_record)
+                existing_by_hash = hash_lookup.get(file_record.hash)
+                if existing_by_hash:
+                    Status.move(existing_by_hash, file_record.hash, Record.MODIFIED)
+                else:
+                    Status.add(file_record)
         current_file_names = {file_record.filename for file_record in current_files}
         for record in current_records:
             if record.filename not in current_file_names:
-                Status.remove(record)
+                if record.hash not in {file_record.hash for file_record in current_files}:
+                    Status.remove(record)
 
     @staticmethod
     def __read_json() -> list[Record]:
