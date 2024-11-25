@@ -1,6 +1,7 @@
 import os
 import shutil
 from record import Record
+from status import Status
 
 
 class Backup:
@@ -46,10 +47,11 @@ class Backup:
             restored_files.append(destination_path)
             shutil.copy(source_path, destination_path)
 
-        for root, dirs, files in os.walk(os.getcwd()):
+        for root, _, files in os.walk(os.getcwd()):
+            untracked_files = [os.path.join(root, r.filename) for r in Status.untracked()]
             if root.startswith(os.path.join(os.getcwd(), ".tig")):
                 continue
             for file in files:
                 file_path = os.path.join(root, file)
-                if file_path not in restored_files:
+                if file_path not in restored_files and file_path not in untracked_files:
                     os.remove(file_path)
