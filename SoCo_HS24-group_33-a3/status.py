@@ -67,22 +67,21 @@ class Status:
         Status.__write_json(records)
 
     @staticmethod
-    def move(record: Record, status: int) -> None:
+    def move(record: Record, hash: str, status: int) -> None:
         """
         Move a record into another status (e.g., go from staged to committed).
         """
         records = Status.__read_json()
         for r in records:
             if r.filename == record.filename and r.hash == record.hash:
-                r.status = status  # Update status in-place
+                r.status = status
+                r.hash = hash
                 break
         else:
-            # If the record doesn't exist, add it with the new status
             record.status = status
             records.append(record)
         Status.__write_json(records)
 
-    # To-Do: Make prettier
     @staticmethod
     def status() -> None:
         """
@@ -104,7 +103,7 @@ class Status:
             existing_record = filename_lookup.get(file_record.filename)
             if existing_record:
                 if existing_record.hash != file_record.hash:
-                    Status.move(existing_record, Record.MODIFIED)
+                    Status.move(existing_record, file_record.hash, Record.MODIFIED)
             else:
                 Status.add(file_record)
         current_file_names = {file_record.filename for file_record in current_files}

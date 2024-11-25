@@ -34,11 +34,11 @@ class Commit:
         if not staged_files:
             print("No changes to commit.")
             return
-        
+
         commit_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         new_commit = Commit(commit_date, message, staged_files)
         for record in staged_files:
-            Status.move(record, Record.COMMITED)
+            Status.move(record, record.hash, Record.COMMITED)
         new_commit.write()
         Backup.add(".tig/backup", staged_files)
 
@@ -54,10 +54,10 @@ class Commit:
                 json_dict = json.load(commit_file)
                 records = [Record(**record) for record in json_dict["records"]]
                 return Commit(
-                    date=json_dict["date"], 
-                    message=json_dict["message"], 
-                    records=records, 
-                    commit_id=json_dict["commit_id"]
+                    date=json_dict["date"],
+                    message=json_dict["message"],
+                    records=records,
+                    commit_id=json_dict["commit_id"],
                 )
 
         commit_folder = ".tig/commits"

@@ -2,6 +2,7 @@ import os
 import shutil
 from record import Record
 
+
 class Backup:
     """
     Class that handles all the backup-ing; moving, deleting files and so on.
@@ -36,10 +37,9 @@ class Backup:
         if commit == None:
             print(f"No commit found with ID: {id}")
             return
-        
+
         restored_files = []
         for record in commit.manifest():
-            print(record)
             _, file_extension = os.path.splitext(record.filename)
             source_path = os.path.join(".tig", "backup", record.hash + file_extension)
             destination_path = os.path.join(os.getcwd(), record.filename)
@@ -53,5 +53,3 @@ class Backup:
                 file_path = os.path.join(root, file)
                 if file_path not in restored_files:
                     os.remove(file_path)
-
-
