@@ -2,6 +2,8 @@ from commit import Commit
 from status import Status
 import os
 from difflib import unified_diff
+
+
 class TIG:
     """
     Class that holds all functionality which is tig general or simply does not belong to committing and staging.
@@ -12,7 +14,7 @@ class TIG:
         """Create a new '.tig/' folder inside the provided path."""
         path = os.path.join(dir, ".tig")
         if not os.path.exists(path):
-            os.mkdir(path)
+            os.makedirs(path)
 
     @staticmethod
     def log(number: int) -> None:
@@ -26,7 +28,6 @@ class TIG:
             print(f"Date:   {commit._date}")
             print(f"\n    {commit._message}\n")
 
-
     @staticmethod
     def diff(filename: str) -> None:
         """
@@ -37,7 +38,7 @@ class TIG:
         if not os.path.exists(file_path):
             print(f"File: {filename} does not exist")
             return
-        
+
         status_file_hash = None
         Status.sync()
         status_records = Status.all()
@@ -49,7 +50,7 @@ class TIG:
         if status_file_hash == None:
             print(f"File {filename} was not found in the current working directory.")
             return
-        
+
         all_commits = Commit.all()
         commit_file_hash = None
         for commit in all_commits:
@@ -60,23 +61,18 @@ class TIG:
         if commit_file_hash == None:
             print(f"No commit with {filename} was not found to perform a diff.")
             return
-        
+
         _, file_extension = os.path.splitext(filename)
         path_of_newest_file = os.path.join(working_dir, ".tig\\backup", f"{status_file_hash}{file_extension}")
         path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{commit_file_hash}{file_extension}")
-        
+
         with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
             new_file_lines = new_file.readlines()
             old_file_lines = old_file.readlines()
             diff = unified_diff(
-                old_file_lines,
-                new_file_lines,
-                fromfile=f"{filename} (old)",
-                tofile=f"{filename} (new)",
-                lineterm=""
+                old_file_lines, new_file_lines, fromfile=f"{filename} (old)", tofile=f"{filename} (new)", lineterm=""
             )
             print("\n".join(diff))
-
 
     @staticmethod
     def is_repository() -> bool:
