@@ -353,3 +353,85 @@ class Commit {
         return String.format("\033[33mcommit %s\033[0m\nDate: %s\n\n   %s\n", id, date, message);
     }
 }
+
+class Backup {
+    public static void add(String directory, Object records) {
+        List<Record> recordList = new ArrayList<>();
+        if (records instanceof Record) {
+            recordList.add((Record) records);
+        } else if (records instanceof List<?>) {
+            for (Object obj : (List<?>) records) {
+                if (obj instanceof Record) {
+                    recordList.add((Record) obj);
+                }
+            }
+        }
+
+        File dir = new File(directory);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        for (Record record : recordList) {
+            try {
+                String fileExtension = getFileExtension(record.getFilename());
+                String newFilename = record.getHash() + fileExtension;
+                Path destinationPath = Paths.get(directory, newFilename);
+                Files.copy(Paths.get(record.getFilename()), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Error copying file: " + record.getFilename(), e);
+            }
+        }
+    }
+
+    public static void checkout(String id) {
+        Commit commit = null;
+        for (Commit c : Commit.all()) {
+            if (c.getId().equals(id)) {
+                commit = c;
+                break;
+            }
+        }
+
+        if (commit == null) {
+            System.out.println("No commit found with ID: " + id);
+            return;
+        }
+
+        List<String> restoredFiles = new ArrayList<>();
+        for (Record record : commit.manifest()) {
+            try {
+                String fileExtension = getFileExtension(record.getFilename());
+                Path sourcePath = Paths.get(".tig", "backup", record.getHash() + fileExtension);
+                Path destinationPath = Paths.get(record.getFilename());
+                restoredFiles.add(destinationPath.toString());
+                Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("Error restoring file: " + record.getFilename(), e);
+            }
+        }
+
+        try {
+            List<String> untrackedFiles = Status.untracked();
+            Path currentDir = Paths.get("").toAbsolutePath();
+            Files.walk(currentDir)
+                .filter(path -> !Files.isDirectory(path))
+                .forEach(filePath -> {
+                    try {
+                        if (!restoredFiles.contains(filePath.toString()) && !untrackedFiles.contains(filePath.toString())) {
+                            Files.delete(filePath);
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error deleting file: " + filePath, e);
+                    }
+                });
+        } catch (IOException e) {
+            throw new RuntimeException("Error cleaning up untracked files", e);
+        }
+    }
+
+    private static String getFileExtension(String filename) {
+        int index = filename.lastIndexOf('.');
+        return index == -1 ? "" : filename.substring(index);
+    }
+}
