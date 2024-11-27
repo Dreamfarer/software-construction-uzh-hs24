@@ -194,3 +194,162 @@ class Stage {
         Status.add(new Record(filename, Record.STAGED));
     }
 }
+
+class Commit {
+    private String id;
+    private String date;
+    private String message;
+    private List<Record> manifest;
+
+    public Commit(String date, String message, List<Record> records, String commitId) {
+        this.date = date;
+        this.message = message;
+        this.manifest = records;
+        this.id = (commitId != null) ? commitId : generateUniqueId();
+    }
+
+    public static void commit(String message) {
+        List<Record> stagedFiles = Status.staged();
+        if (stagedFiles.isEmpty()) {
+            System.out.println("No changes to commit.");
+            return;
+        }
+
+        String commitDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        Commit newCommit = new Commit(commitDate, message, stagedFiles, null);
+
+        for (Record record : stagedFiles) {
+            Status.move(record, record.getHash(), Record.COMMITTED);
+        }
+
+        newCommit.write();
+        Backup.add(".tig/backup", stagedFiles);
+    }
+
+    public static List<Commit> all() {
+        List<Commit> commits = new ArrayList<>();
+        File commitFolder = new File(".tig/commits");
+        if (!commitFolder.exists() || !commitFolder.isDirectory()) {
+            return commits;
+        }
+
+        File[] commitFiles = commitFolder.listFiles((_, name) -> name.startsWith("commit_"));
+        if (commitFiles == null) {
+            return commits;
+        }
+
+        for (File file : commitFiles) {
+            commits.add(read(file));
+        }
+        return commits;
+    }
+
+    public static Commit latest() {
+        List<Commit> commits = all();
+        return commits.isEmpty() ? null : commits.get(commits.size() - 1);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public List<Record> manifest() {
+        return manifest;
+    }
+
+    public List<String> files() {
+        List<String> filenames = new ArrayList<>();
+        for (Record record : manifest) {
+            filenames.add(record.getFilename());
+        }
+        return filenames;
+    }
+
+    public void write() {
+        String commitFilename = String.format(".tig/commits/commit_%s_%s.json", id,
+                date.replace(" ", "_").replace(":", "-"));
+        File commitFile = new File(commitFilename);
+        commitFile.getParentFile().mkdirs();
+
+        try (FileWriter writer = new FileWriter(commitFile)) {
+            StringBuilder json = new StringBuilder();
+            json.append("{\n");
+            json.append("\"commit_id\": \"").append(id).append("\",\n");
+            json.append("\"date\": \"").append(date).append("\",\n");
+            json.append("\"message\": \"").append(message).append("\",\n");
+            json.append("\"records\": [\n");
+            for (int i = 0; i < manifest.size(); i++) {
+                Record record = manifest.get(i);
+                json.append("  {\n");
+                json.append("    \"filename\": \"").append(record.getFilename()).append("\",\n");
+                json.append("    \"status\": ").append(record.getStatus()).append(",\n");
+                json.append("    \"hash\": \"").append(record.getHash()).append("\"\n");
+                json.append("  }");
+                if (i < manifest.size() - 1) {
+                    json.append(",");
+                }
+                json.append("\n");
+            }
+            json.append("]\n");
+            json.append("}\n");
+
+            writer.write(json.toString());
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing commit file: " + commitFilename, e);
+        }
+    }
+
+    private String generateUniqueId() {
+        String data = message + date;
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] hash = sha256.digest(data.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.substring(0, 8);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
+    }
+
+    private static Commit read(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line.trim());
+            }
+
+            String jsonString = json.toString();
+            String id = extractValue(jsonString, "commit_id");
+            String date = extractValue(jsonString, "date");
+            String message = extractValue(jsonString, "message");
+
+            List<Record> records = new ArrayList<>();
+            String recordsJson = jsonString.substring(jsonString.indexOf("\"records\": [") + 11, jsonString.lastIndexOf("]"));
+            String[] recordObjects = recordsJson.split("\\},\\{");
+            for (String recordJson : recordObjects) {
+                String filename = extractValue(recordJson, "filename");
+                int status = Integer.parseInt(extractValue(recordJson, "status"));
+                String hash = extractValue(recordJson, "hash");
+                records.add(new Record(filename, status, hash));
+            }
+
+            return new Commit(date, message, records, id);
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading commit file: " + file.getAbsolutePath(), e);
+        }
+    }
+
+    private static String extractValue(String json, String key) {
+        String pattern = "\"" + key + "\":\\s*\"([^\"]+)\"";
+        return json.replaceAll(pattern, "$1");
+    }
+
+    @Override
+    public String toString() {
+        return String.format("\033[33mcommit %s\033[0m\nDate: %s\n\n   %s\n", id, date, message);
+    }
+}
