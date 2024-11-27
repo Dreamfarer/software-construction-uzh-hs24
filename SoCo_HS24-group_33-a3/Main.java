@@ -188,3 +188,9 @@ class Record {
         return hexString.toString();
     }
 }
+
+class Stage {
+    public static void add(String filename) {
+        Status.add(new Record(filename, Record.STAGED));
+    }
+}
