@@ -115,3 +115,76 @@ class Parser {
         System.out.println("  checkout <commit_id>  Restore files to a specific commit state");
     }
 }
+
+class Record {
+    public static final int UNTRACKED = 0;
+    public static final int MODIFIED = 1;
+    public static final int STAGED = 2;
+    public static final int COMMITTED = 3;
+    public static final String[] REPRESENT = {"untracked", "modified", "staged", "committed"};
+
+    private String filename;
+    private int status;
+    private String hash;
+
+    public Record(String filename, int status) {
+        this(filename, status, null);
+    }
+
+    public Record(String filename, int status, String hash) {
+        this.filename = filename;
+        this.status = status;
+        this.hash = hash != null ? hash : getHash(filename);
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public java.util.Map<String, Object> toDict() {
+        java.util.Map<String, Object> recordMap = new java.util.HashMap<>();
+        recordMap.put("filename", this.filename);
+        recordMap.put("hash", this.hash);
+        recordMap.put("status", this.status);
+        return recordMap;
+    }
+
+    public static List<java.util.Map<String, Object>> toDicts(List<Record> records) {
+        List<java.util.Map<String, Object>> dicts = new ArrayList<>();
+        for (Record record : records) {
+            dicts.add(record.toDict());
+        }
+        return dicts;
+    }
+    public static String getHash(String filename) {
+        File file = new File(filename);
+        String absolutePath;
+        try {
+            absolutePath = file.getCanonicalPath();
+        } catch (IOException e) {
+            throw new RuntimeException("Error getting canonical path for file: " + filename, e);
+        }
+
+        MessageDigest sha1;
+        try {
+            sha1 = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-1 algorithm not found", e);
+        }
+        sha1.update(absolutePath.getBytes());
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : sha1.digest()) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    }
+}
