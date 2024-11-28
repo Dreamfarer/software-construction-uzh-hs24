@@ -204,6 +204,9 @@ class Record {
 
 class Stage {
     public static void add(String filename) {
+        if (Status.IsIgnored(filename)) {
+            System.out.println("File " + filename + " is ignored and can't be staged.");
+        }
         Status.add(new Record(filename, Record.STAGED));
     }
 }
@@ -459,6 +462,25 @@ class Backup {
 
 class Status {
     public static final Path STATUS_FILE = Paths.get(".tig", ".status.json");
+    private static final Path TIGIGNORE_FILE = Paths.get(".tig", ".tigignore");
+    private static Set<String> ignoredFiles;
+
+    public static boolean IsIgnored(String filename) {
+        if (ignoredFiles == null) {
+            loadIgnoredFiles();
+        }
+        return ignoredFiles.contains(filename);
+    }
+
+    private static void loadIgnoredFiles() {
+        ignoredFiles = new HashSet<>();
+        if (Files.exists(TIGIGNORE_FILE)) {
+            try {
+                ignoredFiles.addAll(Files.readAllLines(TIGIGNORE_FILE).stream().map(String::trim).collect(Collectors.toSet()));
+            } catch (IOException e) {
+            }
+        }
+    }
 
     public static List<Record> untracked() {
         return readJson().stream().filter(record -> record.getStatus() == Record.UNTRACKED).collect(Collectors.toList());
@@ -619,7 +641,7 @@ class Status {
     private static List<Record> records() {
         List<Record> records = new ArrayList<>();
         try {
-            Files.walk(Paths.get(".")).filter(Files::isRegularFile).filter(path -> !path.toString().contains(".tig")).forEach(path -> {
+            Files.walk(Paths.get(".")).filter(Files::isRegularFile).filter(path -> !path.toString().contains(".tig")).filter(path -> !IsIgnored(path.toString())).forEach(path -> {
                 String relativePath = Paths.get(".").relativize(path).toString();
                 records.add(new Record(relativePath, Record.UNTRACKED));
             });
