@@ -439,7 +439,7 @@ class Backup {
 
 class Status {
     public static final Path STATUS_FILE = Paths.get(".tig", ".status.json");
-
+    
     private static List<Record> readJson() {
         try {
             if (Files.exists(Paths.get(STATUS_FILE))) {
@@ -457,8 +457,17 @@ class Status {
         return new ArrayList<>();
     }
 
-    private static void writeJson(List<Record> records) {
-        return;
-    } 
+    public static void writeJson(List<Record> records) {
+        try {
+            JSONArray jsonArray = new JSONArray();
+            for (Record record : records) {
+                jsonArray.put(record.toJson());
+            }
+            Files.writeString(Paths.get(STATUS_FILE), jsonArray.toString(4));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }
