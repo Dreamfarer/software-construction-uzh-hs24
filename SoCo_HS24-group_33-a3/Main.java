@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import jdk.jshell.JShellConsole;
 
 public class Main {
@@ -439,6 +440,18 @@ class Backup {
 
 class Status {
     public static final Path STATUS_FILE = Paths.get(".tig", ".status.json");
+
+    public static List<Record> untracked() {
+        return readJson().stream().filter(record -> record.getStatus() == Record.UNTRACKED).collect(Collectors.toList());
+    }
+
+    public static List<Record> modified() {
+        return readJson().stream().filter(record -> record.getStatus() == Record.MODIFIED).collect(Collectors.toList());
+    }
+
+    public static List<Record> staged() {
+        return readJson().stream().filter(record -> record.getStatus() == Record.COMMITTED).collect(Collectors.toList());
+    }
     
     private static List<Record> readJson() {
         try {
