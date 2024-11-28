@@ -7,8 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import jdk.jshell.JShellConsole;
-
-
+import difflib.DiffUtils;
+import difflib.Patch;
 
 
 public class Main {
@@ -615,6 +615,7 @@ class Status {
         return json.replaceAll(pattern, "$1");
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     private static List<Record> records() {
         List<Record> records = new ArrayList<>();
         try {
@@ -630,6 +631,7 @@ class Status {
 }
 
 public class TIG {
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void init(String dir) {
         Path path = Paths.get(dir, ".tig");
         if (!Files.exists(path)) {
@@ -653,6 +655,7 @@ public class TIG {
         }
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void diff(String filename) {
         Path workingDir = Paths.get(System.getProperty("user.dir"));
         Path filePath = workingDir.resolve(filename);
@@ -700,15 +703,10 @@ public class TIG {
 
             List<String> newFileLines = newFileReader.lines().collect(Collectors.toList());
             List<String> oldFileLines = oldFileReader.lines().collect(Collectors.toList());
+            
+            Patch<String> patch = DiffUtils.diff(oldFileLines,newFileLines);
+            patch.getDeltas().forEach(System.out::println);
 
-            List<String> diff = UnifiedDiffUtils.generateUnifiedDiff(
-                filename + " (old)",
-                filename + " (new)",
-                oldFileLines,
-                newFileLines,
-                0
-            );
-            diff.forEach(System.out::println);
 
         } catch (IOException e) {
             e.printStackTrace();
