@@ -495,6 +495,20 @@ class Status {
         writeJson(records);
     }
 
+    public static void status() {
+        List<Record> records = readJson();
+        int maxFilenameLength = records.stream().mapToInt(r -> r.getFilename().length()).max().orElse(0);
+        int maxStatusLength = records.stream().mapToInt(r -> Record.REPRESENT[r.getStatus()].length()).max().orElse(0);
+        int maxHashLength = records.stream().mapToInt(r -> r.getHash().length()).max().orElse(0);
+
+        System.out.printf("%-" + maxFilenameLength + "s | %-" + maxStatusLength + "s | %-" + maxHashLength + "s%n", "Filename", "Status", "Hash");
+        System.out.println("-".repeat(maxFilenameLength + maxStatusLength + maxHashLength + 6));
+
+        for (Record record : records) {
+            System.out.printf("%-" + maxFilenameLength + "s | %-" + maxStatusLength + "s | %-" + maxHashLength + "s%n", record.getFilename(), Record.REPRESENT[record.getStatus()], record.getHash());
+        }
+    }
+
     
     
     private static List<Record> readJson() {
