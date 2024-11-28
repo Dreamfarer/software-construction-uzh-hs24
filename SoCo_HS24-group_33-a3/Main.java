@@ -452,6 +452,30 @@ class Status {
     public static List<Record> staged() {
         return readJson().stream().filter(record -> record.getStatus() == Record.COMMITTED).collect(Collectors.toList());
     }
+
+    public static List<Record> all() {
+        return readJson();
+    }
+
+    public static void add(Record record) {
+        List<Record> records = readJson();
+        for (int i = 0; i < records.size(); i++) {
+            Record r = records.get(i);
+            if (r.getFilename().equals(record.getFilename()) || r. getHash().equals(record.getHash())) {
+                records.set(i, record);
+                writeJson(records);
+                return;
+            }
+        }
+        records.add(record);
+        writeJson(records);
+    }
+
+    public static void remove(Record record) {
+        List<Record> records = readJson();
+        records = records.stream().filter(r -> !(r.getFilename().equals(record.getFilename()) && r.getHash().equals(record.getHash()))).collect(Collectors.toList());
+        writeJson(records);
+    }
     
     private static List<Record> readJson() {
         try {
