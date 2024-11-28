@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import jdk.jshell.JShellConsole;
 
 public class Main {
     public static void main(String[] args) {
@@ -434,4 +435,30 @@ class Backup {
         int index = filename.lastIndexOf('.');
         return index == -1 ? "" : filename.substring(index);
     }
+}
+
+class Status {
+    public static final Path STATUS_FILE = Paths.get(".tig", ".status.json");
+
+    private static List<Record> readJson() {
+        try {
+            if (Files.exists(Paths.get(STATUS_FILE))) {
+                String content = Files.readSring(Paths.get(STATUS_FILE));
+                List<Record> records = new ArrayList<>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject obj = jsonArray.getJSONObject(i);
+                    records.add(new Record(obj.getString("filename"), obj.getInt("status"), obj.getString("hash")));
+                }
+                return records;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    private static void writeJson(List<Record> records) {
+        return;
+    } 
+
 }
