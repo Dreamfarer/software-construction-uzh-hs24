@@ -563,42 +563,60 @@ class Status {
         }
     }
 
-    public static List<Record> readJson() {
-        File statusFile = new File(STATUS_FILE);
+    private static List<Record> readJson() {
         List<Record> records = new ArrayList<>();
+        if (Files.exists(STATUS_FILE)) {
+            File statusFile = STATUS_FILE.toFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(statusFile))) {
+                StringBuilder json = new StringBuilder();
+                String line;
+                while((line = reader.readLine()) != null) {
+                    json.append(line.trim());
+                }
+                String jsonString = json.toString();
+                String recordsJson = jsonString.substring(jsonString.indexOf("[") + 1, jsonString.lastIndexOf("]"));
+                String[] recordObjects = recordsJson.split("\\},\\{");
 
-        if (statusFile.exists()) {
-            ObjectMapper mapper = new ObjectMapper();
-
-            try {
-                List<Map<String, Object>> jsonData = mapper.readValue(statusFile, new TypeReference<List<Map<String, Object>>>() {});
-                for (Map<String, Object> recordData : jsonData) {
-                    String filename = (String) recordData.get("filename");
-                    int status = (Integer) recordData.get("status");
-                    String hash = (String) recordData.get("hash");
+                for (String recordJson : recordObjects) {
+                    String filename = extractValue(recordJson, "filename");
+                    int status = Integer.parseInt(extractValue(recordJson, "status"));
+                    String hash = extractValue(recordJson, "hash");
                     records.add(new Record(filename, status, hash));
                 }
             } catch (IOException e) {
-                throw new RuntimeException("Error reading JSON file: " + STATUS_FILE, e);
+                throw new RuntimeException("Error reading JSON file: " + statusFile.getAbsolutePath(), e);
             }
         }
-
         return records;
     }
+    
 
 
     public static void writeJson(List<Record> records) {
-        File statusFile = new File(STATUS_FILE);
-        ObjectMapper mapper = new ObjectMapper();
+        File statusFile = STATUS_FILE.toFile();
+        statusFile.getParentFile().mkdirs();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(statusFile))) {
+            writer.write("[\n");
+            for (int i = 0; i < records.size(); i++) {
+                Record record = records.get(i);
+                String recordJson = String.format("{\"filename\":\"%s\",\"status\":%d,\"hash\":\"%s\"}", record.getFilename(), record.getStatus(), record.getHash());
+                writer.write(" " + recordJson);
+                if (i < records.size() -1) {
+                    writer.write(",\n");
+                } else {
+                    writer.write("\n");
+                }
+            }
+            writer.write("]");
 
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        try {
-            List<java.util.Map<String, Object>> recordsAsDicts = Record.toDicts(records);
-            mapper.writeValue(statusFile, recordsAsDicts);
         } catch (IOException e) {
-            throw new RuntimeException("Error writing to JSON file: " + STATUS_FILE, e);
+            throw new RuntimeException("Error writing JSON file: " + statusFile, e);
         }
+    }
+
+    private static String extractValue(String json, String key) {
+        String pattern = "\"" + key + "\":\\s*\"([^\"]+)\"";
+        return json.replaceAll(pattern, "$1");
     }
 
     private static List<Record> records() {
