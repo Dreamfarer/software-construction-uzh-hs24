@@ -509,7 +509,34 @@ class Status {
         }
     }
 
-    
+    public static void sync() {
+        List<Record> currentRecords = all();
+        List<Record> currentFiles = records();
+        Map<String, Record> filenameLookup = currentRecords.stream().collect(Collectors.toMap(Record::getFilename, r -> r, (a,b) -> b));
+        Map<String, Record> hash_lookup = currentRecords.stream().collect(Collectors.toMap(Record::getHash, r -> r, (a,b) -> b));
+
+        for (Record fileRecord : currentFiles) {
+            Record existingRecord = filenameLookup.get(fileRecord.getFilename());
+            if (existingRecord != null) {
+                if (!existingRecord.getHash().equals(fileRecord.getHash())) {
+                    move(existingRecord, fileRecord.getHash(), Record.MODIFIED);
+                }
+            } else {
+                Record existingByHash = hash_lookup.get(fileRecord.getHash());
+                if (existingByHash != null) {
+                    move(existingByHash, fileRecord.getHash(), Record.MODIFIED);
+                } else {
+                    add(fileRecord);
+                }
+            }
+        }
+        Set<String> currentFileNames = currentFiles.stream().map(Record::getFilename).collect(Collectors.toSet());
+        for (Record record : currentRecords) {
+            if (!currentFileNames.contains(record.getFilename()) && currentFiles.stream().noneMatch(r -> r.getHash().equals(record.getHash()))) {
+                remove(record);
+            }
+        }
+    }
     
     private static List<Record> readJson() {
         try {
