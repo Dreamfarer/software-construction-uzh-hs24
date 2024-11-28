@@ -152,6 +152,14 @@ class Record {
         return hash;
     }
 
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
     public java.util.Map<String, Object> toDict() {
         java.util.Map<String, Object> recordMap = new java.util.HashMap<>();
         recordMap.put("filename", this.filename);
@@ -415,7 +423,7 @@ class Backup {
         }
 
         try {
-            List<String> untrackedFiles = Status.untracked();
+            List<Record> untrackedFiles = Status.untracked();
             Path currentDir = Paths.get("").toAbsolutePath();
             Files.walk(currentDir)
                 .filter(path -> !Files.isDirectory(path))
@@ -451,35 +459,39 @@ class Status {
     }
 
     public static List<Record> staged() {
+        return readJson().stream().filter(record -> record.getStatus() == Record.STAGED).collect(Collectors.toList());
+    }
+
+    public static List<Record> commited() {
         return readJson().stream().filter(record -> record.getStatus() == Record.COMMITTED).collect(Collectors.toList());
     }
 
     public static List<Record> all() {
-        return readJson();
+        return Status.readJson();
     }
 
     public static void add(Record record) {
-        List<Record> records = readJson();
+        List<Record> records = Status.readJson();
         for (int i = 0; i < records.size(); i++) {
             Record r = records.get(i);
             if (r.getFilename().equals(record.getFilename()) || r. getHash().equals(record.getHash())) {
                 records.set(i, record);
-                writeJson(records);
+                Status.writeJson(records);
                 return;
             }
         }
         records.add(record);
-        writeJson(records);
+        Status.writeJson(records);
     }
 
     public static void remove(Record record) {
-        List<Record> records = readJson();
+        List<Record> records = Status.readJson();
         records = records.stream().filter(r -> !(r.getFilename().equals(record.getFilename()) && r.getHash().equals(record.getHash()))).collect(Collectors.toList());
-        writeJson(records);
+        Status.writeJson(records);
     }
 
     public static void move(Record record, String hash, int status) {
-        List<Record> records = readJson();
+        List<Record> records = Status.readJson();
         boolean found = false;
         for (Record r : records) {
             if (r.getFilename().equals(record.getFilename()) && r.getHash().equals(record.getHash())) {
@@ -660,7 +672,6 @@ public class TIG {
                 newFileLines,
                 0
             );
-
             diff.forEach(System.out::println);
 
         } catch (IOException e) {
