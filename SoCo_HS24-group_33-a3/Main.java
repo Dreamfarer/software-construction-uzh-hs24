@@ -476,6 +476,26 @@ class Status {
         records = records.stream().filter(r -> !(r.getFilename().equals(record.getFilename()) && r.getHash().equals(record.getHash()))).collect(Collectors.toList());
         writeJson(records);
     }
+
+    public static void move(Record record, String hash, int status) {
+        List<Record> records = readJson();
+        boolean found = false;
+        for (Record r : records) {
+            if (r.getFilename().equals(record.getFilename()) && r.getHash().equals(record.getHash())) {
+                r.setStatus(status);
+                r.setHash(hash);
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            record.setStatus(status);
+            records.add(record);
+        }
+        writeJson(records);
+    }
+
+    
     
     private static List<Record> readJson() {
         try {
