@@ -65,7 +65,7 @@ class Parser {
 
     private static void handleInit(String[] args) {
         String directory = args.length > 1 ? args[1] : ".";
-        TIG.init(directory);
+        Tig.init(directory);
     }
 
     private static void handleAdd(String[] args) {
@@ -88,7 +88,7 @@ class Parser {
 
     private static void handleLog(String[] args) {
         int n = args.length > 1 ? Integer.parseInt(args[1]) : -5;
-        TIG.log(n);
+        Tig.log(n);
     }
 
     private static void handleDiff(String[] args) {
@@ -97,7 +97,7 @@ class Parser {
             return;
         }
         String filename = args[1];
-        TIG.diff(filename); 
+        Tig.diff(filename); 
     }
 
     private static void handleCheckout(String[] args) {
