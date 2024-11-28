@@ -6,8 +6,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import jdk.internal.org.objectweb.asm.TypeReference;
 import jdk.jshell.JShellConsole;
 import difflib.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -262,6 +266,14 @@ class Commit {
 
     public String getId() {
         return id;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public List<Record> manifest() {
@@ -525,8 +537,8 @@ class Status {
     public static void sync() {
         List<Record> currentRecords = all();
         List<Record> currentFiles = records();
-        Map<String, Record> filenameLookup = currentRecords.stream().collect(Collectors.toMap(Record::getFilename, r -> r, (a,b) -> b));
-        Map<String, Record> hash_lookup = currentRecords.stream().collect(Collectors.toMap(Record::getHash, r -> r, (a,b) -> b));
+        Map<String, Record> filenameLookup = currentRecords.stream().collect(Collectors.toMap(Record::getFilename, r -> r, (_,b) -> b));
+        Map<String, Record> hash_lookup = currentRecords.stream().collect(Collectors.toMap(Record::getHash, r -> r, (_,b) -> b));
 
         for (Record fileRecord : currentFiles) {
             Record existingRecord = filenameLookup.get(fileRecord.getFilename());
@@ -551,31 +563,41 @@ class Status {
         }
     }
 
-    private static List<Record> readJson() {
-        try {
-            if (Files.exists(STATUS_FILE)) {
-                String content = Files.readString(STATUS_FILE);
-                JSONArray jsonArray = new JSONArray(content);
-                List<Record> records = new ArrayList<>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject obj = jsonArray.getJSONObject(i);
-                    records.add(new Record(obj.getString("filename"), obj.getInt("status"), obj.getString("hash")));
+    public static List<Record> readJson() {
+        File statusFile = new File(STATUS_FILE);
+        List<Record> records = new ArrayList<>();
+
+        if (statusFile.exists()) {
+            ObjectMapper mapper = new ObjectMapper();
+
+            try {
+                List<Map<String, Object>> jsonData = mapper.readValue(statusFile, new TypeReference<List<Map<String, Object>>>() {});
+                for (Map<String, Object> recordData : jsonData) {
+                    String filename = (String) recordData.get("filename");
+                    int status = (Integer) recordData.get("status");
+                    String hash = (String) recordData.get("hash");
+                    records.add(new Record(filename, status, hash));
                 }
-                return records;
+            } catch (IOException e) {
+                throw new RuntimeException("Error reading JSON file: " + STATUS_FILE, e);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return new ArrayList<>();
+
+        return records;
     }
 
+
     public static void writeJson(List<Record> records) {
+        File statusFile = new File(STATUS_FILE);
+        ObjectMapper mapper = new ObjectMapper();
+
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
         try {
-            List<Map<String, Object>> dictList = records.stream().map(Record::toDict).collect(Collectors.toList());
-            JSONArray jsonArray = new JSONArray(dictList);
-            Files.writeString(STATUS_FILE, jsonArray.toString(4));
+            List<java.util.Map<String, Object>> recordsAsDicts = Record.toDicts(records);
+            mapper.writeValue(statusFile, recordsAsDicts);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error writing to JSON file: " + STATUS_FILE, e);
         }
     }
 
@@ -643,7 +665,7 @@ public class TIG {
         String commitFileHash = null;
 
         for (Commit commit : allCommits) {
-            for (Record record : commit.getManifest()) {
+            for (Record record : commit.manifest()) {
                 if (record.getFilename().equals(filename)) {
                     commitFileHash = record.getHash();
                     break;
