@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
 public class Main {
@@ -84,7 +86,7 @@ class Parser {
     }
 
     private static void handleLog(String[] args) {
-        int n = args.length > 1 ? Integer.parseInt(args[1]) : -5;
+        int n = args.length > 1 ? Integer.parseInt(args[1]) : 5;
         Tig.log(n);
     }
 
@@ -176,21 +178,21 @@ class Record {
     }
     public static String getHash(String filename) {
         File file = new File(filename);
-        String absolutePath;
-        try {
-            absolutePath = file.getCanonicalPath();
-        } catch (IOException e) {
-            throw new RuntimeException("Error getting canonical path for file: " + filename, e);
-        }
-
         MessageDigest sha1;
         try {
             sha1 = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-1 algorithm not found", e);
         }
-        sha1.update(absolutePath.getBytes());
-
+        try (InputStream fis = new FileInputStream(file)) {
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = fis.read(buffer)) != -1) {
+                sha1.update(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading file for hashing: " + filename, e);
+        }
         StringBuilder hexString = new StringBuilder();
         for (byte b : sha1.digest()) {
             hexString.append(String.format("%02x", b));
@@ -349,8 +351,11 @@ class Commit {
             String message = extractValue(jsonString, "message");
 
             List<Record> records = new ArrayList<>();
-            String recordsJson = jsonString.substring(jsonString.indexOf("\"records\": [") + 11, jsonString.lastIndexOf("]"));
-            String[] recordObjects = recordsJson.split("\\},\\{");
+            String recordsJson = jsonString.substring(jsonString.indexOf("\"records\": [") + 11, jsonString.lastIndexOf("]") + 1);
+            if (recordsJson.trim().isEmpty()) {
+                throw new IllegalStateException("No records found in JSON");
+            }
+            String[] recordObjects = recordsJson.split("(?<=\\}),\\s*(?=\\{)");
             for (String recordJson : recordObjects) {
                 String filename = extractValue(recordJson, "filename");
                 int status = Integer.parseInt(extractValue(recordJson, "status"));
@@ -365,9 +370,16 @@ class Commit {
     }
 
     private static String extractValue(String json, String key) {
-        String pattern = "\"" + key + "\":\\s*\"([^\"]+)\"";
-        return json.replaceAll(pattern, "$1");
+        String pattern = "\"" + key + "\"\\s*:\\s*\"?([^\"]+?)\"?\\s*(,|})";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(json);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        } else {
+            throw new IllegalArgumentException("Key " + key + " not found in JSON: " + json);
+        }
     }
+
 
     @Override
     public String toString() {
@@ -424,7 +436,7 @@ class Backup {
             try {
                 String fileExtension = getFileExtension(record.getFilename());
                 Path sourcePath = Paths.get(".tig", "backup", record.getHash() + fileExtension);
-                Path destinationPath = Paths.get(record.getFilename());
+                Path destinationPath = Paths.get(record.getFilename()).toAbsolutePath();
                 restoredFiles.add(destinationPath.toString());
                 Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -434,12 +446,17 @@ class Backup {
 
         try {
             List<Record> untrackedFiles = Status.untracked();
+            Set<String> untrackedFilePaths = untrackedFiles.stream()
+                    .map(r -> Paths.get(r.getFilename()).toAbsolutePath().toString())
+                    .collect(Collectors.toSet());
             Path currentDir = Paths.get("").toAbsolutePath();
             Files.walk(currentDir)
                 .filter(path -> !Files.isDirectory(path))
+                .filter(path -> !path.startsWith(currentDir.resolve(".tig")))
                 .forEach(filePath -> {
                     try {
-                        if (!restoredFiles.contains(filePath.toString()) && !untrackedFiles.contains(filePath.toString())) {
+                        String absoluteFilePath = filePath.toAbsolutePath().toString();
+                        if (!restoredFiles.contains(absoluteFilePath) && !untrackedFilePaths.contains(absoluteFilePath)) {
                             Files.delete(filePath);
                         }
                     } catch (IOException e) {
@@ -538,11 +555,14 @@ class Status {
     }
 
     public static void status() {
+        sync();
         List<Record> records = readJson();
-        int maxFilenameLength = records.stream().mapToInt(r -> r.getFilename().length()).max().orElse(0);
-        int maxStatusLength = records.stream().mapToInt(r -> Record.REPRESENT[r.getStatus()].length()).max().orElse(0);
-        int maxHashLength = records.stream().mapToInt(r -> r.getHash().length()).max().orElse(0);
-
+    
+        int defaultMinWidth = 10;
+        int maxFilenameLength = records.stream().mapToInt(r -> r.getFilename().length()).max().orElse(defaultMinWidth);
+        int maxStatusLength = records.stream().mapToInt(r -> Record.REPRESENT[r.getStatus()].length()).max().orElse(defaultMinWidth);
+        int maxHashLength = records.stream().mapToInt(r -> r.getHash().length()).max().orElse(defaultMinWidth);
+    
         System.out.printf("%-" + maxFilenameLength + "s | %-" + maxStatusLength + "s | %-" + maxHashLength + "s%n", "Filename", "Status", "Hash");
         System.out.println("-".repeat(maxFilenameLength + maxStatusLength + maxHashLength + 6));
 
@@ -592,7 +612,7 @@ class Status {
                 }
                 String jsonString = json.toString();
                 String recordsJson = jsonString.substring(jsonString.indexOf("[") + 1, jsonString.lastIndexOf("]"));
-                String[] recordObjects = recordsJson.split("\\},\\{");
+                String[] recordObjects = recordsJson.split("(?<=\\}),(?=\\{)");
 
                 for (String recordJson : recordObjects) {
                     String filename = extractValue(recordJson, "filename");
@@ -630,8 +650,14 @@ class Status {
     }
 
     private static String extractValue(String json, String key) {
-        String pattern = "\"" + key + "\":\\s*\"([^\"]+)\"";
-        return json.replaceAll(pattern, "$1");
+        String pattern = "\"" + key + "\":\"?([^\"]+?)\"?(,|})";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(json);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        } else {
+            throw new IllegalArgumentException("Key " + key + " not found in JSON: " + json);
+        }
     }
 
     @SuppressWarnings("CallToPrintStackTrace")

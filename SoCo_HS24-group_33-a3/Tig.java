@@ -1,12 +1,22 @@
 import java.io.*;
 import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import difflib.DiffUtils;
-import difflib.Patch;
+import com.github.difflib.DiffUtils;
+import com.github.difflib.patch.Patch;
 
 
-public class Tig {
+
+class Tig {
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            System.out.println("No command provided.");
+            return;
+        }
+        Parser.parse(args);
+    }
     @SuppressWarnings("CallToPrintStackTrace")
     public static void init(String dir) {
         Path path = Paths.get(dir, ".tig");
@@ -20,10 +30,15 @@ public class Tig {
     }
 
     public static void log(int number) {
-        List<Commit> commits = Commit.all().stream().sorted(Comparator.comparing(Commit::getDate)).collect(Collectors.toList());
-        
-        int start = Math.max(0, commits.size() - number);
-        for(int i = start; i < commits.size(); i++) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        List<Commit> commits = Commit.all().stream()
+            .sorted(Comparator.comparing(commit -> LocalDateTime.parse(commit.getDate(), formatter)))
+            .collect(Collectors.toList());
+    
+        int totalCommits = commits.size();
+        int start = Math.max(0, totalCommits - number);
+    
+        for (int i = start; i < totalCommits; i++) {
             Commit commit = commits.get(i);
             System.out.println("commit " + commit.getId());
             System.out.println("Date:    " + commit.getDate());
