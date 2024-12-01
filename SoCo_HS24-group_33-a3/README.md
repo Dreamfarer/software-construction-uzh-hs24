@@ -42,6 +42,19 @@ Below is a high-level description of the key classes:
   Handles lightweight commands like `init`, `log`, and `diff`. It initializes repositories, retrieves commit logs, and computes differences between file states. As the main entry point for Tig, it forwards commands to the `Parser`.
 
 ## Java Translation
+Our Python implementation’s object-oriented design significantly simplified the transition to Java. However, several challenges specific to Java emerged:
+
+- **Imports and Libraries**
+  Python’s standard library includes tools like `difflib`, but Java lacks a direct equivalent. For the `Tig.diff` functionality, we used the [java-diff-utils](https://github.com/java-diff-utils/java-diff-utils) library, which required additional configuration.
+
+- **Error Handling**
+  Java’s stricter error-handling requirements demanded careful planning, especially when exceptions needed to propagate through multiple layers of the program. This was more structured than Python’s flexible, on-demand approach to error handling.
+
+- **JSON Handling**
+  While Python's native JSON library simplifies serialization, Java lacks a built-in equivalent. To maintain simplicity, we implemented custom JSON parsing logic instead of relying on third-party libraries.
+
+- **AI Usage**
+  During the Python-to-Java translation, we used ChatGPT to generate Java code from Python input. While this provided a strong foundation, the generated code required manual corrections and integration with our existing codebase. However, this process deepened our understanding of Java’s syntax and modules.
 
 ## Java Installation 
 
