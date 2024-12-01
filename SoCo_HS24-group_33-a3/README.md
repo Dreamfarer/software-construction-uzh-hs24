@@ -56,6 +56,35 @@ Our Python implementation’s object-oriented design significantly simplified th
 - **AI Usage**
   During the Python-to-Java translation, we used ChatGPT to generate Java code from Python input. While this provided a strong foundation, the generated code required manual corrections and integration with our existing codebase. However, this process deepened our understanding of Java’s syntax and modules.
 
-## Java Installation 
+## Java Installation
+Below are two methods for installing dependencies and compiling the code. Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
+
+### Method 1: Maven (Recommended)
+1. Install [Maven](https://maven.apache.org/install.html).
+2. Navigate to the root directory of Tig, which contains the `pom.xml` file.
+3. Run the following command:
+   ```sh
+   mvn compile
+   ```
+4. Use Tig as follows:
+   ```sh
+   java Tig init repo_java
+   cd repo_java
+   java ../Tig add file.txt
+   ```
+
+### Method 2: Manual Compilation
+1. Download the [java-diff-utils-4.15.jar](https://repo1.maven.org/maven2/io/github/java-diff-utils/java-diff-utils/4.15/java-diff-utils-4.15.jar) file.
+2. Place it in the root directory alongside the Java source code.
+3. Compile Tig using this command:
+   ```sh
+   javac -cp "java-diff-utils-4.15.jar;." Main.java
+   ```
+4. Use Tig as follows:
+   ```sh
+   java -cp "java-diff-utils-4.15.jar;." Tig init repo_java
+   cd repo_java
+   java -cp "..\java-diff-utils-4.15.jar;.." Tig add file.txt
+   ```
 
 ## Disclaimer
