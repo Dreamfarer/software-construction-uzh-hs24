@@ -88,3 +88,6 @@ Below are two methods for installing dependencies and compiling the code. Please
    ```
 
 ## Disclaimer
+We aimed to distribute the workload as evenly as possible, and overall, this was successful. However, the commit count varies due to different committing habits. Additionally, [Dreamfarer](https://gitlab.uzh.ch/Dreamfarer) handled most of the merge requests, resulting in a higher number of commits on his part.
+
+ChatGPT was primarily used as a tool for documentation, grammar correction, and debugging guidance. While the AI provided valuable help during the Python-to-Java translation, all core implementations in Python were authored exclusively by the group members. For more details on AI usage in the Java translation, refer to the [Java Translation](#java-translation) section.
