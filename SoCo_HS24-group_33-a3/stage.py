@@ -4,12 +4,18 @@ from status import Status
 
 class Stage:
     """
-    Class that cannot be instanciated. Only serves all functionality related to staging.
+    Handles the `add` command by instructing `Status` to mark files for inclusion in the next commit.
     """
 
     @staticmethod
     def add(filename: str) -> None:
         """
-        Add the provided file to the '.status.json' file if it has not already been staged before.
+        Instructing 'Status' to add the file to the '.status.json' staging area.
+
+        Args:
+            filename (str): The name of the file to be staged.
+
+        Returns:
+            None
         """
         Status.add(Record(filename, Record.STAGED))
