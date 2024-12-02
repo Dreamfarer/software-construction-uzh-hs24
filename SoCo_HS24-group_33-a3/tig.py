@@ -6,12 +6,20 @@ from difflib import unified_diff
 
 class TIG:
     """
-    Class that holds all functionality which is tig general or simply does not belong to committing and staging.
+    Handles lightweight commands like `init`, `log`, and `diff`. It initializes repositories, retrieves commit logs, and computes differences between file states. As the main entry point for Tig, it forwards commands to the `Parser`.
     """
 
     @staticmethod
     def init(dir: str) -> None:
-        """Create a new '.tig/' folder inside the provided path."""
+        """
+        Creates a new '.tig/' folder inside the provided path.
+
+        Args:
+            dir (str): The directory in which to create the '.tig/' folder.
+
+        Returns:
+            None
+        """
         path = os.path.join(dir, ".tig")
         if not os.path.exists(path):
             os.makedirs(path)
@@ -19,8 +27,13 @@ class TIG:
     @staticmethod
     def log(number: int) -> None:
         """
-        Print the commit ID, commit date, and commit message of the last N commits. If -N is not given, the default N=5 is used.
-        Essentially pretty print the string representation of each commit of 'Commit.all()'
+        Prints the commit ID, commit date, and commit message of the last N commits. If `number` is not provided, defaults to N=5.
+
+        Args:
+            number (int): The number of recent commits to display.
+
+        Returns:
+            None
         """
         commits = sorted(Commit.all(), key=lambda commit: commit._date)
         for commit in commits[:-number]:
@@ -31,14 +44,23 @@ class TIG:
     @staticmethod
     def diff(filename: str) -> None:
         """
-        Compare the current version of the file with its last committed version. Print the differences in a unified diff format. Use a library for this.
+        Compares the current version of a file with its last committed version. Prints the differences in a unified diff format.
+
+        Args:
+            filename (str): The name of the file to compare.
+
+        Returns:
+            None
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            ValueError: If the file is not found in the repository's status or commits.
         """
         working_dir = os.getcwd()
         file_path = os.path.join(working_dir, filename)
         if not os.path.exists(file_path):
             print(f"File: {filename} does not exist")
             return
-
         status_file_hash = None
         Status.sync()
         status_records = Status.all()
@@ -49,7 +71,6 @@ class TIG:
         if status_file_hash == None:
             print(f"File {filename} was not found in the current working directory.")
             return
-
         all_commits = Commit.all()
         commit_file_hash = None
         for commit in all_commits:
@@ -60,11 +81,9 @@ class TIG:
         if commit_file_hash == None:
             print(f"No commit with {filename} was not found to perform a diff.")
             return
-
         _, file_extension = os.path.splitext(filename)
         path_of_newest_file = os.path.join(working_dir, filename)
         path_of_second_file = os.path.join(working_dir, ".tig\\backup", f"{commit_file_hash}{file_extension}")
-
         with open(path_of_newest_file, "r") as new_file, open(path_of_second_file, "r") as old_file:
             new_file_lines = new_file.readlines()
             old_file_lines = old_file.readlines()
@@ -76,12 +95,18 @@ class TIG:
     @staticmethod
     def is_repository() -> bool:
         """
-        Check if the currect working directory is a tig-repository.
+        Checks if the current working directory is a TIG repository.
+
+        Returns:
+            bool: True if the current working directory is a TIG repository, False otherwise.
         """
         return os.path.isdir(os.path.join(os.getcwd(), ".tig"))
 
 
 if __name__ == "__main__":
+    """
+    Main entry point for the tig version control system. Forwards the commands to the `Parser`.
+    """
     from parser import Parser
 
     Parser.parse()
