@@ -10,8 +10,8 @@ _By Ceyhun, Gianluca and Mischa_
 - [Java Installation](#java-installation): Dependency installation and compilation guide
 - [Disclaimer](#disclaimer): Use of AI tools and commit distribution
 - [Python Walkthrough](#python-walkthrough): Step-by-step walkthrough with Python according to the use case outlined in the assignment
-- [Java Walkthrough](#Java-walkthrough): Step-by-step walkthrough with Java according to the use case outlined in the assignment
-- [Code Documentation](#interpreter-documentation): Comprehensive overview of the Python implementation
+- [Java Walkthrough](#java-walkthrough): Step-by-step walkthrough with Java according to the use case outlined in the assignment
+- [Code Documentation](#code-documentation): Comprehensive overview of the Python implementation
 
 ## Overview
 
