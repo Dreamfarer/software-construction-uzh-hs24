@@ -66,29 +66,13 @@ Our Python implementation’s object-oriented design significantly simplified th
 
 ## Java Installation
 
-Below are two methods for installing dependencies and compiling the code. Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
+Below is the suggested method for installing dependencies and compiling the code.
 
 > Make sure that you are using [openjdk](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21) >= `21.0.5` for `tig` to work seemlessly.
 
 > We are using unnamed variables (`_`) which is a preview feature in Java that must explicitly be enabled. Use `--enable-preview --release 21` when compiling and `--enable-preview` when executing `tig`.
 
-### Method 1: Maven (Recommended)
-
-1. Install [Maven](https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.zip).
-2. Navigate to the root directory of Tig, which contains the `pom.xml` file.
-3. Run the following command:
-   ```sh
-   mvn install
-   mvn compile
-   ```
-4. Use Tig as follows:
-   ```sh
-   java Tig init repo_java
-   cd repo_java
-   java -cp .. Tig add file.txt
-   ```
-
-### Method 2: Manual Compilation
+Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
 
 1. Download the [java-diff-utils-4.15.jar](https://repo1.maven.org/maven2/io/github/java-diff-utils/java-diff-utils/4.15/java-diff-utils-4.15.jar) file.
 2. Place it in the root directory alongside the Java source code.
@@ -255,7 +239,9 @@ The following Java step-by-step walkthrough closely mirrors the use case outline
 
 > Ensure that dynamically added files, such as `file.txt`, are encoded in UTF-8. Failure to do so may result in an error.
 
-> Because this Java step-by-step walkthrough was done on a Windows 11 machine, we had changed the encoding from `UTF-16 LE` to `UTF-8` after each `echo` command.
+> Because this Java step-by-step walkthrough was done on a Windows 11 machine, we had manually changed the encoding from `UTF-16 LE` to `UTF-8` after each `echo` command.
+
+Not shown in the requested walkthrough is the `.tigignore` file. When adding such a file into an initialized `tig` repository, all files listed in this file will be ignored by the Java implementation of `tig`.
 
 ### 1. Create a directory and initialize a `tig` repository:
 
