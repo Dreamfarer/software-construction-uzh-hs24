@@ -4,49 +4,72 @@ from record import Record
 
 
 class Status:
+    """
+    Manages the `.status.json` file, which dynamically tracks file states before each command execution. This class serves as an interface for querying and updating file states and also processes the `status` command.
+    """
 
     STATUS_FILE = os.path.join(".tig", ".status.json")
 
     @staticmethod
     def untracked() -> list[Record]:
         """
-        Return a list of untracked records.
+        Retrieves all untracked records.
+
+        Returns:
+            list[Record]: A list of untracked records.
         """
         return [r for r in Status.__read_json() if r.status == Record.UNTRACKED]
 
     @staticmethod
     def modified() -> list[Record]:
         """
-        Return a list of modified records.
+        Retrieves all modified records.
+
+        Returns:
+            list[Record]: A list of modified records.
         """
         return [r for r in Status.__read_json() if r.status == Record.MODIFIED]
 
     @staticmethod
     def staged() -> list[Record]:
         """
-        Return a list of staged records.
+        Retrieves all staged records.
+
+        Returns:
+            list[Record]: A list of staged records.
         """
         return [r for r in Status.__read_json() if r.status == Record.STAGED]
 
     @staticmethod
     def commited() -> list[Record]:
         """
-        Return a list of committed records.
+        Retrieves all committed records.
+
+        Returns:
+            list[Record]: A list of committed records.
         """
         return [r for r in Status.__read_json() if r.status == Record.COMMITED]
 
     @staticmethod
     def all() -> list[Record]:
         """
-        Return a list of all records.
+        Retrieves all records.
+
+        Returns:
+            list[Record]: A list of all records.
         """
         return Status.__read_json()
 
     @staticmethod
     def add(record: Record) -> None:
         """
-        Add a new record to the '.status.json' file.
-        If the record already exists (same filename or same hash), merely modify it without adding.
+        Add a new record to the '.status.json' file. If the record already exists (same filename or same hash), merely modify it without adding.
+
+        Args:
+            record (Record): The record to be added.
+
+        Returns:
+            None
         """
         records = Status.__read_json()
         for i, r in enumerate(records):
@@ -59,8 +82,13 @@ class Status:
     @staticmethod
     def remove(record: Record) -> None:
         """
-        Remove a specific record from the '.status.json' file.
-        Identifies the record by matching the filename and hash.
+        Remove a specific record from the '.status.json' file. Identifies the record by matching the filename and hash.
+
+        Args:
+            record (Record): The record to be removed.
+
+        Returns:
+            None
         """
         records = Status.__read_json()
         records = [r for r in records if not (r.filename == record.filename and r.hash == record.hash)]
@@ -70,6 +98,14 @@ class Status:
     def move(record: Record, hash: str, status: int) -> None:
         """
         Move a record into another status (e.g., go from staged to committed).
+
+        Args:
+            record (Record): The record to move.
+            hash (str): The new hash for the record.
+            status (int): The new status to assign to the record.
+
+        Returns:
+            None
         """
         records = Status.__read_json()
         for r in records:
@@ -86,6 +122,9 @@ class Status:
     def status() -> None:
         """
         Print the current status of each file in the working directory, indicating if they are untracked, modified, staged, or committed.
+
+        Returns:
+            None
         """
         records = Status.__read_json()
         max_filename_length = max(len(record.filename) for record in records)
@@ -103,8 +142,11 @@ class Status:
     @staticmethod
     def sync() -> None:
         """
-        Synchronize the current files in the working directory with the .status.json file.
+        Synchronize the current files in the working directory with the '.status.json' file.
         If the filename or hash of a file has changed, update its status accordingly.
+
+        Returns:
+            None
         """
         current_records = Status.all()
         current_files = Status.__records()
@@ -131,7 +173,10 @@ class Status:
     def __read_json() -> list[Record]:
         """
         Return the current records from the '.status.json' file.
-        Return an empty list, if the file is currently empty.
+
+        Returns:
+            list[Record]: A list of records read from the '.status.json' file.
+            If the file is empty or does not exist, returns an empty list.
         """
         if os.path.exists(Status.STATUS_FILE):
             with open(Status.STATUS_FILE, "r") as file:
@@ -145,6 +190,12 @@ class Status:
     def __write_json(records: list[Record]) -> None:
         """
         Write the records to the '.status.json' file.
+
+        Args:
+            records (list[Record]): A list of records to write to the '.status.json' file.
+
+        Returns:
+            None
         """
         with open(Status.STATUS_FILE, "w") as file:
             json.dump([r.to_dict() for r in records], file, indent=4)
@@ -154,6 +205,9 @@ class Status:
         """
         Get the records of each file in the current working directory as a Record instance.
         Each record is initalized with the status UNTRACKED, as all other files are already present in the '.status.json'
+
+        Returns:
+            list[Record]: A list of records representing the files in the current working directory.
         """
 
         records = []
