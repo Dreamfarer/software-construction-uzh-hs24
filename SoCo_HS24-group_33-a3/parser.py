@@ -7,13 +7,28 @@ from status import Status
 
 class Parser:
     """
-    Class that holds all functionality for command-line parsing.
+    Processes user commands and routes them to the appropriate classes for execution.
     """
 
     @staticmethod
     def parse() -> None:
         """
-        Parse command-line arguments and call the corresponding functions.
+        Parses command-line arguments and executes the appropriate functions based on the command.
+
+        Commands:
+            - `init`: Initialize a repository.
+            - `add`: Add a file to the staged state.
+            - `commit`: Commit staged files with a message.
+            - `log`: Display the commit history.
+            - `status`: Show the status of a file.
+            - `diff`: Display differences for a file.
+            - `checkout`: Restore files to a specific commit state.
+
+        Returns:
+            None
+
+        Raises:
+            SystemExit: Raised if incorrect arguments are provided or if `argparse` terminates.
         """
 
         import argparse
@@ -40,7 +55,7 @@ class Parser:
         log_parser.add_argument("N", type=int, nargs="?", default=-5, help="Number of recent commits to display")
 
         # Command for 'status'
-        status_parser = subparsers.add_parser("status", help="Show the current status of files")
+        status_parser = subparsers.add_parser("status", help="Show the current status of a file")
 
         # Command for 'diff'
         diff_parser = subparsers.add_parser("diff", help="Show differences for a file")
