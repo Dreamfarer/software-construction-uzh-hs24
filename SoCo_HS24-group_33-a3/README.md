@@ -67,6 +67,10 @@ Our Python implementation’s object-oriented design significantly simplified th
 
 Below are two methods for installing dependencies and compiling the code. Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
 
+Make sure that you are using [openjdk](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21) >= `21.0.5` for `tig` to work seemlessly.
+
+We are using unnamed variables (`_`) which is a preview feature in Java that must explicitly be enabled. Use `--enable-preview --release 21` when compiling and `--enable-preview` when executing `tig`.
+
 ### Method 1: Maven (Recommended)
 
 1. Install [Maven](https://maven.apache.org/install.html).
@@ -87,15 +91,18 @@ Below are two methods for installing dependencies and compiling the code. Please
 1. Download the [java-diff-utils-4.15.jar](https://repo1.maven.org/maven2/io/github/java-diff-utils/java-diff-utils/4.15/java-diff-utils-4.15.jar) file.
 2. Place it in the root directory alongside the Java source code.
 3. Compile Tig using this command:
-   ```sh
-   javac -cp "java-diff-utils-4.15.jar;." Main.java
-   ```
+
+```sh
+javac --enable-preview --release 21 -cp "java-diff-utils-4.15.jar;." Tig.java
+```
+
 4. Use Tig as follows:
-   ```sh
-   java -cp "java-diff-utils-4.15.jar;." Tig init repo_java
-   cd repo_java
-   java -cp "..\java-diff-utils-4.15.jar;.." Tig add file.txt
-   ```
+
+```sh
+java --enable-preview -cp "java-diff-utils-4.15.jar;." Tig init repo_java
+cd repo_java
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig add file.txt
+```
 
 ## Disclaimer
 
