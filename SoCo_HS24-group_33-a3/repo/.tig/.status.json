@@ -1,0 +1,12 @@
+[
+    {
+        "filename": "file.txt",
+        "hash": "5818c589",
+        "status": 1
+    },
+    {
+        "filename": "other_file.txt",
+        "hash": "a20d8634",
+        "status": 3
+    }
+]

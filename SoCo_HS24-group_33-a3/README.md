@@ -1,21 +1,27 @@
 # GROUP33 – Software Construction HS24 Task III
+
 **Implement our own version control system called tig**\
-*By Ceyhun, Gianluca and Mischa*
+_By Ceyhun, Gianluca and Mischa_
 
 ## Table of Contents
+
 - [Overview](#overview): Explanation and design decisions
 - [Java Translation](#java-translation): Challenges encountered during the Python-to-Java translation
 - [Java Installation](#java-installation): Dependency installation and compilation guide
 - [Disclaimer](#disclaimer): Use of AI tools and commit distribution
+- [Python Walkthrough](#python-walkthrough): Step-by-step walkthrough with `tig.py` according to the use case outline in the assignment
 - [Code Documentation](#interpreter-documentation): Comprehensive overview of the Python implementation
 
 ## Overview
+
 This section outlines our approach and the rationale behind the key design decisions for the Python implementation. For detailed information about individual classes and methods, please refer to the [Code Documentation](#code-documentation).
 
 ### Object-Oriented Design Principles
+
 From the start, we designed the Python implementation of Tig with Java's object-oriented structure in mind. By adhering to strict typing and modular design principles, we ensured the Python code was closely aligned with Java’s paradigms, reducing the complexity of translation.
 
 ### Command-Driven Architecture
+
 To enhance modularity, we implemented a class for each major command (e.g., `Backup`, `Commit`, `Stage`). These classes not only execute their respective commands but also provide interfaces for interaction with other components. Supporting classes like `Record` and `Parser`, as well as a general-purpose `Tig` class, complete the architecture.
 
 Below is a high-level description of the key classes:
@@ -24,7 +30,7 @@ Below is a high-level description of the key classes:
   Processes user commands and routes them to the appropriate classes for execution.
 
 - **Record (Helper Class)**
-  Represents entries in the repository's metadata files (e.g., commits and `.status.json`), holding attributes such as filenames, hashes, and statuses (untracked, modified, staged, or committed). 
+  Represents entries in the repository's metadata files (e.g., commits and `.status.json`), holding attributes such as filenames, hashes, and statuses (untracked, modified, staged, or committed).
 
 - **Backup (Command Class)**
   Handles file backups and processes the `checkout` command to restore the repository to a specific commit state.
@@ -42,6 +48,7 @@ Below is a high-level description of the key classes:
   Handles lightweight commands like `init`, `log`, and `diff`. It initializes repositories, retrieves commit logs, and computes differences between file states. As the main entry point for Tig, it forwards commands to the `Parser`.
 
 ## Java Translation
+
 Our Python implementation’s object-oriented design significantly simplified the transition to Java. However, several challenges specific to Java emerged:
 
 - **Imports and Libraries**
@@ -57,9 +64,11 @@ Our Python implementation’s object-oriented design significantly simplified th
   During the Python-to-Java translation, we used ChatGPT to generate Java code from Python input. While this provided a strong foundation, the generated code required manual corrections and integration with our existing codebase. However, this process deepened our understanding of Java’s syntax and modules.
 
 ## Java Installation
+
 Below are two methods for installing dependencies and compiling the code. Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
 
 ### Method 1: Maven (Recommended)
+
 1. Install [Maven](https://maven.apache.org/install.html).
 2. Navigate to the root directory of Tig, which contains the `pom.xml` file.
 3. Run the following command:
@@ -74,6 +83,7 @@ Below are two methods for installing dependencies and compiling the code. Please
    ```
 
 ### Method 2: Manual Compilation
+
 1. Download the [java-diff-utils-4.15.jar](https://repo1.maven.org/maven2/io/github/java-diff-utils/java-diff-utils/4.15/java-diff-utils-4.15.jar) file.
 2. Place it in the root directory alongside the Java source code.
 3. Compile Tig using this command:
@@ -88,9 +98,147 @@ Below are two methods for installing dependencies and compiling the code. Please
    ```
 
 ## Disclaimer
+
 We aimed to distribute the workload as evenly as possible, and overall, this was successful. However, the commit count varies due to different committing habits. Additionally, [Dreamfarer](https://gitlab.uzh.ch/Dreamfarer) handled most of the merge requests, resulting in a higher number of commits on his part.
 
 ChatGPT was primarily used as a tool for documentation, grammar correction, and debugging guidance. While the AI provided valuable help during the Python-to-Java translation, all core implementations in Python were authored exclusively by the group members. For more details on AI usage in the Java translation, refer to the [Java Translation](#java-translation) section.
+
+## Python Walkthrough
+
+The following Python step-by-step walkthrough closely mirrors the use case outlined in the assignment. The commands remain exactly the same; however, the structure has been slightly adjusted in steps 7, 8, and 9 to ensure there is always an output to show.
+
+### 1. Create a directory and initialize a `tig` repository:
+
+```powershell
+mkdir repo
+python tig.py init repo
+```
+
+### 2. Create two new files in the repository:
+
+```powershell
+cd repo
+echo "Initial content" > file.txt
+echo "Initial content of the other file" > other_file.txt
+python ../tig.py status
+```
+
+**Output:**
+
+```
+Filename       | Status    | Hash
+-------------------------------------
+file.txt       | untracked | 5818c589
+other_file.txt | untracked | a20d8634
+```
+
+### 3. Start tracking the files:
+
+```powershell
+python ../tig.py add file.txt
+python ../tig.py add other_file.txt
+python ../tig.py status
+```
+
+**Output:**
+
+```
+Filename       | Status | Hash
+----------------------------------
+file.txt       | staged | 5818c589
+other_file.txt | staged | a20d8634
+```
+
+### 4. Commit the files:
+
+```powershell
+python ../tig.py commit "Initial commit"
+python ../tig.py status
+```
+
+**Output:**
+
+```
+Filename       | Status   | Hash
+------------------------------------
+file.txt       | commited | 5818c589
+other_file.txt | commited | a20d8634
+```
+
+### 5. Modify one file:
+
+```powershell
+echo "Updated content" >> file.txt
+python ../tig.py status
+```
+
+**Output:**
+
+```
+Filename       | Status   | Hash
+------------------------------------
+file.txt       | modified | 1e72cd81
+other_file.txt | commited | a20d8634
+```
+
+### 6. Check the difference since the last commit:
+
+```powershell
+python ../tig.py diff file.txt
+```
+
+**Output:**
+
+```
+--- file.txt (old)
++++ file.txt (new)
+@@ -1,3 +1,5 @@
+ ÿþInitial content
+
+
+
++Updated content
+
++
+```
+
+### 7. Stage and commit the modified file:
+
+```powershell
+python ../tig.py add file.txt
+python ../tig.py commit "Updated content in file.txt"
+python ../tig.py log
+```
+
+**Output:**
+
+```
+commit f77a5c9b
+Date:   2024-12-02 11:39:46
+
+    Initial commit
+
+commit 272fb8d0
+Date:   2024-12-02 11:40:38
+
+    Updated content in file.txt
+```
+
+### 8. Reset (checkout) the repo to the first commit, making file.txt go back to it’s original content:
+
+```powershell
+python ../tig.py checkout f77a5c9b
+python ../tig.py status
+```
+
+**Output:**
+
+```
+Filename       | Status   | Hash
+------------------------------------
+file.txt       | modified | 5818c589
+other_file.txt | commited | a20d8634
+```
 
 ## Code Documentation
 
@@ -120,10 +268,9 @@ Add a backup of the provided files to the provided directory.
 - `directory` _str_ - The target directory where backups will be stored.
 - `records` _Record | list[Record]_ - The record(s) of files to be backed up.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="backup.Backup.checkout"></a>
 
@@ -140,10 +287,9 @@ Restore the working directory to the state of a specific commit.
 
 - `id` _str_ - The commit ID to restore to.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="commit.Commit"></a>
 
@@ -175,10 +321,9 @@ Initializes a Commit instance.
 - `records` _list[Record]_ - The records associated with this commit.
 - `commit_id` _str, optional_ - The unique identifier for the commit. Defaults to None.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="commit.Commit.commit"></a>
 
@@ -195,10 +340,9 @@ Creates a new commit and instructs a status chanage and the creation of a backup
 
 - `message` _str_ - The commit message.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="commit.Commit.all"></a>
 
@@ -322,6 +466,7 @@ def parse() -> None
 Parses command-line arguments and executes the appropriate functions based on the command.
 
 Commands:
+
 - `init`: Initialize a repository.
 - `add`: Add a file to the staged state.
 - `commit`: Commit staged files with a message.
@@ -332,8 +477,7 @@ Commands:
 
 **Returns**:
 
-  None
-
+None
 
 **Raises**:
 
@@ -365,14 +509,13 @@ Initializes a Record instance.
 - `status` _int_ - The status of the file (e.g., untracked, modified).
 - `hash` _str, optional_ - The hash of the file's content. Defaults to None.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="record.Record.to_dict"></a>
 
-#### to\_dict
+#### to_dict
 
 ```python
 def to_dict() -> dict
@@ -386,7 +529,7 @@ Convert the this record to a dictionary.
 
 <a id="record.Record.to_dicts"></a>
 
-#### to\_dicts
+#### to_dicts
 
 ```python
 @staticmethod
@@ -399,14 +542,13 @@ Convert a list of records to a list of dictionaries.
 
 - `records` _list[Record]_ - A list of records.
 
-
 **Returns**:
 
 - `list[dict]` - A list of dictionaries representing the records.
 
 <a id="record.Record.get_hash"></a>
 
-#### get\_hash
+#### get_hash
 
 ```python
 @staticmethod
@@ -418,7 +560,6 @@ Get the SHA-1 hash of a specific file in the current working directory. Reads th
 **Arguments**:
 
 - `filename` _str_ - The name of the file for which to compute the hash.
-
 
 **Returns**:
 
@@ -449,10 +590,9 @@ Instructing 'Status' to add the file to the '.status.json' staging area.
 
 - `filename` _str_ - The name of the file to be staged.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="status.Status"></a>
 
@@ -554,10 +694,9 @@ Add a new record to the '.status.json' file. If the record already exists (same 
 
 - `record` _Record_ - The record to be added.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="status.Status.remove"></a>
 
@@ -574,10 +713,9 @@ Remove a specific record from the '.status.json' file. Identifies the record by 
 
 - `record` _Record_ - The record to be removed.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="status.Status.move"></a>
 
@@ -596,10 +734,9 @@ Move a record into another status (e.g., go from staged to committed).
 - `hash` _str_ - The new hash for the record.
 - `status` _int_ - The new status to assign to the record.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="status.Status.status"></a>
 
@@ -614,7 +751,7 @@ Print the current status of each file in the working directory, indicating if th
 
 **Returns**:
 
-  None
+None
 
 <a id="status.Status.sync"></a>
 
@@ -630,7 +767,7 @@ If the filename or hash of a file has changed, update its status accordingly.
 
 **Returns**:
 
-  None
+None
 
 <a id="tig.TIG"></a>
 
@@ -657,10 +794,9 @@ Creates a new '.tig/' folder inside the provided path.
 
 - `dir` _str_ - The directory in which to create the '.tig/' folder.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="tig.TIG.log"></a>
 
@@ -677,10 +813,9 @@ Prints the commit ID, commit date, and commit message of the last N commits. If 
 
 - `number` _int_ - The number of recent commits to display.
 
-
 **Returns**:
 
-  None
+None
 
 <a id="tig.TIG.diff"></a>
 
@@ -697,11 +832,9 @@ Compares the current version of a file with its last committed version. Prints t
 
 - `filename` _str_ - The name of the file to compare.
 
-
 **Returns**:
 
-  None
-
+None
 
 **Raises**:
 
@@ -710,7 +843,7 @@ Compares the current version of a file with its last committed version. Prints t
 
 <a id="tig.TIG.is_repository"></a>
 
-#### is\_repository
+#### is_repository
 
 ```python
 @staticmethod
