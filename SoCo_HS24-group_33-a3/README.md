@@ -9,7 +9,8 @@ _By Ceyhun, Gianluca and Mischa_
 - [Java Translation](#java-translation): Challenges encountered during the Python-to-Java translation
 - [Java Installation](#java-installation): Dependency installation and compilation guide
 - [Disclaimer](#disclaimer): Use of AI tools and commit distribution
-- [Python Walkthrough](#python-walkthrough): Step-by-step walkthrough with `tig.py` according to the use case outline in the assignment
+- [Python Walkthrough](#python-walkthrough): Step-by-step walkthrough with Python according to the use case outlined in the assignment
+- [Java Walkthrough](#Java-walkthrough): Step-by-step walkthrough with Java according to the use case outlined in the assignment
 - [Code Documentation](#interpreter-documentation): Comprehensive overview of the Python implementation
 
 ## Overview
@@ -67,23 +68,24 @@ Our Python implementation’s object-oriented design significantly simplified th
 
 Below are two methods for installing dependencies and compiling the code. Please note that the instructions have been tested only on Windows 11 machines. Adjust accordingly for other operating systems.
 
-Make sure that you are using [openjdk](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21) >= `21.0.5` for `tig` to work seemlessly.
+> Make sure that you are using [openjdk](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-21) >= `21.0.5` for `tig` to work seemlessly.
 
-We are using unnamed variables (`_`) which is a preview feature in Java that must explicitly be enabled. Use `--enable-preview --release 21` when compiling and `--enable-preview` when executing `tig`.
+> We are using unnamed variables (`_`) which is a preview feature in Java that must explicitly be enabled. Use `--enable-preview --release 21` when compiling and `--enable-preview` when executing `tig`.
 
 ### Method 1: Maven (Recommended)
 
-1. Install [Maven](https://maven.apache.org/install.html).
+1. Install [Maven](https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.zip).
 2. Navigate to the root directory of Tig, which contains the `pom.xml` file.
 3. Run the following command:
    ```sh
+   mvn install
    mvn compile
    ```
 4. Use Tig as follows:
    ```sh
    java Tig init repo_java
    cd repo_java
-   java ../Tig add file.txt
+   java -cp .. Tig add file.txt
    ```
 
 ### Method 2: Manual Compilation
@@ -245,6 +247,138 @@ Filename       | Status   | Hash
 ------------------------------------
 file.txt       | modified | 5818c589
 other_file.txt | commited | a20d8634
+```
+
+## Java Walkthrough
+
+The following Java step-by-step walkthrough closely mirrors the use case outlined in the assignment. The commands remain exactly the same; however, the structure has been slightly adjusted in steps 7, 8, and 9 to ensure there is always an output to show.
+
+> Ensure that dynamically added files, such as `file.txt`, are encoded in UTF-8. Failure to do so may result in an error.
+
+> Because this Java step-by-step walkthrough was done on a Windows 11 machine, we had changed the encoding from `UTF-16 LE` to `UTF-8` after each `echo` command.
+
+### 1. Create a directory and initialize a `tig` repository:
+
+```powershell
+mkdir repo
+java --enable-preview -cp "java-diff-utils-4.15.jar;." Tig init repo_java
+```
+
+### 2. Create two new files in the repository:
+
+```powershell
+cd repo
+echo "Initial content" > file.txt
+echo "Initial content of the other file" > other_file.txt
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig status
+```
+
+**Output:**
+
+```
+Filename       | Status    | Hash
+---------------------------------------------------------------------
+file.txt       | untracked | 5b7a2de58b8cce817f2bf1861cd867c84fec99fc
+other_file.txt | untracked | 25976202155f414155552df4db4d09e9723c4a55
+```
+
+### 3. Start tracking the files:
+
+```powershell
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig add file.txt
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig add other_file.txt
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig status
+```
+
+**Output:**
+
+```
+Filename       | Status | Hash
+------------------------------------------------------------------
+file.txt       | staged | 5b7a2de58b8cce817f2bf1861cd867c84fec99fc
+other_file.txt | staged | 25976202155f414155552df4db4d09e9723c4a55
+```
+
+### 4. Commit the files:
+
+```powershell
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig commit "Initial commit"
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig status
+```
+
+**Output:**
+
+```
+Filename       | Status    | Hash
+---------------------------------------------------------------------
+file.txt       | committed | 5b7a2de58b8cce817f2bf1861cd867c84fec99fc
+other_file.txt | committed | 25976202155f414155552df4db4d09e9723c4a55
+```
+
+### 5. Modify one file:
+
+```powershell
+echo "Updated content" >> file.txt
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig status
+```
+
+**Output:**
+
+```
+Filename       | Status    | Hash
+---------------------------------------------------------------------
+file.txt       | modified  | 7734d9ea4b292504fa78d8dabb5a6d7c084f5aba
+other_file.txt | committed | 25976202155f414155552df4db4d09e9723c4a55
+```
+
+### 6. Check the difference since the last commit:
+
+```powershell
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig diff file.txt
+```
+
+**Output:**
+
+```
+[InsertDelta, position: 1, lines: [Updated content]]
+```
+
+### 7. Stage and commit the modified file:
+
+```powershell
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig add file.txt
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig commit "Updated content in file.txt"
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig log
+```
+
+**Output:**
+
+```
+commit 92727010
+Date:    2024-12-02 15:25:11
+
+     Initial commit
+
+commit 63f8123a
+Date:    2024-12-02 15:30:35
+
+     Updated content in file.txt
+```
+
+### 8. Reset (checkout) the repo to the first commit, making file.txt go back to it’s original content:
+
+```powershell
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig checkout 92727010
+java --enable-preview -cp "..\java-diff-utils-4.15.jar;.." Tig status
+```
+
+**Output:**
+
+```
+Filename       | Status    | Hash
+---------------------------------------------------------------------
+file.txt       | modified  | 5b7a2de58b8cce817f2bf1861cd867c84fec99fc
+other_file.txt | committed | 25976202155f414155552df4db4d09e9723c4a55
 ```
 
 ## Code Documentation
