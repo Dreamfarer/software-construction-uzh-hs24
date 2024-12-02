@@ -6,13 +6,20 @@ from status import Status
 
 class Backup:
     """
-    Class that handles all the backup-ing; moving, deleting files and so on.
+    Handles file backups and processes the `checkout` command to restore the repository to a specific commit state.
     """
 
     @staticmethod
     def add(directory: str, records: Record | list[Record]) -> None:
         """
-        Add a backup of the provided files (as record) to the provided directory.
+        Add a backup of the provided files to the provided directory.
+
+        Args:
+            directory (str): The target directory where backups will be stored.
+            records (Record | list[Record]): The record(s) of files to be backed up.
+
+        Returns:
+            None
         """
         if not isinstance(records, list):
             records = [records]
@@ -26,7 +33,13 @@ class Backup:
     @staticmethod
     def checkout(id: str) -> None:
         """
-        Restore the directory's files to the state of a specific commit ID. Use the 'Commit' class to get the files you need to move.
+        Restore the working directory to the state of a specific commit.
+
+        Args:
+            id (str): The commit ID to restore to.
+
+        Returns:
+            None
         """
         from commit import Commit
 
