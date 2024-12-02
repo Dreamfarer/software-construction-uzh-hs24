@@ -241,7 +241,7 @@ The following Java step-by-step walkthrough closely mirrors the use case outline
 
 > Because this Java step-by-step walkthrough was done on a Windows 11 machine, we had manually changed the encoding from `UTF-16 LE` to `UTF-8` after each `echo` command.
 
-Not shown in the requested walkthrough is the `.tigignore` file. When adding such a file into an initialized `tig` repository, all files listed in this file will be ignored by the Java implementation of `tig`.
+Not shown in the requested walkthrough is the `.tigignore` file. When this file is added to an initialized repository within the `.tig` folder, all files specified in it will be ignored by the Java implementation of `tig`.
 
 ### 1. Create a directory and initialize a `tig` repository:
 
